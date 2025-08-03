@@ -1,0 +1,208 @@
+/* Desactivar el scroll para que no se vea feito */
+body {
+    overflow: hidden;
+}
+
+@media(max-width: 768px) {
+    body {
+        overflow: scroll;
+    }
+}
+
+.b-m {
+    background: linear-gradient(to bottom, #e6e9ec 0%, #d7eaf4 100%);
+    height: 100vh;
+}
+
+.report-card {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.report-card-header {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+}
+
+.report-card-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+}
+
+/* Colores para los diferentes tipos de prioridad */
+.report-card.priority-alta .report-card-header::before {
+    background-color: #dc3545;
+}
+
+.report-card.priority-media .report-card-header::before {
+    background-color: #ffc107;
+}
+
+.report-card.priority-baja .report-card-header::before {
+    background-color: #28a745;
+}
+
+.report-card-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.report-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+}
+
+.report-card-body {
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.report-card-description {
+    margin-bottom: 1rem;
+    color: #555;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.9rem;
+}
+
+.report-card-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.report-card-info-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.report-card-info-item i {
+    margin-right: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.report-card-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.report-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Estilos para los badges de estado */
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    display: inline-block;
+    text-align: center;
+    font-weight: 500;
+}
+
+.status-abierto {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.status-proceso {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-resuelto {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-cerrado {
+    background-color: #6c757d;
+    color: white;
+}
+
+/* Estilos para los badges de tipo */
+.type-badge {
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    display: inline-block;
+    text-align: center;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+}
+
+/* Estilos para el modal */
+.modal-header {
+    border-bottom: 3px solid #f8f9fa;
+}
+
+/* Estilos para el panel de filtros */
+#filterPanel {
+    transition: all 0.3s ease;
+}
+
+/* Estilos para la vista vacía */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state h5 {
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive */
+@media (max-width: 767.98px) {
+    .report-card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .report-card-actions .btn {
+        width: 100%;
+    }
+}

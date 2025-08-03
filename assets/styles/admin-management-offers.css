@@ -1,0 +1,164 @@
+/* Desactivar el scroll para que no se vea feito */
+body {
+    overflow: hidden;
+}
+
+@media(max-width: 768px) {
+    body {
+        overflow: scroll;
+    }
+}
+
+/* Estilos generales optimizados */
+body {
+    overflow: hidden;
+}
+
+.b-m {
+    background: linear-gradient(to bottom, #e6e9ec 0%, #d7eaf4 100%);
+    height: 100vh;
+}
+
+.table-responsive {
+    overflow: visible;
+}
+
+/* Estilos para el dropdown */
+.action-dropdown {
+    position: relative;
+}
+
+.action-dropdown .dropdown-menu {
+    position: absolute;
+    right: 0;
+    left: auto;
+    top: 100%;
+    z-index: 9999;
+    min-width: 10rem;
+    margin-top: 0.125rem;
+}
+
+/* Centrado vertical en tablas */
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+/* Estilos para el modal */
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+}
+
+/* Evitar scroll en el body cuando el modal está abierto */
+body.modal-open {
+    overflow: hidden;
+    padding-right: 0 !important;
+}
+
+/* Estilos para el toast */
+.toast-container {
+    z-index: 11000;
+}
+
+/* Limitar el ancho de la barra de búsqueda y botón de filtros */
+.input-group {
+    max-width: 500px;
+}
+
+#filterBtn {
+    width: auto;
+}
+
+/* En dispositivos móviles, posicionar los toasts en la parte superior */
+@media (max-width: 767.98px) {
+    .toast-container {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        bottom: auto;
+        width: auto;
+    }
+
+    /* Limitar el número de toasts visibles en móvil */
+    .toast-container .toast:nth-child(n+3) {
+        display: none;
+    }
+
+    /* Ajustar ancho de la barra de búsqueda en móvil */
+    .input-group {
+        width: 100%;
+        max-width: none;
+    }
+
+    #filterBtn {
+        width: 100%;
+    }
+}
+
+/* Estilos para las tarjetas - Renombradas de user-card a offer-card */
+.offer-card {
+    border: 1px solid rgba(0, 0, 0, .125);
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+    background-color: #fff;
+}
+
+.offer-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
+    background-color: rgba(0, 0, 0, .03);
+}
+
+.offer-card-body {
+    padding: 1rem;
+}
+
+.offer-card-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(0, 0, 0, .125);
+}
+
+.offer-card-item {
+    margin-bottom: 0.5rem;
+}
+
+.offer-card-label {
+    font-weight: 600;
+    margin-right: 0.5rem;
+}
+
+/* Estilos para el panel de filtros */
+#filterPanel {
+    transition: all 0.3s ease;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    display: inline-block;
+    text-align: center;
+}
+
+.status-activo,
+.status-activa {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-inactivo,
+.status-pausada {
+    background-color: #6c757d;
+    color: white;
+}
+
+.status-cerrada {
+    background-color: #6c757d;
+    color: white;
+}

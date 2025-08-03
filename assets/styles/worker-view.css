@@ -1,0 +1,95 @@
+header {
+  height: 70px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.37);
+  position: relative;
+  z-index: 10;
+}
+.imgHeader {
+  width: 189px;
+}
+.logoW {
+  width: 45px;
+}
+.navbar {
+  padding-inline: clamp(0.8rem, 2vw, 2rem);
+  gap: 1.2rem;
+}
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+.navbar {
+  background-color: var(--blankest);
+  color: black;
+  padding-inline: clamp(0.8rem, 2vw, 2rem);
+  gap: 1.2rem;
+}
+.dropdown-item:hover {
+  color: var(--darkest);
+}
+.last-dropdown-item {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* search */
+
+.mySearch .form-control {
+  border-radius: 0 6px 6px 0;
+}
+#filterBtn {
+  border: none;
+  border-radius: 6px 0 0 6px;
+  transition: all ease-in 200ms;
+}
+
+#arrow {
+  color: var(--grey);
+  transition: all ease-in 200ms;
+}
+#filterBtn:not(.collapsed) #arrow svg {
+  transform: rotate(180deg); /* cuando está expandido */
+}
+.mySearch #searchBtn {
+  height: 35px;
+  position: absolute;
+  right: 1px;
+  box-shadow: none;
+  border: none;
+}
+#icon-brief {
+  position: absolute;
+  top: 11px;
+  left: 12px;
+  fill: var(--grey);
+}
+/* ofertas */
+
+.offers,
+.container-inf-offers {
+  height: 90vh;
+}
+.card-img-top {
+  object-fit: cover;
+  width: 10rem;
+  height: 10rem;
+}
+.btn-card-offer {
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+.btn-card-offer:hover {
+  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.25);
+}
+.btn-card-offer:focus {
+  border: var(--blue) 0.5px solid;
+}
+@media (max-width: 768px) {
+  .card-img-top {
+    width: 10rem;
+    height: 10rem;
+  }
+}

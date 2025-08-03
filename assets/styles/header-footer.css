@@ -1,0 +1,72 @@
+/* Header */
+
+header {
+  height: 70px;
+  box-shadow: 0 3px 10px rgb(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 10;
+}
+#imgHeader {
+  width: 189px;
+}
+.navbar {
+  padding-inline: clamp(0.8rem, 2vw, 2rem);
+  gap: 1.2rem;
+}
+
+.navbar-collapse {
+  gap: 2rem;
+}
+
+.nav-link:hover,
+.nav-link:focus,
+.dropdown-toggle:focus,
+.dropdown-item:hover {
+  color: rgb(37, 37, 37);
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='black' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Footer */
+footer {
+  gap: 4rem;
+  padding: 2rem 1rem;
+  padding-inline: 0.5rem;
+  background-color: var(--angel-blank);
+}
+
+.logo-Redes {
+  gap: clamp(0.8rem, 2rem, 2.2rem);
+  padding: clamp(0.2rem, 3vw, 3rem);
+}
+
+.redes {
+  width: clamp(3rem, 5vw, 5rem);
+}
+
+#imgFooter {
+  width: clamp(22rem, 40vw, 25rem);
+}
+
+footer ul {
+  gap: clamp(0.3rem, 1.5vw, 1.5rem);
+}
+
+#informacionFooter {
+  gap: clamp(1rem, 3vw, 1.1rem);
+  padding: 2rem 0;
+}
+
+#informacionFooter > ul > li > a {
+  color: var(--grey);
+  font-weight: 500;
+  text-decoration: none;
+  font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+}
+
+#informacionFooter > ul > li > a:hover {
+  color: var(--dark-grey);
+  font-weight: 500;
+}
