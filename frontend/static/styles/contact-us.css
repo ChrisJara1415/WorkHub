@@ -1,0 +1,14 @@
+.container-form-contact {
+  padding: 0;
+  padding-top: 6rem;
+}
+
+.form-contact {
+  background-color: var(--angel-blank);
+  margin-bottom: clamp(5rem, 30vw, 18rem);
+}
+
+textarea {
+  resize: none;
+  height: 200px;
+}

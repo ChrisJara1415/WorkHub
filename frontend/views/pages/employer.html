@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Empleador - Work Hub</title>
+    <link rel="stylesheet" href="../assets/lib/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/styles/admin-common.css">
+    <link rel="stylesheet" href="../assets/styles/header-footer.css">
+    <link rel="stylesheet" href="../assets/styles/employer-dashboard.css">
+    <link rel="icon" type="img/png" href="../assets/img/logo/favIcon.svg">
+</head>
+
+<body class="bk-angelblank">
+    <div id="header"></div>
+
+    <main class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="fw-bold">Panel de Empleador</h1>
+                <p class="text-muted">Gestiona tus ofertas de trabajo y revisa las postulaciones</p>
+            </div>
+        </div>
+
+        <!-- Tarjetas de estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
+                            <i class="bi bi-briefcase fs-4 text-primary"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0" id="totalOffers">0</h3>
+                            <p class="text-muted mb-0">Ofertas publicadas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
+                            <i class="bi bi-people fs-4 text-success"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0" id="totalApplications">0</h3>
+                            <p class="text-muted mb-0">Postulaciones recibidas</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
+                            <i class="bi bi-eye fs-4 text-warning"></i>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-0" id="totalViews">0</h3>
+                            <p class="text-muted mb-0">Visualizaciones</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de ofertas -->
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center mb-3">
+                <h2 class="fw-bold mb-0">Mis Ofertas</h2>
+                <button class="btn btn-warning text-white" onclick="openNewOfferModal()">
+                    <i class="bi bi-plus-circle me-2"></i>Nueva Oferta
+                </button>
+            </div>
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Título</th>
+                                        <th>Categoría</th>
+                                        <th>Estado</th>
+                                        <th>Postulaciones</th>
+                                        <th>Fecha</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="offersTableBody">
+                                    <!-- Las ofertas se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de postulaciones recientes -->
+        <div class="row">
+            <div class="col-12 mb-3">
+                <h2 class="fw-bold">Postulaciones Recientes</h2>
+            </div>
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Candidato</th>
+                                        <th>Oferta</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="applicationsTableBody">
+                                    <!-- Las postulaciones se cargarán dinámicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para crear/editar oferta -->
+    <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="offerModalLabel">Nueva Oferta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="offerForm" class="needs-validation" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="offerTitle" class="form-label">Título de la oferta</label>
+                                <input type="text" class="form-control" id="offerTitle" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese un título para la oferta
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="offerCategory" class="form-label">Categoría</label>
+                                <select class="form-select" id="offerCategory" required>
+                                    <option value="">Seleccionar categoría</option>
+                                    <option value="Jardinería">Jardinería</option>
+                                    <option value="Limpieza">Limpieza</option>
+                                    <option value="Piscinero">Piscinero</option>
+                                    <option value="Carpintería">Carpintería</option>
+                                    <option value="Mantenimiento">Mantenimiento</option>
+                                    <option value="Plomería">Plomería</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor seleccione una categoría
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="offerLocation" class="form-label">Ubicación</label>
+                                <input type="text" class="form-control" id="offerLocation" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese una ubicación
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="offerSalary" class="form-label">Salario (opcional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="offerSalary">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="offerDescription" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="offerDescription" rows="4" required></textarea>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese una descripción
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="offerRequirements" class="form-label">Requisitos</label>
+                                <textarea class="form-control" id="offerRequirements" rows="3" required></textarea>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese los requisitos
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="offerDeadline" class="form-label">Fecha límite</label>
+                                <input type="date" class="form-control" id="offerDeadline" required>
+                                <div class="invalid-feedback">
+                                    Por favor seleccione una fecha límite
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="offerStatus" class="form-label">Estado</label>
+                                <select class="form-select" id="offerStatus" required>
+                                    <option value="Activa">Activa</option>
+                                    <option value="Pausada">Pausada</option>
+                                    <option value="Cerrada">Cerrada</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveOfferBtn" onclick="saveOffer()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de postulación -->
+    <div class="modal fade" id="applicationDetailsModal" tabindex="-1" aria-labelledby="applicationDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="applicationDetailsModalLabel">Detalles de la Postulación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="applicationDetailsContent">
+                    <!-- El contenido se cargará dinámicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-success" id="acceptApplicationBtn">Aceptar</button>
+                    <button type="button" class="btn btn-danger" id="rejectApplicationBtn">Rechazar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de previsualización de oferta -->
+    <div class="modal fade" id="previewOfferModal" tabindex="-1" aria-labelledby="previewOfferModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewOfferModalLabel">Previsualización de la Oferta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="previewOfferContent">
+                    <!-- El contenido se cargará dinámicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de Toasts -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+        <!-- Los toasts se añadirán aquí -->
+    </div>
+
+    <script src="../assets/lib/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/scripts/partials.js"></script>
+    <script src="../assets/scripts/employer-dashboard.js"></script>
+</body>
+
+</html>

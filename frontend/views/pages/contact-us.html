@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Temporary jobs page">
+  <title>Work Hub</title>
+  <link rel="icon" type="img/png" href="../assets/img/logo/favIcon.svg">
+  <link rel="stylesheet" type="text/css" href="../assets/lib/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../assets/styles/common.css">
+  <link rel="stylesheet" type="text/css" href="../assets/styles/contact-us.css">
+  <link rel="stylesheet" type="text/css" href="../assets/styles/header-footer.css">
+  <link rel="stylesheet" type="text/css" href="../assets/styles/modal.css">
+</head>
+
+
+<body>
+<div id="header"></div>
+  <main>
+    <div class="container-form-contact bk-gr-triangle-blank d-flex flex-column  align-items-center  ldg-busqueda min-vh-100 position-relative">
+    <form class="row g-3 col-10 col-md-5 form-contact p-4 rounded-4 border border-1 border-dark-subtle ">
+      <div class="form-header d-flex gap-4">
+        <img src="/assets/img/logo/logoWK.svg" class="img-fluid col-1" alt="">
+        <h1>Contacta con nosotros</h1>
+      </div>
+      <div class="col-12">
+        <label for="inputAddress" class="form-label fs">Nombre completo</label>
+        <input type="text" class="form-control" id="inputAddress" placeholder="">
+      </div>
+      <div class="col-md-12">
+        <label for="inputEmail4" class="form-label fs">Correo</label>
+        <input type="email" class="form-control" id="inputEmail4">
+      </div>
+      <div class="col-md-6">
+        <label for="inputCity" class="form-label fs">Oficio</label>
+        <input type="text" class="form-control" id="inputCity">
+      </div>
+      <div class="col-md-6">
+        <label for="inputState" class="form-label fs">Municipio</label>
+        <select id="inputState" class="form-select">
+          <option selected>...</option>
+          <option>...</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <label for="inputMessage" class="form-label fs">Su mensaje</label>
+        <textarea class="form-control " id="inputMessage" placeholder="" maxlength="500"> </textarea>
+      </div>
+      <div class="col-12 d-flex flex-column justify-content-center align-items-center py-3">
+        <button type="submit" class="btn btn-stroke w-25">Enviar</button>
+      </div>
+    </form>
+    <img class="clouds img-fluid bottom-0 position-absolute mt-6" src="/assets/img/backgrounds/LowCloud.svg" alt="">
+  </div>
+    <!-- FOOTER-->
+    <div id="footer"></div>
+
+  </main>
+  <script src="../assets/lib/js/bootstrap.min.js"></script>
+  <script src="../assets/scripts/partials.js"></script>
+  <script src="../assets/scripts/modal.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,161 @@
+/* Estilos para el panel de empleador */
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 50rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-activa {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.status-pausada {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.status-cerrada {
+  background-color: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.status-pendiente {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.status-aceptada {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.status-rechazada {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.status-finalizada {
+  background-color: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.offer-preview-header {
+  background-color: #f8f9fa;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.offer-preview-section {
+  margin-bottom: 1.5rem;
+}
+
+.offer-preview-section h5 {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.candidate-info {
+  display: flex;
+  align-items: center;
+}
+
+.candidate-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+}
+
+.application-timeline {
+  position: relative;
+  padding-left: 2rem;
+  margin-top: 1.5rem;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 1.5rem;
+}
+
+.timeline-item:before {
+  content: "";
+  position: absolute;
+  left: -2rem;
+  top: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: #dee2e6;
+  z-index: 1;
+}
+
+.timeline-item:after {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 1rem;
+  width: 2px;
+  height: 100%;
+  background-color: #dee2e6;
+}
+
+.timeline-item:last-child:after {
+  display: none;
+}
+
+.timeline-item.active:before {
+  background-color: #0d6efd;
+}
+
+.timeline-date {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.timeline-content {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+@media (max-width: 767.98px) {
+  .table-responsive {
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+}
+
+/* Arreglar círculos para que sean perfectos */
+.rounded-circle {
+  width: 60px !important;
+  height: 60px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.rounded-circle i {
+  font-size: 1.5rem !important;
+}

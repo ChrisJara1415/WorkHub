@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Postulaciones</title>
+    <link rel="stylesheet" href="../assets/lib/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/styles/admin-management-applications.css">
+    <link rel="stylesheet" href="../assets/styles/common.css">
+    <link rel="stylesheet" href="../assets/styles/admin-sidebar-header.css">
+    <link rel="icon" type="img/png" href="../assets/img/logo/favIcon.svg">
+</head>
+
+<body class="bk-angelblank">
+    <!-- Navbar -->
+    <div id="admin-header">
+        <!-- Aquí va la Navbar -->
+    </div>
+
+    <!-- Sidebar y Main -->
+    <div class="d-flex">
+
+        <!-- Sidebar -->
+        <div id="admin-sidebar">
+            <!-- Aquí va la Sidebar -->
+        </div>
+
+        <!-- Main -->
+        <div class="b-m container-fluid p-4">
+            <div
+                class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <h2 class="fw-bold mb-0">Gestión de Postulaciones</h2>
+                <button class="btn btn-warning text-white" onclick="openApplicationModal()">Nueva Postulación</button>
+            </div>
+            <section class="bg-white p-3 p-md-4 rounded shadow-sm">
+                <div class="mb-4">
+                    <h4 class="fw-semibold">Postulaciones a Ofertas</h4>
+                    <p class="text-muted">Administra todas las postulaciones a ofertas de trabajo</p>
+                </div>
+                <div class="d-flex flex-column flex-md-row justify-content-between mb-3 gap-2">
+                    <!-- Barra de búsqueda -->
+                    <div class="input-group" style="max-width: 500px;">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 bk-angelblank" id="searchInput"
+                            placeholder="Buscar postulaciones..." oninput="searchApplications(this.value)">
+                    </div>
+                    <!-- Botón de filtros -->
+                    <button class="btn btn-outline-secondary" id="filterBtn" onclick="toggleFilterPanel()"
+                        style="width: auto;">
+                        <i class="bi bi-funnel me-1"></i> Filtrar
+                    </button>
+                </div>
+
+                <!-- Panel de filtros avanzados (oculto por defecto) -->
+                <div id="filterPanel" class="card mb-3 d-none">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Filtros Avanzados</h5>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label">Estado</label>
+                                <select class="form-select" id="filterEstado">
+                                    <option value="">Todos</option>
+                                    <option value="Pendiente">Pendiente</option>
+                                    <option value="Aceptada">Aceptada</option>
+                                    <option value="Rechazada">Rechazada</option>
+                                    <option value="Finalizada">Finalizada</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label">Oferta</label>
+                                <select class="form-select" id="filterOferta">
+                                    <option value="">Todas</option>
+                                    <!-- Se llenará dinámicamente -->
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label">Desde</label>
+                                <input type="date" class="form-control" id="filterDateFrom">
+                            </div>
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label class="form-label">Hasta</label>
+                                <input type="date" class="form-control" id="filterDateTo">
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-secondary me-2" onclick="resetFilters()">Limpiar</button>
+                            <button class="btn btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista de tabla para escritorio -->
+                <div class="table-responsive d-none d-md-block">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+                                <th>ID</th>
+                                <th>Oferta</th>
+                                <th>Candidato</th>
+                                <th>Empleador</th>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationTableBody"></tbody>
+                    </table>
+                </div>
+
+                <!-- Vista de tarjetas para móvil -->
+                <div class="d-md-none" id="applicationCardContainer">
+                    <!-- Las tarjetas de postulaciones se generarán aquí -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Modal de Postulación -->
+    <div class="modal fade" id="applicationModal" tabindex="-1" aria-labelledby="applicationModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="applicationModalLabel">Registrar Postulación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="applicationForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="applicationJob" class="form-label">Oferta</label>
+                            <select class="form-select" id="applicationJob" required>
+                                <!-- Se llenará dinámicamente -->
+                            </select>
+                            <div class="invalid-feedback">
+                                Debe seleccionar una oferta
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="applicationCandidate" class="form-label">Candidato</label>
+                            <input type="text" class="form-control" id="applicationCandidate" required>
+                            <div class="invalid-feedback">
+                                El candidato no puede estar vacío
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="applicationCompany" class="form-label">Empleador</label>
+                            <input type="text" class="form-control" id="applicationCompany" required>
+                            <div class="invalid-feedback">
+                                El empleador no puede estar vacío
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="applicationStatus" class="form-label">Estado</label>
+                            <select class="form-select" id="applicationStatus">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Aceptada">Aceptada</option>
+                                <option value="Rechazada">Rechazada</option>
+                                <option value="Finalizada">Finalizada</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="applicationNotes" class="form-label">Notas</label>
+                            <textarea class="form-control" id="applicationNotes" rows="4"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveApplicationBtn">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedor de Toasts -->
+    <div class="toast-container position-fixed p-3" id="toastContainer">
+        <!-- Los toasts se añadirán aquí -->
+    </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar esta postulación? Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalles de Postulación -->
+    <div class="modal fade" id="applicationDetailsModal" tabindex="-1" aria-labelledby="applicationDetailsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="applicationDetailsModalLabel">Detalles de la Postulación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="applicationDetailsContent">
+                    <!-- El contenido se generará dinámicamente -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/lib/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/scripts/admin-management-applications.js"></script>
+    <script src="../assets/scripts/partials.js"></script>
+</body>
+
+</html>

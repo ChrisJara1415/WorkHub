@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Temporary jobs page">
+  <title>Work Hub</title>
+  <link rel="icon" type="img/png" href="./assets/img/logo/favIcon.svg">
+  <link rel="stylesheet" type="text/css" href="./assets/lib/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="./assets/lib/splide/css/splide.min.css">
+  <link rel="stylesheet" type="text/css" href="./assets/styles/index.css">
+  <link rel="stylesheet" type="text/css" href="./assets/styles/header-footer.css">
+  <link rel="stylesheet" type="text/css" href="./assets/styles/modal.css">
+  <link rel="stylesheet" type="text/css" href="./assets/styles/common.css">
+</head>
+
+<body>
+  <div id="header"></div>
+  <main>
+    <!-- SEARCHING SECTION-->
+    <section id="ldg-busqueda "
+      class="ldg-busqueda bk-gr-triangle-blank fs d-flex flex-column align-items-center justify-content-center w-100 vh-100">
+      <h1 class=" text-center col-8 col-md-6">Conectamos talento con oportunidades</h1>
+      <p class="text-center col-10 col-md-7">WorkHub facilita el acceso a trabajos temporales en mantenimiento, limpieza y servicios
+        auxiliares.</p>
+
+      <div class="container-fluid">
+        <form class="mySearch d-flex m-auto gap-2 col-11 col-md-7" role="search">
+         <svg id="icon-brief" width="18" heigth="18" viewBox="0 0 16 16"><use href="./assets/svg/iconos.svg#icon-briefcase"> </use></svg>
+         <input class="form-control bk-blankest " type="text" name="search" placeholder="Buscar cargo o categoría"
+            aria-label="Search">
+          <button class="btn btn-cta d-inline-flex gap-2 align-items-center" type="submit"><span><svg width="16"
+                heigth="16" viewBox="0 0 16 16">
+                <use href="./assets/svg/iconos.svg#icon-search"> </use>
+              </svg> </span>
+            <span>Buscar</span></button>
+        </form>
+      </div>
+      <div class="d-flex align-items-center justify-content-center gap-4 ">
+        <p class="m-0">¿Buscas empleados?</p>
+        <button class="btn btn-cta-2" type="submit">Publicar Oferta</button>
+      </div>
+    </section>
+    <!-- JOBS SECTION-->
+    <div id="thumbnail-carousel" class="splide ldg-jobs d-flex flex-column">
+      <div class="splide__track container-jobs-carrousel bk-blankest p-5 position-relative">
+        <ul class="splide__list">
+          <li class="splide__slide rounded-4 bk-dark">
+            <img class="rounded-4 opacity-50 object-fit-cover " src="./assets/img/oficios/jardineria.svg" alt="">
+            <div class="text-sup rounded-bottom-4">
+              <p class="mb-0 ">Embellece tu jardín</p>
+              <h4 class="mb-0 ">Jardinero</h4>
+            </div>
+          </li>
+          <li class="splide__slide rounded-4 bk-dark">
+            <img class="rounded-4 opacity-50 object-fit-cover " src="./assets/img/oficios/arreglos.svg" alt="">
+            <div class="text-sup rounded-bottom-4">
+              <p class="mb-0 ">Embellece tu jardín</p>
+              <h4 class="mb-0 ">Jardinero</h4>
+            </div>
+          </li>
+          <li class="splide__slide rounded-4 bk-dark">
+            <img class="rounded-4 opacity-50 object-fit-cover " src="./assets/img/oficios/limpieza.svg" alt="">
+            <div class="text-sup rounded-bottom-4">
+              <p class="mb-0 ">Deja reluciente tu espacio</p>
+              <h4 class="mb-0 ">Limpieza</h4>
+            </div>
+          </li>
+          <li class="splide__slide rounded-4 bk-dark">
+            <img class="rounded-4 opacity-50 object-fit-cover " src="./assets/img/oficios/piscinero.svg" alt="">
+            <div class="text-sup rounded-bottom-4">
+              <p class="mb-0 ">Embellece tu jardín</p>
+              <h4 class="mb-0 ">Piscinero</h4>
+            </div>
+          </li>
+          <li class="splide__slide rounded-4 bk-dark">
+            <img class="rounded-4 opacity-50 object-fit-cover " src="./assets/img/oficios/carpinteria.svg" alt="">
+            <div class="text-sup rounded-bottom-4">
+              <p class="mb-0 ">Arregla y diseña muebles</p>
+              <h4 class="mb-0 ">Carpinteria</h4>
+            </div>
+          </li>
+          <li class="splide__slide rounded-4 bk-dark">
+            <img class="rounded-4 opacity-50 object-fit-cover " src="./assets/img/oficios/cargue-y-descargue.svg"
+              alt="">
+            <div class="text-sup rounded-bottom-4">
+              <p class="mb-0 ">Embellece tu jardín</p>
+              <h4 class="mb-0 ">Jardinero</h4>
+            </div>
+          </li>
+          <li class="splide__slide rounded-4 bk-dark">
+            <img class="rounded-4 opacity-50 object-fit-cover " src="./assets/img/oficios/pintura.svg" alt="">
+            <div class="text-sup rounded-bottom-4">
+              <p class="mb-0 ">Embellece tu jardín</p>
+              <h4 class="mb-0 ">Jardinero</h4>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- VALUES SECTION-->
+    <div class="ldg-busqueda">
+      <div class="d-flex flex-column flex-md-row justify-content-center align-items-center text-center myValues">
+        <div
+          class="containerValue bk-blankest flex-column justify-content-center align-items-center text-center px-4 py-3">
+          <svg class="icono-values" fill="#ffc107" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-clock"></use>
+          </svg>
+          <h4 class="text-center">Trabajos Flexibles</h4>
+          <p class="text-center">Encuentra oportunidades que se ajusten a tu horario y habilidades.</p>
+        </div>
+        <div
+          class="containerValue bk-blankest d-flex flex-column justify-content-center align-items-center text-center px-4 py-3">
+          <svg class="icono-values" fill="#dc3545" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-shield"></use>
+          </svg>
+          <h4 class="text-center">Contratación segura</h4>
+          <p>Encuentra oportunidades que se ajusten a tu horario y habilidades.</p>
+        </div>
+        <div
+          class="containerValue bk-blankest d-flex flex-column justify-content-center align-items-center text-center px-4 py-3">
+          <svg class="icono-values" fill="#2EBFDF" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-uservalue"></use>
+          </svg>
+          <h4 class="text-center">Conexiones Perfectas</h4>
+          <p class="text-center">Encuentra oportunidades que se ajusten a tu horario y habilidades.</p>
+        </div>
+      </div>
+      <!-- ICONS VALUES SECTION-->
+      <div class="d-flex justify-content-center align-content-center text-center  myValues flex-wrap py-0">
+        <div class="icon-hover-container ">
+          <svg class="icono-grande" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-bolt"></use>
+          </svg>
+          <p class="texto-hover text-center">Educación</p>
+        </div>
+        <div class="icon-hover-container">
+          <svg class="icono-grande" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-graduate"></use>
+          </svg>
+          <p class="texto-hover text-center">Innovación</p>
+        </div>
+        <div class="icon-hover-container">
+          <svg class="icono-grande" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-pc"></use>
+          </svg>
+          <p class="texto-hover text-center">Tecnología</p>
+        </div>
+        <div class="icon-hover-container">
+          <svg class="icono-grande" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-zen"></use>
+          </svg>
+          <p class="texto-hover text-center">Sostenibilidad</p>
+        </div>
+        <div class="icon-hover-container">
+          <svg class="icono-grande" viewBox="0 0 24 24">
+            <use xlink:href="./assets/svg/iconos.svg#icon-build"></use>
+          </svg>
+          <p class="texto-hover text-center">Arquitectura</p>
+        </div>
+      </div>
+    </div>
+    <!--HOW WORKS SECTION-->
+    <section id="ldg-how-work"
+      class="ldg-how-work bk-gr-blue-orange flex-column align-items-center justify-content-center pb-5">
+      <div class="container-how-work text-center text-white d-flex flex-column">
+        <h1>¡Sigue nuestros pasos para <span style="color: var(  --darkBlue);">maximizar</span> la <br>experiencia de
+          usuario!</h1>
+        <div class="container-steps row gap-3 justify-content-center align-items-center text-center ">
+          <div class="card-step col-11 col-sm-3 align-items-center text-center px-4 py-4">
+            <svg width="29" height="32" fill="#f98383" fill-opacity="0.8">
+              <use xlink:href="./assets/svg/iconos.svg#icon-finger"></use>
+            </svg>
+            <h4 class="text-center">Crear Cuenta</h4>
+            <p class="text-center texto-hover"> Regístrate gratis para acceder a cientos de oportunidades.</p>
+          </div>
+          <div class="card-step col-11 col-sm-3 align-items-center text-center px-4 py-4">
+            <svg width="29" height="32" fill="#f6c79e" fill-opacity="0.8">
+              <use xlink:href="./assets/svg/iconos.svg#icon-book"></use>
+            </svg>
+            <h4 class="text-center">Completar Perfil</h4>
+            <p class="texto-hover">Agrega tu experiencia y habilidades para destacar.</p>
+          </div>
+          <div class="card-step col-11 col-sm-3 align-items-center text-center px-4 py-4">
+            <svg width="33" height="32" fill="#1d244a" fill-opacity="0.8">
+              <use xlink:href="./assets/svg/iconos.svg#icon-check"></use>
+            </svg>
+            <h4 class="">Postularse a Empleos</h4>
+            <p class="texto-hover">Explora ofertas que se ajustan a ti y aplica fácilmente.</p>
+          </div>
+        </div>
+      </div>
+      <!-- SEPARADOR -->
+      <div class="w-100 d-flex justify-content-end">
+        <svg class="w-75 ">
+          <use xlink:href="./assets/svg/iconos.svg#right-separator"></use>
+        </svg>
+      </div>
+      <div class="container-start text-center text-white d-flex flex-column gap-3">
+        <h1 class="fs-2 ">Comienza hoy con Work Hub</h1>
+        <p class="fs-4 "> Encuentra empleo fácilmente o conecta con el talento que necesitas.</p>
+        <div class=" gap-4 d-flex  justify-content-center ">
+          <button id="signUpbutton" class="btn btn-cta " type="button">Postularse</button>
+          <button class="btn-cta-2 btn me-md-2 " type="button" data-bs-toggle="modal"
+            data-bs-target="#staticBackdrop">Publicar Oferta</button>
+        </div>
+      </div>
+      <!-- SEPARADOR -->
+      <div class="w-100 pb-5">
+        <svg class="w-75 ">
+          <use xlink:href="./assets/svg/iconos.svg#left-separator"></use>
+        </svg>
+      </div>
+    </section>
+    <!-- STORIES SECTION-->
+    <section id="ldg-pro" class="splide px-5 bk-gr-triangle-blue d-flex flex-column gap-4"
+      aria-label="Splide Basic HTML Example">
+      <h2 class=" text-light d-flex flex-column align-items-center justify-content-center ">Historias de Éxito</h2>
+      <div class="splide__track">
+        <ul class="splide__list gap-4">
+          <li class="splide__slide">
+            <div class="storyCard text-white  d-flex align-items-start flex-column fs">
+              <img src="./assets/img/profile-img/profile-picture1.svg" class="rounded-circle me-3 imgCarousel"
+                alt="Usuario">
+              <p class="mb-0 ">"WorkHub me ayudó a encontrar trabajos flexibles que se adaptan a mi horario. ¡Excelente
+                plataforma!"</p>
+              <p class="usuarioTestimonio text-end mt-3">- Usuario de WorkHub</p>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="storyCard text-white  d-flex align-items-start flex-column fs">
+              <img src="./assets/img/profile-img/profile-picture(2).svg" class="rounded-circle me-3 imgCarousel"
+                alt="Usuario">
+              <p class="mb-0 fs">"WorkHub me ayudó a encontrar trabajos flexibles que se adaptan a mi
+                horario. ¡Excelente plataforma!"</p>
+              <p class="usuarioTestimonio text-end mt-3">- Usuario de WorkHub</p>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="storyCard text-white  d-flex align-items-start flex-column fs">
+              <img src="./assets/img/profile-img/profile-picture(3).svg" class="rounded-circle me-3 imgCarousel"
+                alt="Usuario">
+              <p class="mb-0 fs">"WorkHub me ayudó a encontrar trabajos flexibles que se adaptan a mi
+                horario. ¡Excelente plataforma!"</p>
+              <p class="usuarioTestimonio text-end mt-3">- Usuario de WorkHub</p>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="storyCard text-white  d-flex align-items-start flex-column fs">
+              <img src="./assets/img/profile-img/profile-picture(4).svg" class="rounded-circle me-3 imgCarousel"
+                alt="Usuario">
+              <p class="mb-0 fs">"WorkHub me ayudó a encontrar trabajos flexibles que se adaptan a mi
+                horario. ¡Excelente plataforma!"</p>
+              <p class="usuarioTestimonio text-end mt-3">- Usuario de WorkHub</p>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="storyCard text-white  d-flex align-items-start flex-column fs">
+              <img src="./assets/img/profile-img/profile-picture(5).svg" class="rounded-circle me-3 imgCarousel"
+                alt="Usuario">
+              <p class="mb-0 ">"WorkHub me ayudó a encontrar trabajos flexibles que se adaptan a mi horario. ¡Excelente
+                plataforma!"</p>
+              <p class="usuarioTestimonio text-end mt-3">- Usuario de WorkHub</p>
+            </div>
+          </li>
+          <li class="splide__slide">
+            <div class="storyCard text-white  d-flex align-items-start flex-column fs">
+              <img src="./assets/img/profile-img/profile-picture(6).svg" class="rounded-circle me-3 imgCarousel"
+                alt="Usuario">
+              <p class="mb-0 ">"WorkHub me ayudó a encontrar trabajos flexibles que se adaptan a mi horario. ¡Excelente
+                plataforma!"</p>
+              <p class="usuarioTestimonio text-end mt-3">- Usuario de WorkHub</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+    <!-- FOOTER-->
+    <div id="footer"></div>
+  </main>
+  <script src="./assets/lib/js/bootstrap.min.js"></script>
+  <script src="./assets/lib/splide/js/splide.min.js"></script>
+  <script src="./assets/scripts/index.js"></script>
+  <script src="./assets/scripts/partials.js"></script>
+  <script src="./assets/scripts/modal.js"></script>
+  <script src="./assets/scripts/login.js" defer></script>
+  <script src="./assets/scripts/register.js"></script>
+
+</body>
+<div id="modal-login"></div>
+<div id="modal-signup"></div>
+
+</html>

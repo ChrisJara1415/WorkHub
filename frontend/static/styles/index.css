@@ -1,0 +1,146 @@
+
+.ldg-busqueda {
+  padding-inline: clamp(1rem, 4vw, 6rem);
+  padding-block: clamp(1.5rem, 8vw, 6rem);
+  gap: clamp(0.8rem, 5vw, 1.2rem);
+  gap: clamp(1rem, 3vw, 1.1rem);
+}
+
+
+
+#ldg-pro {
+  padding: 60px 0;
+  border-top: 3px solid #000;
+  border-bottom: 3px solid #000;
+  box-shadow: 0 4px 4px 0 hwb(0 0% 100% / 0.25), 0 10px 50px 0 #00000099 inset;
+  position: relative;
+}
+
+.storyCard {
+  border-radius: 8px;
+  background: #00000026;
+  padding: 20px 17px;
+  width: 22vw;
+}
+
+.imgCarousel {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+}
+
+.usuarioTestimonio {
+  color: var(--soft-orange);
+}
+
+.myValues {
+  gap: clamp(2rem, 3vw, 4rem);
+  padding: clamp(1rem, 3vw, 4rem);
+  padding-top: 4rem;
+}
+
+.containerValue {
+  border-radius: 4px;
+  box-shadow: 2px 2px 10px 0 #0000004d;
+  width: clamp(20rem, 25vw, 22rem);
+  height: auto;
+}
+
+.containerValue:hover {
+  background: #e7ebee;
+}
+
+.icon-hover-container {
+  display: inline-block;
+  position: relative;
+}
+
+.icono-values {
+  width: clamp(3rem, 3vw, 3.5rem);
+}
+
+.icono-grande {
+  height: 50px;
+  fill: var(--dark-blue);
+  font-size: clamp(3rem, 3vw, 3.5rem);
+  transition: color 0.3s, transform 0.3s;
+}
+
+.texto-hover {
+  font-family: Rubik;
+  opacity: 0;
+  color: var(--blue);
+  transition: opacity 0.3s;
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.icon-hover-container:hover .icono-grande {
+  fill: var(--blue);
+  transform: translateY(-8px);
+}
+
+.icon-hover-container:hover .texto-hover {
+  opacity: 1;
+}
+
+.container-jobs-carrousel {
+  border-top: 3px solid var(--bluest-grey);
+  box-shadow: 0 0 20px 0 #00000040;
+}
+
+.text-sup {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  color: white;
+  padding: 8px 20px;
+}
+
+.container-how-work, .container-start {
+  padding-inline: clamp(1rem, 4vw, 6rem);
+  padding-block: clamp(3rem, 8vw, 6rem);
+  gap: clamp(1.5rem, 5vw, 2rem);
+}
+.container-how-work .card-step {
+  border-radius: 4px;
+  background: #0c0e1e4d;
+  box-shadow: 2px 2px 10px 0 #0000004d;
+  height: 8rem;
+  transition: color 0.6s, transform 0.6s, height 0.6s;
+}
+.container-how-work .card-step:hover {
+  transform: translateY(10px);
+  background: #0c0e1e8f;
+  height: 10rem;
+}
+.container-how-work .texto-hover {
+  font-family: inherit;
+  opacity: 0;
+  color: var(--blank-grey);
+  transition: opacity 0.4s;
+  font-size: 1.2rem;
+  margin: 0;
+}
+.container-how-work .card-step:hover .texto-hover {
+  opacity: 1;
+}
+
+
+@media (max-width: 768px) {
+  .storyCard {
+    width: 65vw;
+  }
+
+  .containerValue {
+    width: 80vw;
+    height: auto;
+  }
+
+  .cardStep {
+    width: 60vw;
+  }
+}
+
+
+
