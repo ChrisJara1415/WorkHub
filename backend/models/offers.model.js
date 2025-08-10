@@ -5,13 +5,14 @@ const offerSchema = new Schema({
 
     empleador: {
         idUsuario: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'user',
+            type: Schema.Types.ObjectId,
+            ref: 'usuarios',
             required: true,
         },
         nombre: {
             type: String,
-            required: true
+            required: true,
+            maxLength: [50, 'El máximo de caracteres es de 50']
         }
     },
     
@@ -80,4 +81,4 @@ const offerSchema = new Schema({
     }
 })
 
-export default mongoose.model('offer', offerSchema)
+export default mongoose.model('ofertas', offerSchema)
