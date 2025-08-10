@@ -5,7 +5,7 @@ const contractSchema = new Schema({
     oferta: {
         idOferta: {
             type: Schema.Types.ObjectId,
-            ref: 'offer',
+            ref: 'ofertas',
             required: true
         },
         nombreOferta: {
@@ -18,7 +18,7 @@ const contractSchema = new Schema({
     empleado: {
         idUsuario: {
             type: Schema.Types.ObjectId,
-            ref: 'user',
+            ref: 'usuarios',
             required: true
         },
         nombre: {
@@ -32,7 +32,7 @@ const contractSchema = new Schema({
     empleador: {
         idUsuario: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'user',
+            ref: 'usuarios',
             required: true
         },
         nombre: {
@@ -61,4 +61,4 @@ const contractSchema = new Schema({
     }
 })
 
-export default mongoose.model('contract', contractSchema)
+export default mongoose.model('contratos', contractSchema)
