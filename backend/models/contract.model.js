@@ -31,7 +31,7 @@ const contractSchema = new Schema({
 
     empleador: {
         idUsuario: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'usuarios',
             required: true
         },
