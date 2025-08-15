@@ -8,7 +8,7 @@ export const createApplyment = async (req, res) => {
 
         res.status(201).json({message: 'Postulación creada satisfactoriamente', data: nuevaPostulacion})
     } catch (error) {
-        res.status(500).json({message: 'Error al crear postulación'})
+        res.status(500).json({message: 'Error al crear postulación', error: error.message})
     }
 }
 
@@ -17,7 +17,7 @@ export const searchApplyments = async (req, res) => {
         const postulacionesEncontradas = await applyments.find()
         res.status(200).json(postulacionesEncontradas)
     } catch (error) {
-        res.status(500).json({message: 'No se han encontrado postulaciones', error})
+        res.status(500).json({message: `No se han encontrado postulaciones ${error.message}`})
     }
 }
 
@@ -27,7 +27,7 @@ export const searchApplymentById = async (req, res) => {
         if (!postulacionEncontrada) return res.status(404).json({message: 'No se ha encontrado la postulación'})
         res.status(200).json(postulacionEncontrada)
     } catch (error) {
-        res.status(500).json({message: 'No se ha encontrado ninguna postulación', error})
+        res.status(500).json({message: `No se ha encontrado ninguna postulación ${error.message}`})
     }
 }
 
@@ -37,7 +37,7 @@ export const updateApplyment = async (req, res) => {
         if (!postulacionActualizada) return res.status(404).json({message: 'No se ha encontrado la postulación'})
         res.status(200).json(postulacionActualizada)
     } catch (error) {
-        res.status(500).json({message: 'No se ha encontrado ninguna postulación', error})
+        res.status(500).json({message: `No se ha encontrado ninguna postulación ${error.message}`})
     }
 }
 
@@ -47,6 +47,6 @@ export const deleteApplyment = async (req, res) => {
         if (!postulacionEliminada) return res.status(404).json({message: 'Postulación no encontrada'})
         res.status(200).json({message: 'Postulación eliminada satisfactoriamente'})
     } catch (error) {
-        res.status(500).json({message: 'No se ha encontrado ninguna postulación', error})
+        res.status(500).json({message: `No se ha encontrado ninguna postulación ${error.message}`})
     }
 }
