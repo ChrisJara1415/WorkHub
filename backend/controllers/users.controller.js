@@ -1,5 +1,4 @@
 import user from '../models/users.model.js'
-import mongoose from 'mongoose'
 
 export const createUser = async (req, res) => {
     try {
@@ -60,4 +59,4 @@ export const deleteUser = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Error al eliminar usuario', error });
     }
-};
+}
