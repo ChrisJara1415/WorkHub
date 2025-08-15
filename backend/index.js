@@ -17,6 +17,6 @@ app.listen(process.env.PORT, () => {
         console.log(`Servidor escuchando en el puerto ${PORT}`)
         console.log(`Servidor disponible en http://localhost:${PORT}`)
     } catch (error) {
-        console.error('Error al inicializar servidor', error.message)
+        console.error({message: 'Error al inicializar servidor', error: error.message})
     }
 })
