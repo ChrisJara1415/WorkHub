@@ -1,4 +1,4 @@
-import offers from '../models/offers.model'
+import offers from '../models/offers.model.js'
 
 export const createOffer = async (req, res) => {
     try {
