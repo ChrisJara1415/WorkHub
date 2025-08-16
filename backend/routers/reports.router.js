@@ -1,4 +1,4 @@
-import { Router } from 'mongoose'
+import { Router } from 'express'
 import {createReport, searchReports, searchReportByID, updateReport, deleteReport} from '../controllers/reports.controller.js'
 const router = Router()
 
