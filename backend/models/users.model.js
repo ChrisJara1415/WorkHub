@@ -2,32 +2,34 @@ import mongoose from '../config/db.js'
 
 const schema = mongoose.Schema
 const userSchema = new schema({
-    nombre: {
+    nombres: {
         type: String,
-        required: [true, 'El nombre es necesario'],
-        maxLength: [50, 'Máximo 50 caracteres']
+        required: [true, 'El nombre es obligatorio'],
+        maxLength: [150, 'Máximo 50 caracteres'],
+        validate: {
+            validator: function (value) {
+                return /^[a-zA-Z]*$/.test(value);
+            },
+            message: props => `${props.value} contiene caracteres especiales!`
+        }
     },
 
-    segundoNombre: {
+    apellidos: {
         type: String,
-        required: false
-    },
-
-    apellido: {
-        type: String,
-        required: [true, 'El apellido es necesario'],
-        maxLength: [100, 'Máximo 100 caracteres']
-    },
-
-    segundoApellido: {
-        type: String,
-        required: false
+        required: [true, 'El apellido es obligatorio'],
+        maxLength: [150, 'Máximo 100 caracteres'],
+        validate: {
+            validator: function (value) {
+                return /^[a-zA-Z]*$/.test(value);
+            },
+            message: props => `${props.value} contiene caracteres especiales!`
+        }
     },
 
     email: {
         type: String,
-        required: true,
-        unique: true,
+        required: [true, 'El correo es obligatorio'],
+        unique: [true, 'El correo ya existe'],
         validate: {
             validator: function (email) {
                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -38,75 +40,56 @@ const userSchema = new schema({
 
     telefono: {
         type: String,
-        required: true,
-        unique: true,
+        required: [true, 'El teléfono es obligatorio'],
+        unique: [true, 'El teléfono ya está asociado a otra cuenta'],
         match: [/^(?:\+57)?3\d{9}$/, 'El teléfono es inválido']
     },
 
     passwordHash: {
         type: String,
-        required: true
+        required: [true, 'La contraseña es obligatoria']
     },
 
     fechaRegistro: {
         type: Date,
-        default: Date.now
+        required: [true, 'La fecha es obligatoria'],
+        default: Date.now,
+        validate: {
+            validator: function (value) {
+                const date = new Date();
+                return value >= date;
+            },
+            message: props => `${props.value} no puede ser una fecha anterior a hoy!`
+        }
     },
 
-    perfil: {
-        rol: {
+    rol: {
+        type: String,
+        required: [true, 'El rol es obligatorio'],
+        enum: ['empleado', 'empleador']
+    },
+
+    municipio: {
+        type: String,
+        required: [true, 'Seleccione el municipio'],
+        enum: ['barbosa', 'copacabana', 'girardota', 'bello', 'medellín', 'envigado', 'itagüí', 'sabaneta', 'la estrella', 'caldas']
+    },
+
+    direccion: {
+        type: String,
+        required: [true, 'La dirección es obligatoria']
+    },
+
+    seguridadSocial: {
+        nombre: {
             type: String,
-            required: true,
-            enum: ['Administrador', 'Empleado', 'Empleador']
+            required: [true, 'La seguridad social es obligatoria']
         },
 
-        municipio: {
+        estado: {
             type: String,
-            required: true,
-            enum: ['Barbosa', 'Copacabana', 'Girardota', 'Bello', 'Medellín', 'Envigado', 'Itagüí', 'Sabaneta', 'La Estrella', 'Caldas']
-        },
-
-        direccion: {
-            type: String,
-            required: true
-        },
-
-        seguridadSocial: {
-            nombre: {
-                type: String,
-                required: true
-            },
-
-            estado: {
-                type: String,
-                enum: ['Activo', 'Inactivo'],
-                default: 'Activo'
-            }
-        },
-
-        cuentaBancaria: {
-            token: {
-                type: String,
-                required: true
-            },
-            banco: {
-                type: String,
-                required: true,
-                enum: ['Bancolombia', 'Nequi', 'Davivienda', 'Daviplata']
-            },
-            tipo: {
-                type: String,
-                required: true,
-                enum: ['Ahorros', 'Corriente']
-            },
-            activa: {
-                type: Boolean,
-                default: true
-            },
-            fechaRegistro: {
-                type: Date,
-                default: Date.now
-            }
+            enum: ['activo', 'inactivo'],
+            default: 'activo'
         }
     }
 })
