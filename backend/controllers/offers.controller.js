@@ -33,7 +33,7 @@ export const searchOfferById = async (req, res) => {
 
 export const updateOffer = async (req, res) => {
     try {
-        const ofertaActualizada = await offers.findByIdAndUpdate(req.param.id, req.body, {new: true})
+        const ofertaActualizada = await offers.findByIdAndUpdate(req.params.id, req.body, {new: true})
         if (!ofertaActualizada) return res.status(404).json({message: 'No se ha encontrado la oferta'})
         res.status(200).json(ofertaActualizada)
     } catch (error) {
