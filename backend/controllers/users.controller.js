@@ -2,8 +2,8 @@ import user from '../models/users.model.js'
 
 export const createUser = async (req, res) => {
     try {
-        const { nombre, segundoNombre, apellido, segundoApellido, email, telefono, passwordHash, perfil, fechaRegistro} = req.body
-        const nuevoUsuario = new user({ nombre, segundoNombre, apellido, segundoApellido, email, telefono, passwordHash, perfil, fechaRegistro})
+        const { nombres, apellidos, email, telefono, passwordHash, fechaRegistro, rol, municipio, direccion, seguridadSocial} = req.body
+        const nuevoUsuario = new user({ nombres, apellidos, email, telefono, passwordHash, fechaRegistro, rol, municipio, direccion, seguridadSocial})
         await nuevoUsuario.save()
 
         res.status(201).json({ message: 'Usuario creado correctamente', data: nuevoUsuario })

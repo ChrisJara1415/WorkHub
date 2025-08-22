@@ -8,7 +8,7 @@ const userSchema = new schema({
         maxLength: [150, 'Máximo 50 caracteres'],
         validate: {
             validator: function (value) {
-                return /^[a-zA-Z]*$/.test(value);
+                return /^[a-zA-Z\s]+$/.test(value);
             },
             message: props => `${props.value} contiene caracteres especiales!`
         }
@@ -20,7 +20,7 @@ const userSchema = new schema({
         maxLength: [150, 'Máximo 100 caracteres'],
         validate: {
             validator: function (value) {
-                return /^[a-zA-Z]*$/.test(value);
+                return /^[a-zA-Z\s]+$/.test(value);
             },
             message: props => `${props.value} contiene caracteres especiales!`
         }
@@ -77,13 +77,19 @@ const userSchema = new schema({
 
     direccion: {
         type: String,
-        required: [true, 'La dirección es obligatoria']
+        required: [true, 'La dirección es obligatoria'],
+        validate: {
+            validator: function (value) {
+                return /^[a-zA-Z0-9\s]+$/.test(value);
+            },
+            message: props => `${props.value} no puede contener caracteres especiales!`
+        }
     },
 
     seguridadSocial: {
         nombre: {
             type: String,
-            required: [true, 'La seguridad social es obligatoria']
+            required: [true, 'EL nombre de la seguridad social es obligatoria']
         },
 
         estado: {
