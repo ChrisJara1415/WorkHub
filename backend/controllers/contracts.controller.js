@@ -33,7 +33,7 @@ export const searchContractById = async (req, res) => {
 
 export const updateContract = async (req, res) => {
     try {
-        const contratoActualizado = await contracts.findByIdAndUpdate(req.param.id, req.body, {new: true})
+        const contratoActualizado = await contracts.findByIdAndUpdate(req.params.id, req.body, {new: true})
         if (!contratoActualizado) return res.status(404).json({message: 'No se ha encontrado el contrato'})
         res.status(200).json(contratoActualizado)
     } catch (error) {

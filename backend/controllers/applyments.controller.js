@@ -33,7 +33,7 @@ export const searchApplymentById = async (req, res) => {
 
 export const updateApplyment = async (req, res) => {
     try {
-        const postulacionActualizada = await applyments.findByIdAndUpdate(req.param.id, req.body, {new: true})
+        const postulacionActualizada = await applyments.findByIdAndUpdate(req.params.id, req.body, {new: true})
         if (!postulacionActualizada) return res.status(404).json({message: 'No se ha encontrado la postulación'})
         res.status(200).json(postulacionActualizada)
     } catch (error) {
