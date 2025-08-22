@@ -1,7 +1,7 @@
 import mongoose from '../config/db.js'
 
 const { Schema } = mongoose
-const applymentSchema = Schema({
+const applymentSchema = new Schema({
     servicio: {
         idServicio: {
             type: Schema.Types.ObjectId,
