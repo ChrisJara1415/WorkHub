@@ -1,12 +1,7 @@
 import exp from "express";
 import dotenv from "dotenv";
-import usersRouter from './routers/users.router.js'
-import reportsRouter from './routers/reports.router.js'
-import offersRouter from './routers/offers.router.js'
-import contractsRouter from './routers/contracts.router.js'
-import applymentsRouter from './routers/applyments.router.js'
 import morgan from "morgan";
-
+import globalRouter from './routers/globalRoutes.router.js'
 dotenv.config()
 
 const app = exp()
@@ -14,11 +9,7 @@ const PORT = process.env.PORT
 
 app.use(exp.json())
 app.use(morgan('dev'))
-app.use('/clientes', usersRouter)
-app.use('/reportes', reportsRouter)
-app.use('/ofertas', offersRouter)
-app.use('/contratos', contractsRouter)
-app.use('/postulaciones', applymentsRouter)
+app.use(globalRouter)
 
 app.listen(process.env.PORT, () => {
     try {
