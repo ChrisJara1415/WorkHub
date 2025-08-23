@@ -56,11 +56,11 @@ const userSchema = new schema({
         default: Date.now,
         validate: {
             validator: function (value) {
-                const now = new Date();
-                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                const maxDate = new Date(today);
-                maxDate.setMonth(maxDate.getMonth() + 1); 
-                return value >= today && value <= maxDate;
+                const now = new Date()
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                const maxDate = new Date(today)
+                maxDate.setMonth(maxDate.getMonth() + 1)
+                return value >= today && value <= maxDate
             },
             message: props => `${props.value} debe estar entre hoy y máximo 1 mes en el futuro.`
         }
