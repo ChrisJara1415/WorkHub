@@ -163,5 +163,11 @@ Este proyecto es desarrollado por **CatScript Studio** como proyecto estudiantil
 **Proyecto**: WorkHub - Gestión de Empleos Temporales  
 **Región**: Área Metropolitana del Valle de Aburrá, Colombia
 
+USER_DB=jaym3gd2431 #db.js
+PASS_DB=5312466211aA_ #db.js
+NAME_DB=WorkHub #db.js
+PORT=3002 #index.js
+API_KEY=api-key-mas-segura-del-mundo #api.key.js
+
 ---
 # WorkHub
