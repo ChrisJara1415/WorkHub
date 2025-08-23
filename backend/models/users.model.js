@@ -5,7 +5,7 @@ const userSchema = new schema({
     nombres: {
         type: String,
         required: [true, 'El nombre es obligatorio'],
-        maxLength: [150, 'Máximo 50 caracteres'],
+        maxLength: [150, 'Máximo 150 caracteres'],
         validate: {
             validator: function (value) {
                 return /^[a-zA-Z\s]+$/.test(value);
