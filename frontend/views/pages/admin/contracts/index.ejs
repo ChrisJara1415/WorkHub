@@ -1,0 +1,167 @@
+<% layout('layout') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestión de Contratos</h2>
+        <a href="/admin/contracts/create" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Nuevo Contrato
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Oferta</th>
+                  <th>Empleado</th>
+                  <th>Empleador</th>
+                  <th>Fecha Inicio</th>
+                  <th>Fecha Fin</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="contractsTableBody">
+                <!-- Los datos se cargarán dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Paginación -->
+          <nav aria-label="Paginación de contratos">
+            <ul class="pagination justify-content-center" id="contractsPagination">
+              <!-- La paginación se generará dinámicamente -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="deleteContractModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        ¿Está seguro de que desea eliminar este contrato?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteContract">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPage = 1;
+let contractToDelete = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadContracts();
+});
+
+async function loadContracts(page = 1) {
+  try {
+    const response = await fetch(`/admin/api/contracts?page=${page}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      renderContractsTable(data.data.contracts);
+      renderPagination(data.data.pagination, 'contractsPagination', loadContracts);
+      currentPage = page;
+    } else {
+      showAlert('Error al cargar contratos: ' + data.message, 'danger');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showAlert('Error de conexión al cargar contratos', 'danger');
+  }
+}
+
+function renderContractsTable(contracts) {
+  const tbody = document.getElementById('contractsTableBody');
+  tbody.innerHTML = '';
+
+  contracts.forEach(contract => {
+    const row = document.createElement('tr');
+    const fechaInicio = new Date(contract.fecha_inicio).toLocaleDateString();
+    const fechaFin = contract.fecha_fin ? new Date(contract.fecha_fin).toLocaleDateString() : 'N/A';
+    
+    row.innerHTML = `
+      <td>${contract.id}</td>
+      <td>${contract.oferta_servicio || 'N/A'}</td>
+      <td>${contract.empleado_nombre || 'N/A'}</td>
+      <td>${contract.empleador_nombre || 'N/A'}</td>
+      <td>${fechaInicio}</td>
+      <td>${fechaFin}</td>
+      <td>
+        <span class="badge ${getStatusBadgeClass(contract.estado)}">
+          ${contract.estado}
+        </span>
+      </td>
+      <td>
+        <div class="btn-group" role="group">
+          <a href="/admin/contracts/edit/${contract.id}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-edit"></i>
+          </a>
+          <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${contract.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function getStatusBadgeClass(estado) {
+  switch(estado) {
+    case 'activo': return 'bg-success';
+    case 'completado': return 'bg-primary';
+    case 'cancelado': return 'bg-danger';
+    default: return 'bg-secondary';
+  }
+}
+
+function confirmDelete(id) {
+  contractToDelete = id;
+  const modal = new bootstrap.Modal(document.getElementById('deleteContractModal'));
+  modal.show();
+}
+
+document.getElementById('confirmDeleteContract').addEventListener('click', async function() {
+  if (contractToDelete) {
+    try {
+      const response = await fetch(`/admin/api/contracts/${contractToDelete}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        showAlert('Contrato eliminado exitosamente', 'success');
+        loadContracts(currentPage);
+      } else {
+        showAlert('Error al eliminar contrato: ' + data.message, 'danger');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showAlert('Error de conexión al eliminar contrato', 'danger');
+    }
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteContractModal'));
+    modal.hide();
+    contractToDelete = null;
+  }
+});
+</script>

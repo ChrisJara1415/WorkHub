@@ -1,0 +1,162 @@
+<% layout('layout') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestión de Postulaciones</h2>
+        <a href="/admin/applyments/create" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Nueva Postulación
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Empleado</th>
+                  <th>Oferta</th>
+                  <th>Fecha Postulación</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="applyments TableBody">
+                <!-- Los datos se cargarán dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Paginación -->
+          <nav aria-label="Paginación de postulaciones">
+            <ul class="pagination justify-content-center" id="applymentsPagination">
+              <!-- La paginación se generará dinámicamente -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="deleteApplymentModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        ¿Está seguro de que desea eliminar esta postulación?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteApplyment">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPage = 1;
+let applymentToDelete = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadApplyments();
+});
+
+async function loadApplyments(page = 1) {
+  try {
+    const response = await fetch(`/admin/api/applyments?page=${page}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      renderApplymentsTable(data.data.applyments);
+      renderPagination(data.data.pagination, 'applymentsPagination', loadApplyments);
+      currentPage = page;
+    } else {
+      showAlert('Error al cargar postulaciones: ' + data.message, 'danger');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showAlert('Error de conexión al cargar postulaciones', 'danger');
+  }
+}
+
+function renderApplymentsTable(applyments) {
+  const tbody = document.getElementById('applymentsTableBody');
+  tbody.innerHTML = '';
+
+  applyments.forEach(applyment => {
+    const row = document.createElement('tr');
+    const fechaPostulacion = new Date(applyment.fecha_postulacion).toLocaleDateString();
+    
+    row.innerHTML = `
+      <td>${applyment.id}</td>
+      <td>${applyment.empleado_nombre || 'N/A'}</td>
+      <td>${applyment.oferta_servicio || 'N/A'}</td>
+      <td>${fechaPostulacion}</td>
+      <td>
+        <span class="badge ${getStatusBadgeClass(applyment.estado)}">
+          ${applyment.estado}
+        </span>
+      </td>
+      <td>
+        <div class="btn-group" role="group">
+          <a href="/admin/applyments/edit/${applyment.id}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-edit"></i>
+          </a>
+          <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${applyment.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function getStatusBadgeClass(estado) {
+  switch(estado) {
+    case 'pendiente': return 'bg-warning';
+    case 'aceptada': return 'bg-success';
+    case 'rechazada': return 'bg-danger';
+    default: return 'bg-secondary';
+  }
+}
+
+function confirmDelete(id) {
+  applymentToDelete = id;
+  const modal = new bootstrap.Modal(document.getElementById('deleteApplymentModal'));
+  modal.show();
+}
+
+document.getElementById('confirmDeleteApplyment').addEventListener('click', async function() {
+  if (applymentToDelete) {
+    try {
+      const response = await fetch(`/admin/api/applyments/${applymentToDelete}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        showAlert('Postulación eliminada exitosamente', 'success');
+        loadApplyments(currentPage);
+      } else {
+        showAlert('Error al eliminar postulación: ' + data.message, 'danger');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showAlert('Error de conexión al eliminar postulación', 'danger');
+    }
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteApplymentModal'));
+    modal.hide();
+    applymentToDelete = null;
+  }
+});
+</script>

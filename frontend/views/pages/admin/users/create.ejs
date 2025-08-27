@@ -1,0 +1,160 @@
+<% layout('../layout') -%>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-person-plus"></i>
+        Crear Usuario
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="/admin/usuarios" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<% if (error) { %>
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        <%= error %>
+    </div>
+<% } %>
+
+<div class="card">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold">Información del Usuario</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/admin/usuarios">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nombres" class="form-label">Nombres *</label>
+                    <input type="text" class="form-control" id="nombres" name="nombres" 
+                           value="<%= formData.nombres || '' %>" required maxlength="150">
+                    <div class="form-text">Solo letras y espacios, máximo 150 caracteres</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="apellidos" class="form-label">Apellidos *</label>
+                    <input type="text" class="form-control" id="apellidos" name="apellidos" 
+                           value="<%= formData.apellidos || '' %>" required maxlength="150">
+                    <div class="form-text">Solo letras y espacios, máximo 150 caracteres</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           value="<%= formData.email || '' %>" required>
+                    <div class="form-text">Debe ser un email válido y único</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="telefono" class="form-label">Teléfono *</label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono" 
+                           value="<%= formData.telefono || '' %>" required pattern="^(\+57)?3\d{9}$">
+                    <div class="form-text">Formato: 3XXXXXXXXX o +573XXXXXXXXX</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="passwordHash" class="form-label">Contraseña *</label>
+                    <input type="password" class="form-control" id="passwordHash" name="passwordHash" required>
+                    <div class="form-text">Mínimo 8 caracteres</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="rol" class="form-label">Rol *</label>
+                    <select class="form-select" id="rol" name="rol" required>
+                        <option value="">Seleccionar rol</option>
+                        <option value="empleado" <%= formData.rol === 'empleado' ? 'selected' : '' %>>Empleado</option>
+                        <option value="empleador" <%= formData.rol === 'empleador' ? 'selected' : '' %>>Empleador</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="municipio" class="form-label">Municipio *</label>
+                    <select class="form-select" id="municipio" name="municipio" required>
+                        <option value="">Seleccionar municipio</option>
+                        <option value="barbosa" <%= formData.municipio === 'barbosa' ? 'selected' : '' %>>Barbosa</option>
+                        <option value="copacabana" <%= formData.municipio === 'copacabana' ? 'selected' : '' %>>Copacabana</option>
+                        <option value="girardota" <%= formData.municipio === 'girardota' ? 'selected' : '' %>>Girardota</option>
+                        <option value="bello" <%= formData.municipio === 'bello' ? 'selected' : '' %>>Bello</option>
+                        <option value="medellín" <%= formData.municipio === 'medellín' ? 'selected' : '' %>>Medellín</option>
+                        <option value="envigado" <%= formData.municipio === 'envigado' ? 'selected' : '' %>>Envigado</option>
+                        <option value="itagüí" <%= formData.municipio === 'itagüí' ? 'selected' : '' %>>Itagüí</option>
+                        <option value="sabaneta" <%= formData.municipio === 'sabaneta' ? 'selected' : '' %>>Sabaneta</option>
+                        <option value="la estrella" <%= formData.municipio === 'la estrella' ? 'selected' : '' %>>La Estrella</option>
+                        <option value="caldas" <%= formData.municipio === 'caldas' ? 'selected' : '' %>>Caldas</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="direccion" class="form-label">Dirección *</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion" 
+                           value="<%= formData.direccion || '' %>" required>
+                    <div class="form-text">Solo letras, números y espacios</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="seguridadSocial.nombre" class="form-label">Seguridad Social *</label>
+                    <input type="text" class="form-control" id="seguridadSocial.nombre" name="seguridadSocial[nombre]" 
+                           value="<%= formData.seguridadSocial?.nombre || '' %>" required>
+                    <div class="form-text">Nombre de la EPS o seguridad social</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="seguridadSocial.estado" class="form-label">Estado Seguridad Social</label>
+                    <select class="form-select" id="seguridadSocial.estado" name="seguridadSocial[estado]">
+                        <option value="activo" <%= formData.seguridadSocial?.estado === 'activo' ? 'selected' : '' %>>Activo</option>
+                        <option value="inactivo" <%= formData.seguridadSocial?.estado === 'inactivo' ? 'selected' : '' %>>Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="/admin/usuarios" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    Crear Usuario
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Validación en tiempo real
+    document.getElementById('nombres').addEventListener('input', function(e) {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z\s]*$/;
+        if (!regex.test(value)) {
+            e.target.setCustomValidity('Solo se permiten letras y espacios');
+        } else {
+            e.target.setCustomValidity('');
+        }
+    });
+
+    document.getElementById('apellidos').addEventListener('input', function(e) {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z\s]*$/;
+        if (!regex.test(value)) {
+            e.target.setCustomValidity('Solo se permiten letras y espacios');
+        } else {
+            e.target.setCustomValidity('');
+        }
+    });
+
+    document.getElementById('direccion').addEventListener('input', function(e) {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z0-9\s]*$/;
+        if (!regex.test(value)) {
+            e.target.setCustomValidity('Solo se permiten letras, números y espacios');
+        } else {
+            e.target.setCustomValidity('');
+        }
+    });
+</script>

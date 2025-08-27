@@ -1,0 +1,158 @@
+<% layout('layout') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Nueva Postulación</h2>
+        <a href="/admin/applyments" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Volver
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <form id="createApplymentForm">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="empleado_id" class="form-label">Empleado *</label>
+                  <select class="form-select" id="empleado_id" name="empleado_id" required>
+                    <option value="">Seleccionar empleado...</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="oferta_id" class="form-label">Oferta *</label>
+                  <select class="form-select" id="oferta_id" name="oferta_id" required>
+                    <option value="">Seleccionar oferta...</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="fecha_postulacion" class="form-label">Fecha de Postulación *</label>
+                  <input type="date" class="form-control" id="fecha_postulacion" name="fecha_postulacion" required>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="estado" class="form-label">Estado *</label>
+                  <select class="form-select" id="estado" name="estado" required>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="aceptada">Aceptada</option>
+                    <option value="rechazada">Rechazada</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="mensaje" class="form-label">Mensaje</label>
+              <textarea class="form-control" id="mensaje" name="mensaje" rows="4" placeholder="Mensaje del empleado al postularse..."></textarea>
+              <div class="invalid-feedback"></div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <a href="/admin/applyments" class="btn btn-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Guardar Postulación
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('fecha_postulacion').value = new Date().toISOString().split('T')[0];
+  
+  loadEmployees();
+  loadOffers();
+  
+  document.getElementById('createApplymentForm').addEventListener('submit', handleSubmit);
+});
+
+async function loadEmployees() {
+  try {
+    const response = await fetch('/admin/api/users?role=empleado');
+    const data = await response.json();
+    
+    if (data.success) {
+      const select = document.getElementById('empleado_id');
+      data.data.users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.nombres} ${user.apellidos}`;
+        select.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error('Error al cargar empleados:', error);
+  }
+}
+
+async function loadOffers() {
+  try {
+    const response = await fetch('/admin/api/offers?estado=activa');
+    const data = await response.json();
+    
+    if (data.success) {
+      const select = document.getElementById('oferta_id');
+      data.data.offers.forEach(offer => {
+        const option = document.createElement('option');
+        option.value = offer.id;
+        option.textContent = `${offer.servicio} - ${offer.municipio}`;
+        select.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error('Error al cargar ofertas:', error);
+  }
+}
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(e.target);
+  const applymentData = Object.fromEntries(formData.entries());
+  
+  try {
+    const response = await fetch('/admin/api/applyments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(applymentData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showAlert('Postulación creada exitosamente', 'success');
+      setTimeout(() => {
+        window.location.href = '/admin/applyments';
+      }, 1500);
+    } else {
+      showAlert('Error al crear postulación: ' + data.message, 'danger');
+      if (data.errors) {
+        showValidationErrors(data.errors);
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showAlert('Error de conexión al crear postulación', 'danger');
+  }
+}
+</script>

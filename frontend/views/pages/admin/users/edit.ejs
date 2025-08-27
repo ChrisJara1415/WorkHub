@@ -1,0 +1,160 @@
+<% layout('../layout') -%>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-pencil"></i>
+        Editar Usuario
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="/admin/usuarios" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Volver
+            </a>
+        </div>
+    </div>
+</div>
+
+<% if (error) { %>
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle"></i>
+        <%= error %>
+    </div>
+<% } %>
+
+<div class="card">
+    <div class="card-header">
+        <h6 class="m-0 font-weight-bold">Información del Usuario</h6>
+    </div>
+    <div class="card-body">
+        <form method="POST" action="/admin/usuarios/<%= user._id %>?_method=PUT">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="nombres" class="form-label">Nombres *</label>
+                    <input type="text" class="form-control" id="nombres" name="nombres" 
+                           value="<%= user.nombres %>" required maxlength="150">
+                    <div class="form-text">Solo letras y espacios, máximo 150 caracteres</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="apellidos" class="form-label">Apellidos *</label>
+                    <input type="text" class="form-control" id="apellidos" name="apellidos" 
+                           value="<%= user.apellidos %>" required maxlength="150">
+                    <div class="form-text">Solo letras y espacios, máximo 150 caracteres</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="email" class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="email" name="email" 
+                           value="<%= user.email %>" required>
+                    <div class="form-text">Debe ser un email válido y único</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="telefono" class="form-label">Teléfono *</label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono" 
+                           value="<%= user.telefono %>" required pattern="^(\+57)?3\d{9}$">
+                    <div class="form-text">Formato: 3XXXXXXXXX o +573XXXXXXXXX</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="rol" class="form-label">Rol *</label>
+                    <select class="form-select" id="rol" name="rol" required>
+                        <option value="">Seleccionar rol</option>
+                        <option value="empleado" <%= user.rol === 'empleado' ? 'selected' : '' %>>Empleado</option>
+                        <option value="empleador" <%= user.rol === 'empleador' ? 'selected' : '' %>>Empleador</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="municipio" class="form-label">Municipio *</label>
+                    <select class="form-select" id="municipio" name="municipio" required>
+                        <option value="">Seleccionar municipio</option>
+                        <option value="barbosa" <%= user.municipio === 'barbosa' ? 'selected' : '' %>>Barbosa</option>
+                        <option value="copacabana" <%= user.municipio === 'copacabana' ? 'selected' : '' %>>Copacabana</option>
+                        <option value="girardota" <%= user.municipio === 'girardota' ? 'selected' : '' %>>Girardota</option>
+                        <option value="bello" <%= user.municipio === 'bello' ? 'selected' : '' %>>Bello</option>
+                        <option value="medellín" <%= user.municipio === 'medellín' ? 'selected' : '' %>>Medellín</option>
+                        <option value="envigado" <%= user.municipio === 'envigado' ? 'selected' : '' %>>Envigado</option>
+                        <option value="itagüí" <%= user.municipio === 'itagüí' ? 'selected' : '' %>>Itagüí</option>
+                        <option value="sabaneta" <%= user.municipio === 'sabaneta' ? 'selected' : '' %>>Sabaneta</option>
+                        <option value="la estrella" <%= user.municipio === 'la estrella' ? 'selected' : '' %>>La Estrella</option>
+                        <option value="caldas" <%= user.municipio === 'caldas' ? 'selected' : '' %>>Caldas</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label for="direccion" class="form-label">Dirección *</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion" 
+                           value="<%= user.direccion %>" required>
+                    <div class="form-text">Solo letras, números y espacios</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="seguridadSocial.nombre" class="form-label">Seguridad Social *</label>
+                    <input type="text" class="form-control" id="seguridadSocial.nombre" name="seguridadSocial[nombre]" 
+                           value="<%= user.seguridadSocial?.nombre || '' %>" required>
+                    <div class="form-text">Nombre de la EPS o seguridad social</div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="seguridadSocial.estado" class="form-label">Estado Seguridad Social</label>
+                    <select class="form-select" id="seguridadSocial.estado" name="seguridadSocial[estado]">
+                        <option value="activo" <%= user.seguridadSocial?.estado === 'activo' ? 'selected' : '' %>>Activo</option>
+                        <option value="inactivo" <%= user.seguridadSocial?.estado === 'inactivo' ? 'selected' : '' %>>Inactivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                <strong>Nota:</strong> La contraseña no se puede editar desde este formulario por seguridad.
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="/admin/usuarios" class="btn btn-outline-secondary me-md-2">Cancelar</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i>
+                    Actualizar Usuario
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Validación en tiempo real
+    document.getElementById('nombres').addEventListener('input', function(e) {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z\s]*$/;
+        if (!regex.test(value)) {
+            e.target.setCustomValidity('Solo se permiten letras y espacios');
+        } else {
+            e.target.setCustomValidity('');
+        }
+    });
+
+    document.getElementById('apellidos').addEventListener('input', function(e) {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z\s]*$/;
+        if (!regex.test(value)) {
+            e.target.setCustomValidity('Solo se permiten letras y espacios');
+        } else {
+            e.target.setCustomValidity('');
+        }
+    });
+
+    document.getElementById('direccion').addEventListener('input', function(e) {
+        const value = e.target.value;
+        const regex = /^[a-zA-Z0-9\s]*$/;
+        if (!regex.test(value)) {
+            e.target.setCustomValidity('Solo se permiten letras, números y espacios');
+        } else {
+            e.target.setCustomValidity('');
+        }
+    });
+</script>

@@ -1,0 +1,183 @@
+<% layout('layout') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Editar Reporte PQRS</h2>
+        <a href="/admin/reports" class="btn btn-secondary">
+          <i class="fas fa-arrow-left"></i> Volver
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <form id="editReportForm">
+            <input type="hidden" id="reportId" name="id">
+            
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="usuario_id" class="form-label">Usuario *</label>
+                  <select class="form-select" id="usuario_id" name="usuario_id" required>
+                    <option value="">Seleccionar usuario...</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="tipo" class="form-label">Tipo *</label>
+                  <select class="form-select" id="tipo" name="tipo" required>
+                    <option value="">Seleccionar tipo...</option>
+                    <option value="peticion">Petición</option>
+                    <option value="queja">Queja</option>
+                    <option value="reclamo">Reclamo</option>
+                    <option value="sugerencia">Sugerencia</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="fecha_reporte" class="form-label">Fecha del Reporte *</label>
+                  <input type="date" class="form-control" id="fecha_reporte" name="fecha_reporte" required>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="estado" class="form-label">Estado *</label>
+                  <select class="form-select" id="estado" name="estado" required>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="en_proceso">En Proceso</option>
+                    <option value="resuelto">Resuelto</option>
+                    <option value="cerrado">Cerrado</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="asunto" class="form-label">Asunto *</label>
+              <input type="text" class="form-control" id="asunto" name="asunto" required>
+              <div class="invalid-feedback"></div>
+            </div>
+
+            <div class="mb-3">
+              <label for="descripcion" class="form-label">Descripción *</label>
+              <textarea class="form-control" id="descripcion" name="descripcion" rows="4" required></textarea>
+              <div class="invalid-feedback"></div>
+            </div>
+
+            <div class="mb-3">
+              <label for="solucion" class="form-label">Solución</label>
+              <textarea class="form-control" id="solucion" name="solucion" rows="3" placeholder="Solución propuesta o aplicada..."></textarea>
+              <div class="invalid-feedback"></div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <a href="/admin/reports" class="btn btn-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Actualizar Reporte
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const reportId = window.location.pathname.split('/').pop();
+  loadUsers();
+  loadReport(reportId);
+  
+  document.getElementById('editReportForm').addEventListener('submit', handleSubmit);
+});
+
+async function loadUsers() {
+  try {
+    const response = await fetch('/admin/api/users');
+    const data = await response.json();
+    
+    if (data.success) {
+      const select = document.getElementById('usuario_id');
+      data.data.users.forEach(user => {
+        const option = document.createElement('option');
+        option.value = user.id;
+        option.textContent = `${user.nombres} ${user.apellidos} (${user.rol})`;
+        select.appendChild(option);
+      });
+    }
+  } catch (error) {
+    console.error('Error al cargar usuarios:', error);
+  }
+}
+
+async function loadReport(id) {
+  try {
+    const response = await fetch(`/admin/api/reports/${id}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      const report = data.data;
+      document.getElementById('reportId').value = report.id;
+      document.getElementById('usuario_id').value = report.usuario_id;
+      document.getElementById('tipo').value = report.tipo;
+      document.getElementById('fecha_reporte').value = report.fecha_reporte ? report.fecha_reporte.split('T')[0] : '';
+      document.getElementById('estado').value = report.estado;
+      document.getElementById('asunto').value = report.asunto;
+      document.getElementById('descripcion').value = report.descripcion;
+      document.getElementById('solucion').value = report.solucion || '';
+    } else {
+      showAlert('Error al cargar reporte: ' + data.message, 'danger');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showAlert('Error de conexión al cargar reporte', 'danger');
+  }
+}
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(e.target);
+  const reportData = Object.fromEntries(formData.entries());
+  const reportId = reportData.id;
+  delete reportData.id;
+  
+  try {
+    const response = await fetch(`/admin/api/reports/${reportId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(reportData)
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showAlert('Reporte actualizado exitosamente', 'success');
+      setTimeout(() => {
+        window.location.href = '/admin/reports';
+      }, 1500);
+    } else {
+      showAlert('Error al actualizar reporte: ' + data.message, 'danger');
+      if (data.errors) {
+        showValidationErrors(data.errors);
+      }
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showAlert('Error de conexión al actualizar reporte', 'danger');
+  }
+}
+</script>

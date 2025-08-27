@@ -1,0 +1,155 @@
+<% layout('layout') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestión de Ofertas</h2>
+        <a href="/admin/offers/create" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Nueva Oferta
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Servicio</th>
+                  <th>Empleador</th>
+                  <th>Municipio</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="offersTableBody">
+                <!-- Los datos se cargarán dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Paginación -->
+          <nav aria-label="Paginación de ofertas">
+            <ul class="pagination justify-content-center" id="offersPagination">
+              <!-- La paginación se generará dinámicamente -->
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div class="modal fade" id="deleteOfferModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Confirmar Eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        ¿Está seguro de que desea eliminar esta oferta?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="confirmDeleteOffer">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentPage = 1;
+let offerToDelete = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadOffers();
+});
+
+async function loadOffers(page = 1) {
+  try {
+    const response = await fetch(`/admin/api/offers?page=${page}`);
+    const data = await response.json();
+    
+    if (data.success) {
+      renderOffersTable(data.data.offers);
+      renderPagination(data.data.pagination, 'offersPagination', loadOffers);
+      currentPage = page;
+    } else {
+      showAlert('Error al cargar ofertas: ' + data.message, 'danger');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showAlert('Error de conexión al cargar ofertas', 'danger');
+  }
+}
+
+function renderOffersTable(offers) {
+  const tbody = document.getElementById('offersTableBody');
+  tbody.innerHTML = '';
+
+  offers.forEach(offer => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${offer.id}</td>
+      <td>${offer.servicio}</td>
+      <td>${offer.empleador_nombre || 'N/A'}</td>
+      <td>${offer.municipio}</td>
+      <td>${offer.categoria}</td>
+      <td>$${parseFloat(offer.precio).toLocaleString()}</td>
+      <td>
+        <span class="badge ${offer.estado === 'activa' ? 'bg-success' : 'bg-secondary'}">
+          ${offer.estado}
+        </span>
+      </td>
+      <td>
+        <div class="btn-group" role="group">
+          <a href="/admin/offers/edit/${offer.id}" class="btn btn-sm btn-outline-primary">
+            <i class="fas fa-edit"></i>
+          </a>
+          <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${offer.id})">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function confirmDelete(id) {
+  offerToDelete = id;
+  const modal = new bootstrap.Modal(document.getElementById('deleteOfferModal'));
+  modal.show();
+}
+
+document.getElementById('confirmDeleteOffer').addEventListener('click', async function() {
+  if (offerToDelete) {
+    try {
+      const response = await fetch(`/admin/api/offers/${offerToDelete}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      
+      if (data.success) {
+        showAlert('Oferta eliminada exitosamente', 'success');
+        loadOffers(currentPage);
+      } else {
+        showAlert('Error al eliminar oferta: ' + data.message, 'danger');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      showAlert('Error de conexión al eliminar oferta', 'danger');
+    }
+    
+    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteOfferModal'));
+    modal.hide();
+    offerToDelete = null;
+  }
+});
+</script>

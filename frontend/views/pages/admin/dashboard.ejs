@@ -1,0 +1,269 @@
+<% layout('layout') -%>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-speedometer2"></i>
+        Dashboard
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                <i class="bi bi-arrow-clockwise"></i>
+                Actualizar
+            </button>
+        </div>
+    </div>
+</div>
+
+<% if (error) { %>
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        <%= error %>
+    </div>
+<% } %>
+
+<!-- Estadísticas principales -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Total Usuarios
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold">
+                            <%= stats.totalUsers %>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-people fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Total Ofertas
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold">
+                            <%= stats.totalOffers %>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-briefcase fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Total Contratos
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold">
+                            <%= stats.totalContracts %>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-file-earmark-text fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-uppercase mb-1">
+                            Total Postulaciones
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold">
+                            <%= stats.totalApplyments %>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="bi bi-person-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráficos y estadísticas adicionales -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="bi bi-bar-chart"></i>
+                    Resumen General
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="generalChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="bi bi-pie-chart"></i>
+                    Distribución
+                </h6>
+            </div>
+            <div class="card-body">
+                <canvas id="distributionChart" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones rápidas -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">
+                    <i class="bi bi-lightning"></i>
+                    Acciones Rápidas
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 mb-3">
+                        <a href="/admin/usuarios/crear" class="btn btn-primary w-100">
+                            <i class="bi bi-person-plus"></i><br>
+                            Nuevo Usuario
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="/admin/ofertas/crear" class="btn btn-primary w-100">
+                            <i class="bi bi-briefcase-fill"></i><br>
+                            Nueva Oferta
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="/admin/contratos/crear" class="btn btn-primary w-100">
+                            <i class="bi bi-file-earmark-plus"></i><br>
+                            Nuevo Contrato
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="/admin/postulaciones/crear" class="btn btn-primary w-100">
+                            <i class="bi bi-person-check-fill"></i><br>
+                            Nueva Postulación
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="/admin/reportes/crear" class="btn btn-primary w-100">
+                            <i class="bi bi-flag-fill"></i><br>
+                            Nuevo Reporte
+                        </a>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="/admin/reportes" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-list-ul"></i><br>
+                            Ver Reportes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gráfico general
+    const generalCtx = document.getElementById('generalChart').getContext('2d');
+    const generalChart = new Chart(generalCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Usuarios', 'Ofertas', 'Contratos', 'Postulaciones', 'Reportes'],
+            datasets: [{
+                label: 'Cantidad',
+                data: [
+                    '<%= stats.totalUsers %>',
+                    '<%= stats.totalOffers %>',
+                    '<%= stats.totalContracts %>',
+                    '<%= stats.totalApplyments %>',
+                    '<%= stats.totalReports %>'
+                ],
+                backgroundColor: [
+                    'rgba(102, 126, 234, 0.8)',
+                    'rgba(118, 75, 162, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)',
+                    'rgba(255, 206, 86, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(102, 126, 234, 1)',
+                    'rgba(118, 75, 162, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Gráfico de distribución
+    const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+    const distributionChart = new Chart(distributionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Usuarios', 'Ofertas', 'Contratos', 'Postulaciones'],
+            datasets: [{
+                data: [
+                    '<%= stats.totalUsers %>',
+                    '<%= stats.totalOffers %>',
+                    '<%= stats.totalContracts %>',
+                    '<%= stats.totalApplyments %>'
+                ],
+                backgroundColor: [
+                    'rgba(102, 126, 234, 0.8)',
+                    'rgba(118, 75, 162, 0.8)',
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(54, 162, 235, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(102, 126, 234, 1)',
+                    'rgba(118, 75, 162, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>

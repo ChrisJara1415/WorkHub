@@ -24,15 +24,17 @@ app.use(methodOverride("_method"))
 app.use(express.static(path.join(__dirname, "static")))
 
 // Rutas
-import indexRoutes from "./routes/indexRoutes/indexRouter.js"
+import indexRoutes from "./routes/indexRouter.js"
+import adminRoutes from "./routes/globalRoutes.js"
 
 // mideleware para manejar rutas del index, usuarios, ofertas, postulaciones
 
 app.use("/", indexRoutes)
+app.use("/admin", adminRoutes)
 
 // Middleware de manejo de errores 404
 app.use((req, res) => {
-  res.status(404).render("pages/404", {
+  res.status(404).render("pages/errors/404", {
     title: "Página no encontrada",
     error: "La página que buscas no existe",
     activeMenu: ""
@@ -42,7 +44,7 @@ app.use((req, res) => {
 // Middleware de manejo de errores del servidor
 app.use((err, req, res, next) => {
   console.error(err.stack)
-  res.status(500).render("pages/error", {
+  res.status(500).render("pages/errors/500", {
     title: "Error del servidor",
     error: "Algo salió mal en el servidor",
   })
