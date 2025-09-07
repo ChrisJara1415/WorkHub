@@ -1,4 +1,5 @@
 import express from "express"
+import expLayouts from "express-ejs-layouts"
 import path from "path"
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -18,6 +19,7 @@ app.use(morgan("dev"))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(methodOverride("_method"))
+app.use(expLayouts)
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, "static")))
