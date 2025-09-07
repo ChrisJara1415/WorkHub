@@ -227,7 +227,7 @@ router.get("/contratos", async (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10
     const contracts = await apiService.getContracts(page, limit)
 
-    res.render("pages/admin/contratos/index", {
+    res.render("pages/admin/contracts/index", {
       title: "Gestión de Contratos",
       activeMenu: "contratos",
       contracts: contracts.data || [],
@@ -240,7 +240,7 @@ router.get("/contratos", async (req, res) => {
     })
   } catch (error) {
     console.error("Error al obtener contratos:", error.message)
-    res.render("pages/admin/contratos/index", {
+    res.render("pages/admin/contracts/index", {
       title: "Gestión de Contratos",
       activeMenu: "contratos",
       contracts: [],
@@ -251,7 +251,7 @@ router.get("/contratos", async (req, res) => {
 })
 
 router.get("/contratos/crear", (req, res) => {
-  res.render("pages/admin/contratos/create", {
+  res.render("pages/admin/contracts/create", {
     title: "Crear Contrato",
     activeMenu: "contratos",
     error: null,
@@ -265,7 +265,7 @@ router.post("/contratos", async (req, res) => {
     res.redirect("/admin/contratos?success=Contrato creado exitosamente")
   } catch (error) {
     console.error("Error al crear contrato:", error.message)
-    res.render("pages/admin/contratos/create", {
+    res.render("pages/admin/contracts/create", {
       title: "Crear Contrato",
       activeMenu: "contratos",
       error: error.message,
@@ -277,7 +277,7 @@ router.post("/contratos", async (req, res) => {
 router.get("/contratos/:id/editar", async (req, res) => {
   try {
     const contract = await apiService.getContractById(req.params.id)
-    res.render("pages/admin/contratos/edit", {
+    res.render("pages/admin/contracts/edit", {
       title: "Editar Contrato",
       activeMenu: "contratos",
       contract: contract.data || contract,
@@ -296,7 +296,7 @@ router.put("/contratos/:id", async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar contrato:", error.message)
     const contract = await apiService.getContractById(req.params.id).catch(() => ({}))
-    res.render("pages/admin/contratos/edit", {
+    res.render("pages/admin/contracts/edit", {
       title: "Editar Contrato",
       activeMenu: "contratos",
       contract: contract.data || contract,
