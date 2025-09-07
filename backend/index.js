@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import globalRouter from './routers/globalRoutes.router.js'
 import cors from 'cors'
+import {backupDatabase} from './config/backup.js'
+import cron from 'node-cron'
 dotenv.config()
 
 const app = exp()
@@ -19,6 +21,11 @@ app.use(
     credentials: true,
   }),
 )
+
+cron.schedule('1 * * * * *', async () => {
+    console.log('Realizando Backup de la Base de datos');
+    backupDatabase();
+});
 
 app.listen(PORT, () => {
     try {
