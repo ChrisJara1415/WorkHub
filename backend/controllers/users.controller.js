@@ -1,11 +1,12 @@
 import user from '../models/users.model.js'
+import { generateLog } from '../middlewares/log.js'
 
 export const createUser = async (req, res) => {
     try {
         const { nombres, apellidos, email, telefono, passwordHash, fechaRegistro, rol, municipio, direccion, seguridadSocial} = req.body
         const nuevoUsuario = new user({ nombres, apellidos, email, telefono, passwordHash, fechaRegistro, rol, municipio, direccion, seguridadSocial})
         await nuevoUsuario.save()
-
+        generateLog('logs/usuario.log', `El perfil: ${nuevoUsuario.rol} ha creado un nuevo usuario (${nuevoUsuario.rol} - ${nuevoUsuario.nombres} ${nuevoUsuario.apellidos} ) a las ${new Date()} \n`)
         res.status(201).json({ message: 'Usuario creado correctamente', data: nuevoUsuario })
 
     } catch (error) {
