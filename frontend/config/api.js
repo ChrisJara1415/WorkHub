@@ -10,6 +10,7 @@ const apiClient = axios.create({
   timeout: 10000, // Tiempo máximo de espera para las solicitudes, en caso de tardar más de 10 segundos, se cancelará la solicitud
   headers: {
     "Content-Type": "application/json", // Tipo de contenido que se enviará en las solicitudes
+    "x-api-key": "api-key-mas-segura-del-mundo" //ApiKey
   },
 })
 
