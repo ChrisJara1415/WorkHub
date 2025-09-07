@@ -19,7 +19,10 @@ app.use(morgan("dev"))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(methodOverride("_method"))
+
+// Middleware para layouts
 app.use(expLayouts)
+app.set('layout', 'pages/layout');
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, "static")))
