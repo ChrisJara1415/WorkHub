@@ -22,7 +22,7 @@ app.use(
   }),
 )
 
-cron.schedule('1 * * * * *', async () => {
+cron.schedule('* 1 * * * *', async () => {
     console.log('Realizando Backup de la Base de datos');
     backupDatabase();
 });

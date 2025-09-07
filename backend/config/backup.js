@@ -1,6 +1,5 @@
 import { exec } from "node:child_process";
-process.loadEnvFile('.env')
-
+process.loadEnvFile()
 export async function backupDatabase() {
     // const dbName = process.env.NAME_DB;
     const outputPath = './backup';
