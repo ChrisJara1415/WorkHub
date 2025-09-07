@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadEmployees() {
   try {
-    const response = await fetch('/admin/api/users?role=empleado');
+    const response = await fetch('/admin/users?role=empleado');
     const data = await response.json();
     
     if (data.success) {
@@ -107,7 +107,7 @@ async function loadEmployees() {
 
 async function loadOffers() {
   try {
-    const response = await fetch('/admin/api/offers');
+    const response = await fetch('/admin/offers');
     const data = await response.json();
     
     if (data.success) {
@@ -126,7 +126,7 @@ async function loadOffers() {
 
 async function loadApplyment(id) {
   try {
-    const response = await fetch(`/admin/api/applyments/${id}`);
+    const response = await fetch(`/admin/applyments/${id}`);
     const data = await response.json();
     
     if (data.success) {
@@ -155,7 +155,7 @@ async function handleSubmit(e) {
   delete applymentData.id;
   
   try {
-    const response = await fetch(`/admin/api/applyments/${applymentId}`, {
+    const response = await fetch(`/admin/applyments/${applymentId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'

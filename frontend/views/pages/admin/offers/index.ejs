@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadOffers(page = 1) {
   try {
-    const response = await fetch(`/admin/api/offers?page=${page}`);
+    const response = await fetch(`/admin/offers?page=${page}`);
     const data = await response.json();
     
     if (data.success) {
@@ -131,7 +131,7 @@ function confirmDelete(id) {
 document.getElementById('confirmDeleteOffer').addEventListener('click', async function() {
   if (offerToDelete) {
     try {
-      const response = await fetch(`/admin/api/offers/${offerToDelete}`, {
+      const response = await fetch(`/admin/offers/${offerToDelete}`, {
         method: 'DELETE'
       });
       const data = await response.json();

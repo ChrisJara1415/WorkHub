@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadUsers() {
   try {
-    const response = await fetch('/admin/api/users');
+    const response = await fetch('/admin/users');
     const data = await response.json();
     
     if (data.success) {
@@ -121,7 +121,7 @@ async function loadUsers() {
 
 async function loadReport(id) {
   try {
-    const response = await fetch(`/admin/api/reports/${id}`);
+    const response = await fetch(`/admin/reports/${id}`);
     const data = await response.json();
     
     if (data.success) {
@@ -152,7 +152,7 @@ async function handleSubmit(e) {
   delete reportData.id;
   
   try {
-    const response = await fetch(`/admin/api/reports/${reportId}`, {
+    const response = await fetch(`/admin/reports/${reportId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'

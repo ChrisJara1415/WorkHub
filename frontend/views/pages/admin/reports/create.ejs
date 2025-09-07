@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadUsers() {
   try {
-    const response = await fetch('/admin/api/users');
+    const response = await fetch('/admin/users');
     const data = await response.json();
     
     if (data.success) {
@@ -124,7 +124,7 @@ async function handleSubmit(e) {
   const reportData = Object.fromEntries(formData.entries());
   
   try {
-    const response = await fetch('/admin/api/reports', {
+    const response = await fetch('/admin/reports', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

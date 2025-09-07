@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadEmployers() {
   try {
-    const response = await fetch('/admin/api/users?role=empleador');
+    const response = await fetch('/admin/users?role=empleador');
     const data = await response.json();
     
     if (data.success) {
@@ -135,7 +135,7 @@ async function handleSubmit(e) {
   const offerData = Object.fromEntries(formData.entries());
   
   try {
-    const response = await fetch('/admin/api/offers', {
+    const response = await fetch('/admin/offers', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
