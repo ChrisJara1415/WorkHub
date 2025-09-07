@@ -227,9 +227,9 @@ router.get("/contratos", async (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10
     const contracts = await apiService.getContracts(page, limit)
 
-    res.render("pages/admin/contracts/index", {
+    res.render("pages/admin/contratos/index", {
       title: "Gestión de Contratos",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contracts: contracts.data || [],
       pagination: {
         currentPage: page,
@@ -240,9 +240,9 @@ router.get("/contratos", async (req, res) => {
     })
   } catch (error) {
     console.error("Error al obtener contratos:", error.message)
-    res.render("pages/admin/contracts/index", {
+    res.render("pages/admin/contratos/index", {
       title: "Gestión de Contratos",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contracts: [],
       pagination: { currentPage: 1, totalPages: 0, total: 0 },
       error: error.message,
@@ -251,9 +251,9 @@ router.get("/contratos", async (req, res) => {
 })
 
 router.get("/contratos/crear", (req, res) => {
-  res.render("pages/admin/contracts/create", {
+  res.render("pages/admin/contratos/create", {
     title: "Crear Contrato",
-    activeMenu: "contracts",
+    activeMenu: "contratos",
     error: null,
     formData: {},
   })
@@ -265,9 +265,9 @@ router.post("/contratos", async (req, res) => {
     res.redirect("/admin/contratos?success=Contrato creado exitosamente")
   } catch (error) {
     console.error("Error al crear contrato:", error.message)
-    res.render("pages/admin/contracts/create", {
+    res.render("pages/admin/contratos/create", {
       title: "Crear Contrato",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       error: error.message,
       formData: req.body,
     })
@@ -277,9 +277,9 @@ router.post("/contratos", async (req, res) => {
 router.get("/contratos/:id/editar", async (req, res) => {
   try {
     const contract = await apiService.getContractById(req.params.id)
-    res.render("pages/admin/contracts/edit", {
+    res.render("pages/admin/contratos/edit", {
       title: "Editar Contrato",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contract: contract.data || contract,
       error: null,
     })
@@ -296,9 +296,9 @@ router.put("/contratos/:id", async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar contrato:", error.message)
     const contract = await apiService.getContractById(req.params.id).catch(() => ({}))
-    res.render("pages/admin/contracts/edit", {
+    res.render("pages/admin/contratos/edit", {
       title: "Editar Contrato",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contract: contract.data || contract,
       error: error.message,
     })
