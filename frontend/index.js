@@ -5,8 +5,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import methodOverride from "method-override"
 import morgan from "morgan"
-import dotenv from "dotenv"
-dotenv.config()
+process.loadEnvFile()
 
 const app = express()
 

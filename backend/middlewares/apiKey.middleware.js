@@ -1,5 +1,4 @@
-import dotenv from "dotenv"
-dotenv.config()
+process.loadEnvFile()
 
 const validateApiKey = (req, res, next) => {
     const apiKey = req.headers['x-api-key']

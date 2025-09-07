@@ -1,14 +1,13 @@
 import exp from "express";
-import dotenv from "dotenv";
 import morgan from "morgan";
 import globalRouter from './routers/globalRoutes.router.js'
 import cors from 'cors'
 import {backupDatabase} from './config/backup.js'
 import cron from 'node-cron'
-dotenv.config()
+process.loadEnvFile()
 
 const app = exp()
-const PORT = process.env.PORT || 8300
+const PORT = process.env.PORT
 
 app.use(exp.json())
 app.use(morgan('dev'))
