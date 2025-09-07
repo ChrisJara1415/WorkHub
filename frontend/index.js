@@ -51,6 +51,7 @@ app.use((err, req, res, next) => {
   res.status(500).render("pages/errors/500", {
     title: "Error del servidor",
     error: "Algo salió mal en el servidor",
+    activeMenu: ""
   })
 })
 
