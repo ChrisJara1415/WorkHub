@@ -1,4 +1,4 @@
-<% layout('layout') %>
+
 
 <div class="container-fluid">
   <div class="row">
@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadEmployees() {
   try {
-    const response = await fetch('/admin/api/users?role=empleado');
+    const response = await fetch('/admin/users?role=empleado');
     const data = await response.json();
     
     if (data.success) {
@@ -105,7 +105,7 @@ async function loadEmployees() {
 
 async function loadOffers() {
   try {
-    const response = await fetch('/admin/api/offers?estado=activa');
+    const response = await fetch('/admin/offers?estado=activa');
     const data = await response.json();
     
     if (data.success) {
@@ -129,7 +129,7 @@ async function handleSubmit(e) {
   const applymentData = Object.fromEntries(formData.entries());
   
   try {
-    const response = await fetch('/admin/api/applyments', {
+    const response = await fetch('/admin/applyments', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

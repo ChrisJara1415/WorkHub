@@ -4,7 +4,7 @@ class ApiService {
   // Usuarios
   async getUsers(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/workhubApi/clientes?page=${page}&limit=${limit}`)
+      const response = await apiClient.get(`/clientes?page=${page}&limit=${limit}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener usuarios: ${error.message}`)
@@ -13,7 +13,7 @@ class ApiService {
 
   async getUserById(id) {
     try {
-      const response = await apiClient.get(`/workhubApi/clientes/${id}`)
+      const response = await apiClient.get(`/clientes/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener usuario: ${error.message}`)
@@ -22,7 +22,7 @@ class ApiService {
 
   async createUser(userData) {
     try {
-      const response = await apiClient.post("/workhubApi/clientes", userData)
+      const response = await apiClient.post("/clientes", userData)
       return response.data
     } catch (error) {
       throw new Error(`Error al crear usuario: ${error.message}`)
@@ -31,7 +31,7 @@ class ApiService {
 
   async updateUser(id, userData) {
     try {
-      const response = await apiClient.put(`/workhubApi/clientes/${id}`, userData)
+      const response = await apiClient.put(`/clientes/${id}`, userData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar usuario: ${error.message}`)
@@ -40,7 +40,7 @@ class ApiService {
 
   async deleteUser(id) {
     try {
-      const response = await apiClient.delete(`/workhubApi/clientes/${id}`)
+      const response = await apiClient.delete(`/clientes/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al eliminar usuario: ${error.message}`)
@@ -50,7 +50,7 @@ class ApiService {
   // Ofertas
   async getOffers(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/workhubApi/ofertas?page=${page}&limit=${limit}`)
+      const response = await apiClient.get(`/ofertas?page=${page}&limit=${limit}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener ofertas: ${error.message}`)
@@ -59,7 +59,7 @@ class ApiService {
 
   async getOfferById(id) {
     try {
-      const response = await apiClient.get(`/workhubApi/ofertas/${id}`)
+      const response = await apiClient.get(`/ofertas/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener oferta: ${error.message}`)
@@ -68,7 +68,7 @@ class ApiService {
 
   async createOffer(offerData) {
     try {
-      const response = await apiClient.post("/workhubApi/ofertas", offerData)
+      const response = await apiClient.post("/ofertas", offerData)
       return response.data
     } catch (error) {
       throw new Error(`Error al crear oferta: ${error.message}`)
@@ -77,7 +77,7 @@ class ApiService {
 
   async updateOffer(id, offerData) {
     try {
-      const response = await apiClient.put(`/workhubApi/ofertas/${id}`, offerData)
+      const response = await apiClient.put(`/ofertas/${id}`, offerData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar oferta: ${error.message}`)
@@ -86,7 +86,7 @@ class ApiService {
 
   async deleteOffer(id) {
     try {
-      const response = await apiClient.delete(`/workhubApi/ofertas/${id}`)
+      const response = await apiClient.delete(`/ofertas/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al eliminar oferta: ${error.message}`)
@@ -96,7 +96,7 @@ class ApiService {
   // Contratos
   async getContracts(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/workhubApi/contratos?page=${page}&limit=${limit}`)
+      const response = await apiClient.get(`/contratos?page=${page}&limit=${limit}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener contratos: ${error.message}`)
@@ -105,7 +105,7 @@ class ApiService {
 
   async getContractById(id) {
     try {
-      const response = await apiClient.get(`/workhubApi/contratos/${id}`)
+      const response = await apiClient.get(`/contratos/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener contrato: ${error.message}`)
@@ -114,7 +114,7 @@ class ApiService {
 
   async createContract(contractData) {
     try {
-      const response = await apiClient.post("/workhubApi/contratos", contractData)
+      const response = await apiClient.post("/contratos", contractData)
       return response.data
     } catch (error) {
       throw new Error(`Error al crear contrato: ${error.message}`)
@@ -123,7 +123,7 @@ class ApiService {
 
   async updateContract(id, contractData) {
     try {
-      const response = await apiClient.put(`/workhubApi/contratos/${id}`, contractData)
+      const response = await apiClient.put(`/contratos/${id}`, contractData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar contrato: ${error.message}`)
@@ -132,7 +132,7 @@ class ApiService {
 
   async deleteContract(id) {
     try {
-      const response = await apiClient.delete(`/workhubApi/contratos/${id}`)
+      const response = await apiClient.delete(`/contratos/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al eliminar contrato: ${error.message}`)
@@ -142,7 +142,7 @@ class ApiService {
   // Postulaciones
   async getApplyments(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/workhubApi/postulaciones?page=${page}&limit=${limit}`)
+      const response = await apiClient.get(`/postulaciones?page=${page}&limit=${limit}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener postulaciones: ${error.message}`)
@@ -151,7 +151,7 @@ class ApiService {
 
   async getApplymentById(id) {
     try {
-      const response = await apiClient.get(`/workhubApi/postulaciones/${id}`)
+      const response = await apiClient.get(`/postulaciones/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener postulación: ${error.message}`)
@@ -160,7 +160,7 @@ class ApiService {
 
   async createApplyment(applymentData) {
     try {
-      const response = await apiClient.post("/workhubApi/postulaciones", applymentData)
+      const response = await apiClient.post("/postulaciones", applymentData)
       return response.data
     } catch (error) {
       throw new Error(`Error al crear postulación: ${error.message}`)
@@ -169,7 +169,7 @@ class ApiService {
 
   async updateApplyment(id, applymentData) {
     try {
-      const response = await apiClient.put(`/workhubApi/postulaciones/${id}`, applymentData)
+      const response = await apiClient.put(`/postulaciones/${id}`, applymentData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar postulación: ${error.message}`)
@@ -178,7 +178,7 @@ class ApiService {
 
   async deleteApplyment(id) {
     try {
-      const response = await apiClient.delete(`/workhubApi/postulaciones/${id}`)
+      const response = await apiClient.delete(`/postulaciones/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al eliminar postulación: ${error.message}`)
@@ -188,7 +188,7 @@ class ApiService {
   // Reportes
   async getReports(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/workhubApi/reportes?page=${page}&limit=${limit}`)
+      const response = await apiClient.get(`/reportes?page=${page}&limit=${limit}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener reportes: ${error.message}`)
@@ -197,7 +197,7 @@ class ApiService {
 
   async getReportById(id) {
     try {
-      const response = await apiClient.get(`/workhubApi/reportes/${id}`)
+      const response = await apiClient.get(`/reportes/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al obtener reporte: ${error.message}`)
@@ -206,7 +206,7 @@ class ApiService {
 
   async createReport(reportData) {
     try {
-      const response = await apiClient.post("/workhubApi/reportes", reportData)
+      const response = await apiClient.post("/reportes", reportData)
       return response.data
     } catch (error) {
       throw new Error(`Error al crear reporte: ${error.message}`)
@@ -215,7 +215,7 @@ class ApiService {
 
   async updateReport(id, reportData) {
     try {
-      const response = await apiClient.put(`/workhubApi/reportes/${id}`, reportData)
+      const response = await apiClient.put(`/reportes/${id}`, reportData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar reporte: ${error.message}`)
@@ -224,7 +224,7 @@ class ApiService {
 
   async deleteReport(id) {
     try {
-      const response = await apiClient.delete(`/workhubApi/reportes/${id}`)
+      const response = await apiClient.delete(`/reportes/${id}`)
       return response.data
     } catch (error) {
       throw new Error(`Error al eliminar reporte: ${error.message}`)

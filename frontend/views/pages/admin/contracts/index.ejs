@@ -1,11 +1,11 @@
-<% layout('layout') %>
+
 
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Gestión de Contratos</h2>
-        <a href="/admin/contracts/create" class="btn btn-primary">
+        <a href="/admin/contratos/create" class="btn btn-primary">
           <i class="fas fa-plus"></i> Nuevo Contrato
         </a>
       </div>
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadContracts(page = 1) {
   try {
-    const response = await fetch(`/admin/api/contracts?page=${page}`);
+    const response = await fetch(`/admin/contratos?page=${page}`);
     const data = await response.json();
     
     if (data.success) {
@@ -112,7 +112,7 @@ function renderContractsTable(contracts) {
       </td>
       <td>
         <div class="btn-group" role="group">
-          <a href="/admin/contracts/edit/${contract.id}" class="btn btn-sm btn-outline-primary">
+          <a href="/admin/contratos/edit/${contract.id}" class="btn btn-sm btn-outline-primary">
             <i class="fas fa-edit"></i>
           </a>
           <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${contract.id})">
@@ -143,7 +143,7 @@ function confirmDelete(id) {
 document.getElementById('confirmDeleteContract').addEventListener('click', async function() {
   if (contractToDelete) {
     try {
-      const response = await fetch(`/admin/api/contracts/${contractToDelete}`, {
+      const response = await fetch(`/admin/contratos/${contractToDelete}`, {
         method: 'DELETE'
       });
       const data = await response.json();

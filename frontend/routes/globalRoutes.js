@@ -4,10 +4,10 @@ import apiService from "../services/apiService.js"
 const router = Router()
 
 // Dashboard
-router.get("/admin", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const stats = await apiService.getDashboardStats()
-    res.render("admin/dashboard", {
+    res.render("pages/admin/dashboard", {
       title: "Dashboard - Panel de Administración",
       activeMenu: "dashboard",
       stats,
@@ -15,7 +15,7 @@ router.get("/admin", async (req, res) => {
     })
   } catch (error) {
     console.error("Error en dashboard:", error.message)
-    res.render("admin/dashboard", {
+    res.render("pages/admin/dashboard", {
       title: "Dashboard - Panel de Administración",
       activeMenu: "dashboard",
       stats: {
@@ -37,7 +37,7 @@ router.get("/usuarios", async (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10
     const users = await apiService.getUsers(page, limit)
 
-    res.render("admin/users/index", {
+    res.render("pages/admin/users/index", {
       title: "Gestión de Usuarios",
       activeMenu: "users",
       users: users.data || [],
@@ -50,7 +50,7 @@ router.get("/usuarios", async (req, res) => {
     })
   } catch (error) {
     console.error("Error al obtener usuarios:", error.message)
-    res.render("admin/users/index", {
+    res.render("pages/admin/users/index", {
       title: "Gestión de Usuarios",
       activeMenu: "users",
       users: [],
@@ -61,7 +61,7 @@ router.get("/usuarios", async (req, res) => {
 })
 
 router.get("/usuarios/crear", (req, res) => {
-  res.render("admin/users/create", {
+  res.render("pages/admin/users/create", {
     title: "Crear Usuario",
     activeMenu: "users",
     error: null,
@@ -75,7 +75,7 @@ router.post("/usuarios", async (req, res) => {
     res.redirect("/admin/usuarios?success=Usuario creado exitosamente")
   } catch (error) {
     console.error("Error al crear usuario:", error.message)
-    res.render("admin/users/create", {
+    res.render("pages/admin/users/create", {
       title: "Crear Usuario",
       activeMenu: "users",
       error: error.message,
@@ -87,7 +87,7 @@ router.post("/usuarios", async (req, res) => {
 router.get("/usuarios/:id/editar", async (req, res) => {
   try {
     const user = await apiService.getUserById(req.params.id)
-    res.render("admin/users/edit", {
+    res.render("pages/admin/users/edit", {
       title: "Editar Usuario",
       activeMenu: "users",
       user: user.data || user,
@@ -106,7 +106,7 @@ router.put("/usuarios/:id", async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar usuario:", error.message)
     const user = await apiService.getUserById(req.params.id).catch(() => ({}))
-    res.render("admin/users/edit", {
+    res.render("pages/admin/users/edit", {
       title: "Editar Usuario",
       activeMenu: "users",
       user: user.data || user,
@@ -132,7 +132,7 @@ router.get("/ofertas", async (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10
     const offers = await apiService.getOffers(page, limit)
 
-    res.render("admin/offers/index", {
+    res.render("pages/admin/offers/index", {
       title: "Gestión de Ofertas",
       activeMenu: "offers",
       offers: offers.data || [],
@@ -145,7 +145,7 @@ router.get("/ofertas", async (req, res) => {
     })
   } catch (error) {
     console.error("Error al obtener ofertas:", error.message)
-    res.render("admin/offers/index", {
+    res.render("pages/admin/offers/index", {
       title: "Gestión de Ofertas",
       activeMenu: "offers",
       offers: [],
@@ -156,7 +156,7 @@ router.get("/ofertas", async (req, res) => {
 })
 
 router.get("/ofertas/crear", (req, res) => {
-  res.render("admin/offers/create", {
+  res.render("pages/admin/offers/create", {
     title: "Crear Oferta",
     activeMenu: "offers",
     error: null,
@@ -170,7 +170,7 @@ router.post("/ofertas", async (req, res) => {
     res.redirect("/admin/ofertas?success=Oferta creada exitosamente")
   } catch (error) {
     console.error("Error al crear oferta:", error.message)
-    res.render("admin/offers/create", {
+    res.render("pages/admin/offers/create", {
       title: "Crear Oferta",
       activeMenu: "offers",
       error: error.message,
@@ -182,7 +182,7 @@ router.post("/ofertas", async (req, res) => {
 router.get("/ofertas/:id/editar", async (req, res) => {
   try {
     const offer = await apiService.getOfferById(req.params.id)
-    res.render("admin/offers/edit", {
+    res.render("pages/admin/offers/edit", {
       title: "Editar Oferta",
       activeMenu: "offers",
       offer: offer.data || offer,
@@ -201,7 +201,7 @@ router.put("/ofertas/:id", async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar oferta:", error.message)
     const offer = await apiService.getOfferById(req.params.id).catch(() => ({}))
-    res.render("admin/offers/edit", {
+    res.render("pages/admin/offers/edit", {
       title: "Editar Oferta",
       activeMenu: "offers",
       offer: offer.data || offer,
@@ -227,9 +227,9 @@ router.get("/contratos", async (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10
     const contracts = await apiService.getContracts(page, limit)
 
-    res.render("admin/contracts/index", {
+    res.render("pages/admin/contracts/index", {
       title: "Gestión de Contratos",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contracts: contracts.data || [],
       pagination: {
         currentPage: page,
@@ -240,9 +240,9 @@ router.get("/contratos", async (req, res) => {
     })
   } catch (error) {
     console.error("Error al obtener contratos:", error.message)
-    res.render("admin/contracts/index", {
+    res.render("pages/admin/contracts/index", {
       title: "Gestión de Contratos",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contracts: [],
       pagination: { currentPage: 1, totalPages: 0, total: 0 },
       error: error.message,
@@ -251,9 +251,9 @@ router.get("/contratos", async (req, res) => {
 })
 
 router.get("/contratos/crear", (req, res) => {
-  res.render("admin/contracts/create", {
+  res.render("pages/admin/contracts/create", {
     title: "Crear Contrato",
-    activeMenu: "contracts",
+    activeMenu: "contratos",
     error: null,
     formData: {},
   })
@@ -265,9 +265,9 @@ router.post("/contratos", async (req, res) => {
     res.redirect("/admin/contratos?success=Contrato creado exitosamente")
   } catch (error) {
     console.error("Error al crear contrato:", error.message)
-    res.render("admin/contracts/create", {
+    res.render("pages/admin/contracts/create", {
       title: "Crear Contrato",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       error: error.message,
       formData: req.body,
     })
@@ -277,9 +277,9 @@ router.post("/contratos", async (req, res) => {
 router.get("/contratos/:id/editar", async (req, res) => {
   try {
     const contract = await apiService.getContractById(req.params.id)
-    res.render("admin/contracts/edit", {
+    res.render("pages/admin/contracts/edit", {
       title: "Editar Contrato",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contract: contract.data || contract,
       error: null,
     })
@@ -296,9 +296,9 @@ router.put("/contratos/:id", async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar contrato:", error.message)
     const contract = await apiService.getContractById(req.params.id).catch(() => ({}))
-    res.render("admin/contracts/edit", {
+    res.render("pages/admin/contracts/edit", {
       title: "Editar Contrato",
-      activeMenu: "contracts",
+      activeMenu: "contratos",
       contract: contract.data || contract,
       error: error.message,
     })
@@ -322,7 +322,7 @@ router.get("/postulaciones", async (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10
     const applyments = await apiService.getApplyments(page, limit)
 
-    res.render("admin/applyments/index", {
+    res.render("pages/admin/applyments/index", {
       title: "Gestión de Postulaciones",
       activeMenu: "applyments",
       applyments: applyments.data || [],
@@ -335,7 +335,7 @@ router.get("/postulaciones", async (req, res) => {
     })
   } catch (error) {
     console.error("Error al obtener postulaciones:", error.message)
-    res.render("admin/applyments/index", {
+    res.render("pages/admin/applyments/index", {
       title: "Gestión de Postulaciones",
       activeMenu: "applyments",
       applyments: [],
@@ -346,7 +346,7 @@ router.get("/postulaciones", async (req, res) => {
 })
 
 router.get("/postulaciones/crear", (req, res) => {
-  res.render("admin/applyments/create", {
+  res.render("pages/admin/applyments/create", {
     title: "Crear Postulación",
     activeMenu: "applyments",
     error: null,
@@ -360,7 +360,7 @@ router.post("/postulaciones", async (req, res) => {
     res.redirect("/admin/postulaciones?success=Postulación creada exitosamente")
   } catch (error) {
     console.error("Error al crear postulación:", error.message)
-    res.render("admin/applyments/create", {
+    res.render("pages/admin/applyments/create", {
       title: "Crear Postulación",
       activeMenu: "applyments",
       error: error.message,
@@ -372,7 +372,7 @@ router.post("/postulaciones", async (req, res) => {
 router.get("/postulaciones/:id/editar", async (req, res) => {
   try {
     const applyment = await apiService.getApplymentById(req.params.id)
-    res.render("admin/applyments/edit", {
+    res.render("pages/admin/applyments/edit", {
       title: "Editar Postulación",
       activeMenu: "applyments",
       applyment: applyment.data || applyment,
@@ -391,7 +391,7 @@ router.put("/postulaciones/:id", async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar postulación:", error.message)
     const applyment = await apiService.getApplymentById(req.params.id).catch(() => ({}))
-    res.render("admin/applyments/edit", {
+    res.render("pages/admin/applyments/edit", {
       title: "Editar Postulación",
       activeMenu: "applyments",
       applyment: applyment.data || applyment,
@@ -417,7 +417,7 @@ router.get("/reportes", async (req, res) => {
     const limit = Number.parseInt(req.query.limit) || 10
     const reports = await apiService.getReports(page, limit)
 
-    res.render("admin/reports/index", {
+    res.render("pages/admin/reports/index", {
       title: "Gestión de Reportes",
       activeMenu: "reports",
       reports: reports.data || [],
@@ -430,7 +430,7 @@ router.get("/reportes", async (req, res) => {
     })
   } catch (error) {
     console.error("Error al obtener reportes:", error.message)
-    res.render("admin/reports/index", {
+    res.render("pages/admin/reports/index", {
       title: "Gestión de Reportes",
       activeMenu: "reports",
       reports: [],
@@ -441,7 +441,7 @@ router.get("/reportes", async (req, res) => {
 })
 
 router.get("/reportes/crear", (req, res) => {
-  res.render("admin/reports/create", {
+  res.render("pages/admin/reports/create", {
     title: "Crear Reporte",
     activeMenu: "reports",
     error: null,
@@ -455,7 +455,7 @@ router.post("/reportes", async (req, res) => {
     res.redirect("/admin/reportes?success=Reporte creado exitosamente")
   } catch (error) {
     console.error("Error al crear reporte:", error.message)
-    res.render("admin/reports/create", {
+    res.render("pages/admin/reports/create", {
       title: "Crear Reporte",
       activeMenu: "reports",
       error: error.message,
@@ -467,7 +467,7 @@ router.post("/reportes", async (req, res) => {
 router.get("/reportes/:id/editar", async (req, res) => {
   try {
     const report = await apiService.getReportById(req.params.id)
-    res.render("admin/reports/edit", {
+    res.render("pages/admin/reports/edit", {
       title: "Editar Reporte",
       activeMenu: "reports",
       report: report.data || report,
@@ -486,7 +486,7 @@ router.put("/reportes/:id", async (req, res) => {
   } catch (error) {
     console.error("Error al actualizar reporte:", error.message)
     const report = await apiService.getReportById(req.params.id).catch(() => ({}))
-    res.render("admin/reports/edit", {
+    res.render("pages/admin/reports/edit", {
       title: "Editar Reporte",
       activeMenu: "reports",
       report: report.data || report,

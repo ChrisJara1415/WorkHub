@@ -1,11 +1,11 @@
-<% layout('layout') %>
+
 
 <div class="container-fluid">
   <div class="row">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Editar Contrato</h2>
-        <a href="/admin/contracts" class="btn btn-secondary">
+        <a href="/admin/contratos" class="btn btn-secondary">
           <i class="fas fa-arrow-left"></i> Volver
         </a>
       </div>
@@ -83,7 +83,7 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-              <a href="/admin/contracts" class="btn btn-secondary">Cancelar</a>
+              <a href="/admin/contratos" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
                 <i class="fas fa-save"></i> Actualizar Contrato
               </button>
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadOffers() {
   try {
-    const response = await fetch('/admin/api/offers');
+    const response = await fetch('/admin/offers');
     const data = await response.json();
     
     if (data.success) {
@@ -127,7 +127,7 @@ async function loadOffers() {
 
 async function loadEmployees() {
   try {
-    const response = await fetch('/admin/api/users?role=empleado');
+    const response = await fetch('/admin/users?role=empleado');
     const data = await response.json();
     
     if (data.success) {
@@ -146,7 +146,7 @@ async function loadEmployees() {
 
 async function loadEmployers() {
   try {
-    const response = await fetch('/admin/api/users?role=empleador');
+    const response = await fetch('/admin/users?role=empleador');
     const data = await response.json();
     
     if (data.success) {
@@ -165,7 +165,7 @@ async function loadEmployers() {
 
 async function loadContract(id) {
   try {
-    const response = await fetch(`/admin/api/contracts/${id}`);
+    const response = await fetch(`/admin/contratos/${id}`);
     const data = await response.json();
     
     if (data.success) {
@@ -196,7 +196,7 @@ async function handleSubmit(e) {
   delete contractData.id;
   
   try {
-    const response = await fetch(`/admin/api/contracts/${contractId}`, {
+    const response = await fetch(`/admin/contratos/${contractId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -209,7 +209,7 @@ async function handleSubmit(e) {
     if (data.success) {
       showAlert('Contrato actualizado exitosamente', 'success');
       setTimeout(() => {
-        window.location.href = '/admin/contracts';
+        window.location.href = '/admin/contratos';
       }, 1500);
     } else {
       showAlert('Error al actualizar contrato: ' + data.message, 'danger');

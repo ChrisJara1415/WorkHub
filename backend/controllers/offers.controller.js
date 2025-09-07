@@ -6,7 +6,7 @@ export const createOffer = async (req, res) => {
         const nuevaOferta = new offers({empleador, municipio, nombreServicio, descripcion, categoria, precioReferencia, personasRequeridas, detalleRequerimiento, visible, fechaCreacion, fechaLimite})
         await nuevaOferta.save()
 
-        res.status(201).json({message: 'Oferta creada satisfactoriamente', data: nuevaOferta})
+        res.status(201).json({message: 'Oferta creada satisfactoriamente', data: nuevaOferta, success: true})
     } catch (error) {
         res.status(500).json({message: 'Error al crear oferta'})
     }
@@ -15,7 +15,7 @@ export const createOffer = async (req, res) => {
 export const searchOffers = async (req, res) => {
     try {
         const ofertasEncontradas = await offers.find()
-        res.status(200).json(ofertasEncontradas)
+        res.status(200).json({ success: true, data: ofertasEncontradas })
     } catch (error) {
         res.status(500).json({message: 'No se han encontrado ofertas', error: error.message})
     }
@@ -25,7 +25,7 @@ export const searchOfferById = async (req, res) => {
     try {
         const ofertaEncontrada = await offers.findById(req.params.id)
         if (!ofertaEncontrada) return res.status(404).json({message: 'No se ha encontrado la oferta'})
-        res.status(200).json(ofertaEncontrada)
+        res.status(200).json({data: ofertaEncontrada, success: true})
     } catch (error) {
         res.status(500).json({message: `No se ha encontrado ninguna oferta ${error.message}`})
     }
@@ -35,7 +35,7 @@ export const updateOffer = async (req, res) => {
     try {
         const ofertaActualizada = await offers.findByIdAndUpdate(req.params.id, req.body, {new: true})
         if (!ofertaActualizada) return res.status(404).json({message: 'No se ha encontrado la oferta'})
-        res.status(200).json(ofertaActualizada)
+        res.status(200).json({data: ofertaActualizada, success: true})
     } catch (error) {
         res.status(500).json({message: `No se ha encontrado ninguna oferta ${error.message}`})
     }
@@ -45,7 +45,7 @@ export const deleteOffer = async (req, res) => {
     try {
         const ofertaEliminada = await offers.findByIdAndDelete(req.params.id)
         if (!ofertaEliminada) return res.status(404).json({message: 'Oferta no encontrada'})
-        res.status(200).json({message: 'Oferta eliminada satisfactoriamente'})
+        res.status(200).json({message: 'Oferta eliminada satisfactoriamente', success: true})
     } catch (error) {
         res.status(500).json({message: `No se ha encontrado ninguna oferta ${error.message}`})
     }

@@ -1,4 +1,5 @@
 import express from "express"
+import expLayouts from "express-ejs-layouts"
 import path from "path"
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
@@ -18,6 +19,10 @@ app.use(morgan("dev"))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 app.use(methodOverride("_method"))
+
+// Middleware para layouts
+app.use(expLayouts)
+app.set('layout', 'pages/layout');
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, "static")))
@@ -46,6 +51,7 @@ app.use((err, req, res, next) => {
   res.status(500).render("pages/errors/500", {
     title: "Error del servidor",
     error: "Algo salió mal en el servidor",
+    activeMenu: ""
   })
 })
 

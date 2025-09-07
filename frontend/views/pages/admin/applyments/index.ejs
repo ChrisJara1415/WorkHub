@@ -1,4 +1,4 @@
-<% layout('layout') %>
+
 
 <div class="container-fluid">
   <div class="row">
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadApplyments(page = 1) {
   try {
-    const response = await fetch(`/admin/api/applyments?page=${page}`);
+    const response = await fetch(`/admin/applyments?page=${page}`);
     const data = await response.json();
     
     if (data.success) {
@@ -138,7 +138,7 @@ function confirmDelete(id) {
 document.getElementById('confirmDeleteApplyment').addEventListener('click', async function() {
   if (applymentToDelete) {
     try {
-      const response = await fetch(`/admin/api/applyments/${applymentToDelete}`, {
+      const response = await fetch(`/admin/applyments/${applymentToDelete}`, {
         method: 'DELETE'
       });
       const data = await response.json();
