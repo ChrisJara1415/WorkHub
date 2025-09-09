@@ -31,7 +31,7 @@ class ApiService {
 
   async updateUser(id, userData) {
     try {
-      const response = await apiClient.put(`/clientes/${id}`, userData)
+      const response = await apiClient.patch(`/clientes/${id}`, userData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar usuario: ${error.message}`)
@@ -77,7 +77,7 @@ class ApiService {
 
   async updateOffer(id, offerData) {
     try {
-      const response = await apiClient.put(`/ofertas/${id}`, offerData)
+      const response = await apiClient.patch(`/ofertas/${id}`, offerData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar oferta: ${error.message}`)
@@ -123,7 +123,7 @@ class ApiService {
 
   async updateContract(id, contractData) {
     try {
-      const response = await apiClient.put(`/contratos/${id}`, contractData)
+      const response = await apiClient.patch(`/contratos/${id}`, contractData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar contrato: ${error.message}`)
@@ -169,7 +169,7 @@ class ApiService {
 
   async updateApplyment(id, applymentData) {
     try {
-      const response = await apiClient.put(`/postulaciones/${id}`, applymentData)
+      const response = await apiClient.patch(`/postulaciones/${id}`, applymentData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar postulación: ${error.message}`)
@@ -215,7 +215,7 @@ class ApiService {
 
   async updateReport(id, reportData) {
     try {
-      const response = await apiClient.put(`/reportes/${id}`, reportData)
+      const response = await apiClient.patch(`/reportes/${id}`, reportData)
       return response.data
     } catch (error) {
       throw new Error(`Error al actualizar reporte: ${error.message}`)
