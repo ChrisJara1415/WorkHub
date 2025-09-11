@@ -2,10 +2,13 @@ import apiClient from "../config/api.js"
 
 class ApiService {
   // Usuarios
-  async getUsers(page = 1, limit = 10) {
+  async getUsers(page = 1, limit = 10, rol) {
     try {
-      const response = await apiClient.get(`/clientes?page=${page}&limit=${limit}`)
-      return response.data
+      //  clientes con paginación estándar y filtro opcional por rol
+      const params = new URLSearchParams({ page: String(page), limit: String(limit) })
+      if (rol) params.append('rol', rol)
+      const response = await apiClient.get(`/clientes?${params.toString()}`)
+  return response.data
     } catch (error) {
       throw new Error(`Error al obtener usuarios: ${error.message}`)
     }
@@ -50,8 +53,8 @@ class ApiService {
   // Ofertas
   async getOffers(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/ofertas?page=${page}&limit=${limit}`)
-      return response.data
+  const response = await apiClient.get(`/ofertas?page=${page}&limit=${limit}`)
+  return response.data
     } catch (error) {
       throw new Error(`Error al obtener ofertas: ${error.message}`)
     }
@@ -71,7 +74,12 @@ class ApiService {
       const response = await apiClient.post("/ofertas", offerData)
       return response.data
     } catch (error) {
-      throw new Error(`Error al crear oferta: ${error.message}`)
+  // Preservar detalle del backend si existe
+  const backend = error?.response?.data
+  const msg = backend?.message || error.message
+  const err = new Error(`Error al crear oferta: ${msg}`)
+  err.response = error.response
+  throw err
     }
   }
 
@@ -96,8 +104,8 @@ class ApiService {
   // Contratos
   async getContracts(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/contratos?page=${page}&limit=${limit}`)
-      return response.data
+  const response = await apiClient.get(`/contratos?page=${page}&limit=${limit}`)
+  return response.data
     } catch (error) {
       throw new Error(`Error al obtener contratos: ${error.message}`)
     }
@@ -142,8 +150,8 @@ class ApiService {
   // Postulaciones
   async getApplyments(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/postulaciones?page=${page}&limit=${limit}`)
-      return response.data
+  const response = await apiClient.get(`/postulaciones?page=${page}&limit=${limit}`)
+  return response.data
     } catch (error) {
       throw new Error(`Error al obtener postulaciones: ${error.message}`)
     }
@@ -188,8 +196,8 @@ class ApiService {
   // Reportes
   async getReports(page = 1, limit = 10) {
     try {
-      const response = await apiClient.get(`/reportes?page=${page}&limit=${limit}`)
-      return response.data
+  const response = await apiClient.get(`/reportes?page=${page}&limit=${limit}`)
+  return response.data
     } catch (error) {
       throw new Error(`Error al obtener reportes: ${error.message}`)
     }
