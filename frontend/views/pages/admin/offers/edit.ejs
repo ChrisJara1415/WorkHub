@@ -4,30 +4,38 @@
   <div class="row">
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Editar Oferta</h2>
-        <a href="/admin/offers" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> Volver
+  <h2>Editar Oferta</h2>
+  <!-- Ruta en español -->
+  <a href="/admin/ofertas" class="btn btn-secondary">
+          <i class="bi bi-arrow-left"></i> Volver
         </a>
       </div>
 
       <div class="card">
         <div class="card-body">
-          <form id="editOfferForm">
-            <input type="hidden" id="offerId" name="id">
+          <!-- Formulario SSR: envía al servidor usando method-override -->
+          <form id="editOfferForm" method="POST" action="/admin/ofertas/<%= (offer && (offer._id || offer.id)) %>?_method=PUT">
+            <input type="hidden" id="offerId" name="id" value="<%= (offer && (offer._id || offer.id)) %>">
             
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="servicio" class="form-label">Servicio *</label>
-                  <input type="text" class="form-control" id="servicio" name="servicio" required>
+                  <label for="nombreServicio" class="form-label">Servicio *</label>
+                  <!-- nombreServicio según el modelo -->
+                  <input type="text" class="form-control" id="nombreServicio" name="nombreServicio" value="<%= offer?.nombreServicio || '' %>" required>
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="empleador_id" class="form-label">Empleador *</label>
-                  <select class="form-select" id="empleador_id" name="empleador_id" required>
-                    <option value="">Seleccionar empleador...</option>
+                  <!-- Notación de objeto para req.body.empleador.idUsuario; lista de empleadores -->
+                  <select class="form-select" id="empleador_id" name="empleador[idUsuario]" required>
+                    <% (employers || []).forEach(emp => { %>
+                      <option value="<%= emp._id || emp.id %>" <%= (offer?.empleador?.idUsuario?.toString() === (emp._id || emp.id)?.toString()) ? 'selected' : '' %>>
+                        <%= emp.nombres %> <%= emp.apellidos %>
+                      </option>
+                    <% }) %>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -38,7 +46,8 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="municipio" class="form-label">Municipio *</label>
-                  <input type="text" class="form-control" id="municipio" name="municipio" required>
+                  <!-- Notación de objeto para req.body.municipio.nombre -->
+                  <input type="text" class="form-control" id="municipio" name="municipio[nombre]" value="<%= offer?.municipio?.nombre || '' %>" required>
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -47,14 +56,12 @@
                   <label for="categoria" class="form-label">Categoría *</label>
                   <select class="form-select" id="categoria" name="categoria" required>
                     <option value="">Seleccionar categoría...</option>
-                    <option value="Construcción">Construcción</option>
-                    <option value="Limpieza">Limpieza</option>
-                    <option value="Jardinería">Jardinería</option>
-                    <option value="Plomería">Plomería</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Carpintería">Carpintería</option>
-                    <option value="Pintura">Pintura</option>
-                    <option value="Otros">Otros</option>
+                    <option value="Jardinería" <%= offer?.categoria === 'Jardinería' ? 'selected' : '' %>>Jardinería</option>
+                    <option value="Limpieza" <%= offer?.categoria === 'Limpieza' ? 'selected' : '' %>>Limpieza</option>
+                    <option value="Piscinero" <%= offer?.categoria === 'Piscinero' ? 'selected' : '' %>>Piscinero</option>
+                    <option value="Carpintería" <%= offer?.categoria === 'Carpintería' ? 'selected' : '' %>>Carpintería</option>
+                    <option value="Mantenimiento" <%= offer?.categoria === 'Mantenimiento' ? 'selected' : '' %>>Mantenimiento</option>
+                    <option value="Plomería" <%= offer?.categoria === 'Plomería' ? 'selected' : '' %>>Plomería</option>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -64,21 +71,20 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="precio" class="form-label">Precio *</label>
+                  <label for="precioReferencia" class="form-label">Precio *</label>
                   <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" id="precio" name="precio" min="0" step="0.01" required>
+                    <input type="number" class="form-control" id="precioReferencia" name="precioReferencia" value="<%= offer?.precioReferencia || 0 %>" min="0" step="1" required>
                   </div>
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="estado" class="form-label">Estado *</label>
-                  <select class="form-select" id="estado" name="estado" required>
-                    <option value="activa">Activa</option>
-                    <option value="inactiva">Inactiva</option>
-                    <option value="completada">Completada</option>
+                  <label for="visible" class="form-label">Estado *</label>
+                  <select class="form-select" id="visible" name="visible" required>
+                    <option value="true" <%= offer?.visible ? 'selected' : '' %>>Activa</option>
+                    <option value="false" <%= !offer?.visible ? 'selected' : '' %>>Inactiva</option>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -87,14 +93,14 @@
 
             <div class="mb-3">
               <label for="descripcion" class="form-label">Descripción</label>
-              <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
+              <textarea class="form-control" id="descripcion" name="descripcion" rows="4"><%= offer?.descripcion || '' %></textarea>
               <div class="invalid-feedback"></div>
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-              <a href="/admin/offers" class="btn btn-secondary">Cancelar</a>
+              <a href="/admin/ofertas" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Actualizar Oferta
+                <i class="bi bi-save"></i> Actualizar Oferta
               </button>
             </div>
           </form>
@@ -106,89 +112,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const offerId = window.location.pathname.split('/').pop();
-  loadEmployers();
-  loadOffer(offerId);
-  
-  document.getElementById('editOfferForm').addEventListener('submit', handleSubmit);
+  // SSR: el formulario ya está prellenado; no se requieren peticiones fetch aquí.
 });
 
-async function loadEmployers() {
-  try {
-    const response = await fetch('/admin/users?role=empleador');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('empleador_id');
-      data.data.users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.nombres} ${user.apellidos}`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar empleadores:', error);
-  }
-}
-
-async function loadOffer(id) {
-  try {
-    const response = await fetch(`/admin/offers/${id}`);
-    const data = await response.json();
-    
-    if (data.success) {
-      const offer = data.data;
-      document.getElementById('offerId').value = offer.id;
-      document.getElementById('servicio').value = offer.servicio;
-      document.getElementById('empleador_id').value = offer.empleador_id;
-      document.getElementById('municipio').value = offer.municipio;
-      document.getElementById('categoria').value = offer.categoria;
-      document.getElementById('precio').value = offer.precio;
-      document.getElementById('estado').value = offer.estado;
-      document.getElementById('descripcion').value = offer.descripcion || '';
-    } else {
-      showAlert('Error al cargar oferta: ' + data.message, 'danger');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al cargar oferta', 'danger');
-  }
-}
-
-async function handleSubmit(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(e.target);
-  const offerData = Object.fromEntries(formData.entries());
-  const offerId = offerData.id;
-  delete offerData.id;
-  
-  try {
-    const response = await fetch(`/admin/offers/${offerId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(offerData)
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      showAlert('Oferta actualizada exitosamente', 'success');
-      setTimeout(() => {
-        window.location.href = '/admin/offers';
-      }, 1500);
-    } else {
-      showAlert('Error al actualizar oferta: ' + data.message, 'danger');
-      if (data.errors) {
-        showValidationErrors(data.errors);
-      }
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al actualizar oferta', 'danger');
-  }
-}
 </script>

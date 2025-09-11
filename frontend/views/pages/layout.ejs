@@ -27,7 +27,8 @@
         .sidebar .nav-link.active {
             color: white;
             background-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(5px);
+            /* Evitar desplazamiento en hover */
+            transform: none;
         }
         .main-content {
             background-color: #f8f9fa;
@@ -37,11 +38,10 @@
             border: none;
             border-radius: 15px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            /* Evitar movimientos en hover */
+            transition: none;
         }
-        .card:hover {
-            transform: translateY(-5px);
-        }
+        .card:hover { transform: none; }
         .stat-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -56,10 +56,11 @@
             border-radius: 15px;
             overflow: hidden;
         }
-        .alert {
-            border-radius: 15px;
-            border: none;
-        }
+        .table th, .table td { vertical-align: middle; text-align: center; }
+        .table .table-actions { display: flex; justify-content: center; gap: .5rem; }
+        .table .btn-action { border-radius: .5rem; }
+        .toast-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 1080; }
+        #confirmDeleteModal .modal-dialog { display: flex; align-items: center; min-height: calc(100% - 1rem); }
     </style>
 </head>
 <body>
@@ -117,7 +118,7 @@
             </nav>
 
             <!-- Main content -->
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
                 <div class="pt-3 pb-2 mb-3">
                     <%- body %>
                 </div>
@@ -125,53 +126,139 @@
         </div>
     </div>
 
+        <!-- Toasts container -->
+        <div class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+        <!-- Modal confirmación eliminación -->
+        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar eliminación</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="confirmDeleteText">¿Estás seguro de querer eliminar este elemento?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form id="confirmDeleteForm" method="POST">
+                            <input type="hidden" name="_method" value="DELETE" />
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal genérico de detalles -->
+        <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="detailsModalTitle">Detalle</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="detailsModalBody"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom Scripts -->
     <script>
-        // Función para mostrar alertas temporales
-        function showAlert(message, type = 'success') {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            
-            const container = document.querySelector('.main-content');
-            container.insertBefore(alertDiv, container.firstChild);
-            
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
-        }
+                // Mostrar Toast Bootstrap (éxito o error)
+                function showToast(message, type = 'success') {
+                        const container = document.querySelector('.toast-container');
+                        const bg = type === 'success' ? 'text-bg-success' : 'text-bg-danger';
+                        const icon = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
+                        const el = document.createElement('div');
+                        el.className = `toast align-items-center ${bg}`;
+                        el.setAttribute('role', 'alert');
+                        el.setAttribute('aria-live', 'assertive');
+                        el.setAttribute('aria-atomic', 'true');
+                        el.innerHTML = `
+                            <div class="d-flex">
+                                <div class="toast-body d-flex align-items-center gap-2">
+                                    <i class="bi ${icon}"></i>
+                                    <span>${message}</span>
+                                </div>
+                                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                            </div>`;
+                        container.appendChild(el);
+                        const t = new bootstrap.Toast(el, { delay: 3500 });
+                        t.show();
+                        el.addEventListener('hidden.bs.toast', () => el.remove());
+                }
 
-        // Mostrar alertas desde URL params
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('success')) {
-            showAlert(urlParams.get('success'), 'success');
-        }
-        if (urlParams.get('error')) {
-            showAlert(urlParams.get('error'), 'danger');
-        }
+                // Leer mensajes desde querystring y mostrarlos como toasts
+                (function() {
+                        const p = new URLSearchParams(window.location.search);
+                        if (p.get('success')) showToast(p.get('success'), 'success');
+                        if (p.get('error')) showToast(p.get('error'), 'danger');
+                })();
 
-        // Confirmación para eliminaciones
-        function confirmDelete(event) {
-            if (!confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
-                event.preventDefault();
-                return false;
-            }
-            return true;
-        }
+                // Modal de confirmación de eliminación
+                document.addEventListener('DOMContentLoaded', () => {
+                        const modalEl = document.getElementById('confirmDeleteModal');
+                        const modal = new bootstrap.Modal(modalEl);
+                        const text = document.getElementById('confirmDeleteText');
+                        const form = document.getElementById('confirmDeleteForm');
 
-        // Agregar event listeners a botones de eliminar
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteButtons = document.querySelectorAll('.btn-delete');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', confirmDelete);
-            });
-        });
+            document.body.addEventListener('click', (e) => {
+                                const btn = e.target.closest('.btn-delete');
+                                if (!btn) return;
+                                e.preventDefault();
+                const action = btn.getAttribute('data-action') || btn.getAttribute('href');
+                if (!action || action === '#' || action.endsWith('/null') || action.endsWith('/undefined')) {
+                    console.warn('Acción de eliminación inválida:', action);
+                    showToast('Acción de eliminación inválida', 'danger');
+                    return;
+                }
+                                const entity = btn.getAttribute('data-entity') || 'elemento';
+                                text.textContent = `¿Estás seguro de querer eliminar este ${entity}?`;
+                                form.setAttribute('action', action);
+                                modal.show();
+                        });
+                });
+
+                // Modal de detalles (ver más)
+                document.addEventListener('DOMContentLoaded', () => {
+                    const detailsEl = document.getElementById('detailsModal');
+                    const detailsModal = new bootstrap.Modal(detailsEl);
+                    const titleEl = document.getElementById('detailsModalTitle');
+                    const bodyEl = document.getElementById('detailsModalBody');
+
+                    document.body.addEventListener('click', (e) => {
+                        const btn = e.target.closest('.btn-view');
+                        if (!btn) return;
+                        e.preventDefault();
+                        const type = btn.getAttribute('data-entity') || 'Detalle';
+                        const encoded = btn.getAttribute('data-record');
+                        if (!encoded) return;
+                        try {
+                            const obj = JSON.parse(decodeURIComponent(encoded));
+                            titleEl.textContent = `Detalle de ${type}`;
+                            // Construir un resumen bonito
+                            const rows = Object.entries(obj).map(([k,v]) => {
+                                const val = (v === null || typeof v === 'undefined') ? '—' : v;
+                                return `<tr><th class="text-nowrap text-muted">${k}</th><td>${val}</td></tr>`;
+                            }).join('');
+                            bodyEl.innerHTML = `<div class="table-responsive"><table class="table table-borderless align-middle">${rows}</table></div>`;
+                            detailsModal.show();
+                        } catch (err) {
+                            console.error('No se pudo parsear data-record', err);
+                            showToast('No se pudo abrir el detalle', 'danger');
+                        }
+                    });
+                });
     </script>
 </body>
 </html>

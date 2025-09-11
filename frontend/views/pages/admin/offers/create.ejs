@@ -5,29 +5,35 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Nueva Oferta</h2>
-        <a href="/admin/offers" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> Volver
+  <a href="/admin/ofertas" class="btn btn-secondary">
+          <i class="bi bi-arrow-left"></i> Volver
         </a>
       </div>
 
       <div class="card">
         <div class="card-body">
-          <form id="createOfferForm">
+          <% if (error) { %>
+            <div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <%= error %></div>
+          <% } %>
+          <!-- Formulario enviado a ruta en español del servidor -->
+          <form id="createOfferForm" method="POST" action="/admin/ofertas">
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="servicio" class="form-label">Servicio *</label>
-                  <input type="text" class="form-control" id="servicio" name="servicio" required>
-                  <div class="invalid-feedback"></div>
+                  <label for="nombreServicio" class="form-label">Servicio *</label>
+                  <input type="text" class="form-control" id="nombreServicio" name="nombreServicio" required value="<%= (formData && formData.nombreServicio) || '' %>">
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="empleador_id" class="form-label">Empleador *</label>
-                  <select class="form-select" id="empleador_id" name="empleador_id" required>
+                  <select class="form-select" id="empleador_id" name="empleador[idUsuario]" required>
                     <option value="">Seleccionar empleador...</option>
+                    <% (employers || []).forEach(emp => { const empId = emp._id || emp.id; const empNombre = `${emp.nombres || ''} ${emp.apellidos || ''}`.trim(); %>
+                      <option value="<%= empId %>" data-nombre="<%= empNombre %>" <%= (formData && formData.empleador && (formData.empleador.idUsuario === empId || formData.empleador._id === empId || formData.empleador.id === empId)) ? 'selected' : '' %>><%= empNombre %></option>
+                    <% }) %>
                   </select>
-                  <div class="invalid-feedback"></div>
+                  <input type="hidden" id="empleador_nombre" name="empleador[nombre]" value="<%= (formData && formData.empleador && formData.empleador.nombre) || '' %>">
                 </div>
               </div>
             </div>
@@ -36,8 +42,15 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="municipio" class="form-label">Municipio *</label>
-                  <input type="text" class="form-control" id="municipio" name="municipio" required>
-                  <div class="invalid-feedback"></div>
+                  <select class="form-select" id="municipio" name="municipio" required>
+                    <option value="">Seleccionar municipio...</option>
+                    <% const MUNS = ['Barbosa','Copacabana','Girardota','Bello','Medellín','Envigado','Itagüí','Sabaneta','La Estrella','Caldas'];
+                       const muniSel = (formData && (formData.municipio && (formData.municipio.nombre || formData.municipio))) || '';
+                    %>
+                    <% MUNS.forEach(m => { %>
+                      <option value="<%= m %>" <%= (muniSel === m) ? 'selected' : '' %>><%= m %></option>
+                    <% }) %>
+                  </select>
                 </div>
               </div>
               <div class="col-md-6">
@@ -45,16 +58,11 @@
                   <label for="categoria" class="form-label">Categoría *</label>
                   <select class="form-select" id="categoria" name="categoria" required>
                     <option value="">Seleccionar categoría...</option>
-                    <option value="Construcción">Construcción</option>
-                    <option value="Limpieza">Limpieza</option>
-                    <option value="Jardinería">Jardinería</option>
-                    <option value="Plomería">Plomería</option>
-                    <option value="Electricidad">Electricidad</option>
-                    <option value="Carpintería">Carpintería</option>
-                    <option value="Pintura">Pintura</option>
-                    <option value="Otros">Otros</option>
+                    <% const CATS = ['Jardinería','Limpieza','Piscinero','Carpintería','Mantenimiento','Plomería']; %>
+                    <% CATS.forEach(c => { %>
+                      <option value="<%= c %>" <%= (formData && formData.categoria === c) ? 'selected' : '' %>><%= c %></option>
+                    <% }) %>
                   </select>
-                  <div class="invalid-feedback"></div>
                 </div>
               </div>
             </div>
@@ -62,37 +70,50 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="precio" class="form-label">Precio *</label>
+                  <label for="precioReferencia" class="form-label">Precio *</label>
                   <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control" id="precio" name="precio" min="0" step="0.01" required>
+                    <input type="number" class="form-control" id="precioReferencia" name="precioReferencia" min="50000" step="1" required value="<%= (formData && formData.precioReferencia) || '' %>">
                   </div>
-                  <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="estado" class="form-label">Estado *</label>
-                  <select class="form-select" id="estado" name="estado" required>
-                    <option value="activa">Activa</option>
-                    <option value="inactiva">Inactiva</option>
-                    <option value="completada">Completada</option>
-                  </select>
-                  <div class="invalid-feedback"></div>
+                  <label for="personasRequeridas" class="form-label">Personas requeridas *</label>
+                  <input type="number" class="form-control" id="personasRequeridas" name="personasRequeridas" min="1" step="1" required value="<%= (formData && formData.personasRequeridas) || '' %>">
                 </div>
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="descripcion" class="form-label">Descripción</label>
-              <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
-              <div class="invalid-feedback"></div>
+              <label for="descripcion" class="form-label">Descripción *</label>
+              <textarea class="form-control" id="descripcion" name="descripcion" rows="3" maxlength="500" required><%= (formData && formData.descripcion) || '' %></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="detalleRequerimiento" class="form-label">Detalle del requerimiento *</label>
+              <textarea class="form-control" id="detalleRequerimiento" name="detalleRequerimiento" rows="3" maxlength="500" required><%= (formData && formData.detalleRequerimiento) || '' %></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="visible" name="visible" value="true" <%= (formData && (formData.visible === true || formData.visible === 'true')) ? 'checked' : '' %>>
+                  <label class="form-check-label" for="visible">Visible</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="fechaLimite" class="form-label">Fecha límite *</label>
+                  <input type="date" class="form-control" id="fechaLimite" name="fechaLimite" required value="<%= (formData && formData.fechaLimite ? String(formData.fechaLimite).split('T')[0] : '') %>">
+                </div>
+              </div>
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-              <a href="/admin/offers" class="btn btn-secondary">Cancelar</a>
+              <a href="/admin/ofertas" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Guardar Oferta
+                <i class="bi bi-save"></i> Guardar Oferta
               </button>
             </div>
           </form>
@@ -103,62 +124,24 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  loadEmployers();
-  
-  document.getElementById('createOfferForm').addEventListener('submit', handleSubmit);
-});
-
-async function loadEmployers() {
-  try {
-    const response = await fetch('/admin/users?role=empleador');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('empleador_id');
-      data.data.users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.nombres} ${user.apellidos}`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar empleadores:', error);
+// Mantener sincronizado el nombre del empleador seleccionado y evitar doble envío
+document.addEventListener('DOMContentLoaded', function () {
+  const sel = document.getElementById('empleador_id')
+  const hidden = document.getElementById('empleador_nombre')
+  function update() {
+    const opt = sel.options[sel.selectedIndex]
+    hidden.value = opt ? (opt.getAttribute('data-nombre') || '') : ''
   }
-}
-
-async function handleSubmit(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(e.target);
-  const offerData = Object.fromEntries(formData.entries());
-  
-  try {
-    const response = await fetch('/admin/offers', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(offerData)
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      showAlert('Oferta creada exitosamente', 'success');
-      setTimeout(() => {
-        window.location.href = '/admin/offers';
-      }, 1500);
-    } else {
-      showAlert('Error al crear oferta: ' + data.message, 'danger');
-      if (data.errors) {
-        showValidationErrors(data.errors);
-      }
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al crear oferta', 'danger');
+  if (sel && hidden) {
+    sel.addEventListener('change', update)
+    update()
   }
-}
+  const form = document.getElementById('createOfferForm')
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      const btn = form.querySelector('button[type="submit"]')
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Guardando...'; }
+    })
+  }
+})
 </script>

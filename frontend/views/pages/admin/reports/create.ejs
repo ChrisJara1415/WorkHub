@@ -3,21 +3,25 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Nuevo Reporte PQRS</h2>
-        <a href="/admin/reports" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> Volver
+        <a href="/admin/reportes" class="btn btn-secondary">
+          <i class="bi bi-arrow-left"></i> Volver
         </a>
       </div>
 
       <div class="card">
         <div class="card-body">
-          <form id="createReportForm">
+          <form method="POST" action="/admin/reportes">
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="usuario_id" class="form-label">Usuario *</label>
-                  <select class="form-select" id="usuario_id" name="usuario_id" required>
+                  <select class="form-select" id="usuario_id" name="usuario[idUsuario]" required>
                     <option value="">Seleccionar usuario...</option>
+                    <% (users || []).forEach(u => { %>
+                      <option value="<%= u._id %>" data-nombre="<%= (u.nombres || '') + ' ' + (u.apellidos || '') %>"><%= u.nombres %> <%= u.apellidos %></option>
+                    <% }) %>
                   </select>
+                  <input type="hidden" id="usuario_nombre" name="usuario[nombre]">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -26,10 +30,11 @@
                   <label for="tipo" class="form-label">Tipo *</label>
                   <select class="form-select" id="tipo" name="tipo" required>
                     <option value="">Seleccionar tipo...</option>
-                    <option value="peticion">Petición</option>
-                    <option value="queja">Queja</option>
-                    <option value="reclamo">Reclamo</option>
-                    <option value="sugerencia">Sugerencia</option>
+                    <option value="Petición">Petición</option>
+                    <option value="Queja">Queja</option>
+                    <option value="Reclamo">Reclamo</option>
+                    <option value="Sugerencia">Sugerencia</option>
+                    <option value="Consulta">Consulta</option>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -39,8 +44,8 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="fecha_reporte" class="form-label">Fecha del Reporte *</label>
-                  <input type="date" class="form-control" id="fecha_reporte" name="fecha_reporte" required>
+                  <label for="fechaReporte" class="form-label">Fecha del Reporte *</label>
+                  <input type="date" class="form-control" id="fechaReporte" name="fechaReporte" value="<%= new Date().toISOString().split('T')[0] %>" required>
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -48,10 +53,9 @@
                 <div class="mb-3">
                   <label for="estado" class="form-label">Estado *</label>
                   <select class="form-select" id="estado" name="estado" required>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="en_proceso">En Proceso</option>
-                    <option value="resuelto">Resuelto</option>
-                    <option value="cerrado">Cerrado</option>
+                    <option value="Abierto">Abierto</option>
+                    <option value="En proceso">En proceso</option>
+                    <option value="Cerrado">Cerrado</option>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -59,8 +63,8 @@
             </div>
 
             <div class="mb-3">
-              <label for="asunto" class="form-label">Asunto *</label>
-              <input type="text" class="form-control" id="asunto" name="asunto" required>
+              <label for="titulo" class="form-label">Título *</label>
+              <input type="text" class="form-control" id="titulo" name="titulo" required>
               <div class="invalid-feedback"></div>
             </div>
 
@@ -70,16 +74,24 @@
               <div class="invalid-feedback"></div>
             </div>
 
-            <div class="mb-3">
-              <label for="solucion" class="form-label">Solución</label>
-              <textarea class="form-control" id="solucion" name="solucion" rows="3" placeholder="Solución propuesta o aplicada..."></textarea>
-              <div class="invalid-feedback"></div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="prioridad" class="form-label">Prioridad *</label>
+                  <select class="form-select" id="prioridad" name="prioridad" required>
+                    <option value="Alta">Alta</option>
+                    <option value="Media" selected>Media</option>
+                    <option value="Baja">Baja</option>
+                  </select>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
             </div>
 
             <div class="d-flex justify-content-end gap-2">
-              <a href="/admin/reports" class="btn btn-secondary">Cancelar</a>
+              <a href="/admin/reportes" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Guardar Reporte
+                <i class="bi bi-save"></i> Guardar Reporte
               </button>
             </div>
           </form>
@@ -90,64 +102,15 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('fecha_reporte').value = new Date().toISOString().split('T')[0];
-  
-  loadUsers();
-  
-  document.getElementById('createReportForm').addEventListener('submit', handleSubmit);
-});
-
-async function loadUsers() {
-  try {
-    const response = await fetch('/admin/users');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('usuario_id');
-      data.data.users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.nombres} ${user.apellidos} (${user.rol})`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar usuarios:', error);
+// Completar el nombre del usuario seleccionado para el backend
+document.addEventListener('DOMContentLoaded', function () {
+  const sel = document.getElementById('usuario_id')
+  const hidden = document.getElementById('usuario_nombre')
+  function update() {
+    const opt = sel.options[sel.selectedIndex]
+    hidden.value = opt ? opt.getAttribute('data-nombre') || '' : ''
   }
-}
-
-async function handleSubmit(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(e.target);
-  const reportData = Object.fromEntries(formData.entries());
-  
-  try {
-    const response = await fetch('/admin/reports', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(reportData)
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      showAlert('Reporte creado exitosamente', 'success');
-      setTimeout(() => {
-        window.location.href = '/admin/reports';
-      }, 1500);
-    } else {
-      showAlert('Error al crear reporte: ' + data.message, 'danger');
-      if (data.errors) {
-        showValidationErrors(data.errors);
-      }
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al crear reporte', 'danger');
-  }
-}
+  sel.addEventListener('change', update)
+  update()
+})
 </script>

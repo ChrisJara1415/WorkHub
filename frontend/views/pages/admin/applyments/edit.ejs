@@ -5,32 +5,40 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Editar Postulación</h2>
-        <a href="/admin/applyments" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> Volver
+        <a href="/admin/postulaciones" class="btn btn-secondary">
+          <i class="bi bi-arrow-left"></i> Volver
         </a>
       </div>
 
       <div class="card">
         <div class="card-body">
-          <form id="editApplymentForm">
-            <input type="hidden" id="applymentId" name="id">
+          <form method="POST" action="/admin/postulaciones/<%= (applyment && (applyment._id || applyment.id)) %>?_method=PUT">
+            <input type="hidden" name="id" value="<%= (applyment && (applyment._id || applyment.id)) %>">
             
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="empleado_id" class="form-label">Empleado *</label>
-                  <select class="form-select" id="empleado_id" name="empleado_id" required>
+                  <select class="form-select" id="empleado_id" name="empleado[idUsuario]" required>
                     <option value="">Seleccionar empleado...</option>
+                    <% (empleados || []).forEach(u => { %>
+                      <option value="<%= u._id %>" data-nombre="<%= (u.nombres || '') + ' ' + (u.apellidos || '') %>" <%= (applyment?.empleado?.idUsuario?.toString() === u._id?.toString()) ? 'selected' : '' %>><%= u.nombres %> <%= u.apellidos %></option>
+                    <% }) %>
                   </select>
+                  <input type="hidden" id="empleado_nombre" name="empleado[nombre]" value="<%= applyment?.empleado?.nombre || '' %>">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="oferta_id" class="form-label">Oferta *</label>
-                  <select class="form-select" id="oferta_id" name="oferta_id" required>
+                  <select class="form-select" id="oferta_id" name="servicio[idServicio]" required>
                     <option value="">Seleccionar oferta...</option>
+                    <% (offers || []).forEach(of => { %>
+                      <option value="<%= of._id %>" data-nombre="<%= of.nombreServicio %>" <%= (applyment?.servicio?.idServicio?.toString() === of._id?.toString()) ? 'selected' : '' %>><%= of.nombreServicio %> (<%= of.municipio?.nombre %>)</option>
+                    <% }) %>
                   </select>
+                  <input type="hidden" id="servicio_nombre" name="servicio[nombreServicio]" value="<%= applyment?.servicio?.nombreServicio || '' %>">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -39,8 +47,8 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="fecha_postulacion" class="form-label">Fecha de Postulación *</label>
-                  <input type="date" class="form-control" id="fecha_postulacion" name="fecha_postulacion" required>
+                  <label for="fechaPostulacion" class="form-label">Fecha de Postulación *</label>
+                  <input type="date" class="form-control" id="fechaPostulacion" name="fechaPostulacion" value="<%= applyment?.fechaPostulacion ? new Date(applyment.fechaPostulacion).toISOString().split('T')[0] : '' %>" required>
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -48,25 +56,19 @@
                 <div class="mb-3">
                   <label for="estado" class="form-label">Estado *</label>
                   <select class="form-select" id="estado" name="estado" required>
-                    <option value="pendiente">Pendiente</option>
-                    <option value="aceptada">Aceptada</option>
-                    <option value="rechazada">Rechazada</option>
+                    <option value="Pendiente" <%= applyment?.estado === 'Pendiente' ? 'selected' : '' %>>Pendiente</option>
+                    <option value="Aceptada" <%= applyment?.estado === 'Aceptada' ? 'selected' : '' %>>Aceptada</option>
+                    <option value="Rechazada" <%= applyment?.estado === 'Rechazada' ? 'selected' : '' %>>Rechazada</option>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="mensaje" class="form-label">Mensaje</label>
-              <textarea class="form-control" id="mensaje" name="mensaje" rows="4" placeholder="Mensaje del empleado al postularse..."></textarea>
-              <div class="invalid-feedback"></div>
-            </div>
-
             <div class="d-flex justify-content-end gap-2">
-              <a href="/admin/applyments" class="btn btn-secondary">Cancelar</a>
+              <a href="/admin/postulaciones" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Actualizar Postulación
+                <i class="bi bi-save"></i> Actualizar Postulación
               </button>
             </div>
           </form>
@@ -77,108 +79,23 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  const applymentId = window.location.pathname.split('/').pop();
-  loadEmployees();
-  loadOffers();
-  loadApplyment(applymentId);
-  
-  document.getElementById('editApplymentForm').addEventListener('submit', handleSubmit);
-});
+// Mantener sincronizados los campos de nombre requeridos por el backend
+document.addEventListener('DOMContentLoaded', function () {
+  const selEmp = document.getElementById('empleado_id')
+  const inpEmpNom = document.getElementById('empleado_nombre')
+  const selOf = document.getElementById('oferta_id')
+  const inpServNom = document.getElementById('servicio_nombre')
 
-async function loadEmployees() {
-  try {
-    const response = await fetch('/admin/users?role=empleado');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('empleado_id');
-      data.data.users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.nombres} ${user.apellidos}`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar empleados:', error);
+  function updateEmpNom() {
+    const opt = selEmp.options[selEmp.selectedIndex]
+    inpEmpNom.value = opt ? opt.getAttribute('data-nombre') || '' : ''
   }
-}
-
-async function loadOffers() {
-  try {
-    const response = await fetch('/admin/offers');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('oferta_id');
-      data.data.offers.forEach(offer => {
-        const option = document.createElement('option');
-        option.value = offer.id;
-        option.textContent = `${offer.servicio} - ${offer.municipio}`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar ofertas:', error);
+  function updateServNom() {
+    const opt = selOf.options[selOf.selectedIndex]
+    inpServNom.value = opt ? opt.getAttribute('data-nombre') || '' : ''
   }
-}
-
-async function loadApplyment(id) {
-  try {
-    const response = await fetch(`/admin/applyments/${id}`);
-    const data = await response.json();
-    
-    if (data.success) {
-      const applyment = data.data;
-      document.getElementById('applymentId').value = applyment.id;
-      document.getElementById('empleado_id').value = applyment.empleado_id;
-      document.getElementById('oferta_id').value = applyment.oferta_id;
-      document.getElementById('fecha_postulacion').value = applyment.fecha_postulacion ? applyment.fecha_postulacion.split('T')[0] : '';
-      document.getElementById('estado').value = applyment.estado;
-      document.getElementById('mensaje').value = applyment.mensaje || '';
-    } else {
-      showAlert('Error al cargar postulación: ' + data.message, 'danger');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al cargar postulación', 'danger');
-  }
-}
-
-async function handleSubmit(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(e.target);
-  const applymentData = Object.fromEntries(formData.entries());
-  const applymentId = applymentData.id;
-  delete applymentData.id;
-  
-  try {
-    const response = await fetch(`/admin/applyments/${applymentId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(applymentData)
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      showAlert('Postulación actualizada exitosamente', 'success');
-      setTimeout(() => {
-        window.location.href = '/admin/applyments';
-      }, 1500);
-    } else {
-      showAlert('Error al actualizar postulación: ' + data.message, 'danger');
-      if (data.errors) {
-        showValidationErrors(data.errors);
-      }
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al actualizar postulación', 'danger');
-  }
-}
+  selEmp.addEventListener('change', updateEmpNom)
+  selOf.addEventListener('change', updateServNom)
+  updateEmpNom(); updateServNom();
+})
 </script>

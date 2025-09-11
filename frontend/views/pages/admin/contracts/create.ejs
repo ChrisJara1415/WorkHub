@@ -6,19 +6,23 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Nuevo Contrato</h2>
         <a href="/admin/contratos" class="btn btn-secondary">
-          <i class="fas fa-arrow-left"></i> Volver
+          <i class="bi bi-arrow-left"></i> Volver
         </a>
       </div>
 
       <div class="card">
         <div class="card-body">
-          <form id="createContractForm">
+          <form method="POST" action="/admin/contratos">
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="oferta_id" class="form-label">Oferta *</label>
-                  <select class="form-select" id="oferta_id" name="oferta_id" required>
+                  <!-- objeto oferta: idOferta + nombreOferta -->
+                  <select class="form-select" id="oferta_id" name="oferta[idOferta]" required>
                     <option value="">Seleccionar oferta...</option>
+                    <% (offers || []).forEach(of => { %>
+                      <option value="<%= of._id %>"><%= of.nombreServicio %></option>
+                    <% }) %>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -26,8 +30,11 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="empleado_id" class="form-label">Empleado *</label>
-                  <select class="form-select" id="empleado_id" name="empleado_id" required>
+                  <select class="form-select" id="empleado_id" name="empleado[idUsuario]" required>
                     <option value="">Seleccionar empleado...</option>
+                    <% (empleados || []).forEach(u => { %>
+                      <option value="<%= u._id %>"><%= u.nombres %> <%= u.apellidos %></option>
+                    <% }) %>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -38,8 +45,11 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="empleador_id" class="form-label">Empleador *</label>
-                  <select class="form-select" id="empleador_id" name="empleador_id" required>
+                  <select class="form-select" id="empleador_id" name="empleador[idUsuario]" required>
                     <option value="">Seleccionar empleador...</option>
+                    <% (empleadores || []).forEach(u => { %>
+                      <option value="<%= u._id %>"><%= u.nombres %> <%= u.apellidos %></option>
+                    <% }) %>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -48,9 +58,8 @@
                 <div class="mb-3">
                   <label for="estado" class="form-label">Estado *</label>
                   <select class="form-select" id="estado" name="estado" required>
-                    <option value="activo">Activo</option>
-                    <option value="completado">Completado</option>
-                    <option value="cancelado">Cancelado</option>
+                    <option value="Activo">Activo</option>
+                    <option value="Inactivo">Inactivo</option>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -60,30 +69,24 @@
             <div class="row">
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="fecha_inicio" class="form-label">Fecha de Inicio *</label>
-                  <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" required>
+                  <label for="fechaInicio" class="form-label">Fecha de Inicio *</label>
+                  <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" required>
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="fecha_fin" class="form-label">Fecha de Fin</label>
-                  <input type="date" class="form-control" id="fecha_fin" name="fecha_fin">
+                  <label for="fechaFin" class="form-label">Fecha de Fin</label>
+                  <input type="date" class="form-control" id="fechaFin" name="fechaFin">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="descripcion" class="form-label">Descripción</label>
-              <textarea class="form-control" id="descripcion" name="descripcion" rows="4"></textarea>
-              <div class="invalid-feedback"></div>
-            </div>
-
             <div class="d-flex justify-content-end gap-2">
               <a href="/admin/contratos" class="btn btn-secondary">Cancelar</a>
               <button type="submit" class="btn btn-primary">
-                <i class="fas fa-save"></i> Guardar Contrato
+                <i class="bi bi-save"></i> Guardar Contrato
               </button>
             </div>
           </form>
@@ -93,103 +96,3 @@
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  loadOffers();
-  loadEmployees();
-  loadEmployers();
-  
-  document.getElementById('createContractForm').addEventListener('submit', handleSubmit);
-});
-
-async function loadOffers() {
-  try {
-    const response = await fetch('/admin/offers?estado=activa');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('oferta_id');
-      data.data.offers.forEach(offer => {
-        const option = document.createElement('option');
-        option.value = offer.id;
-        option.textContent = `${offer.servicio} - ${offer.municipio}`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar ofertas:', error);
-  }
-}
-
-async function loadEmployees() {
-  try {
-    const response = await fetch('/admin/users?role=empleado');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('empleado_id');
-      data.data.users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.nombres} ${user.apellidos}`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar empleados:', error);
-  }
-}
-
-async function loadEmployers() {
-  try {
-    const response = await fetch('/admin/users?role=empleador');
-    const data = await response.json();
-    
-    if (data.success) {
-      const select = document.getElementById('empleador_id');
-      data.data.users.forEach(user => {
-        const option = document.createElement('option');
-        option.value = user.id;
-        option.textContent = `${user.nombres} ${user.apellidos}`;
-        select.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Error al cargar empleadores:', error);
-  }
-}
-
-async function handleSubmit(e) {
-  e.preventDefault();
-  
-  const formData = new FormData(e.target);
-  const contractData = Object.fromEntries(formData.entries());
-  
-  try {
-    const response = await fetch('/admin/contratos', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(contractData)
-    });
-    
-    const data = await response.json();
-    
-    if (data.success) {
-      showAlert('Contrato creado exitosamente', 'success');
-      setTimeout(() => {
-        window.location.href = '/admin/contratos';
-      }, 1500);
-    } else {
-      showAlert('Error al crear contrato: ' + data.message, 'danger');
-      if (data.errors) {
-        showValidationErrors(data.errors);
-      }
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al crear contrato', 'danger');
-  }
-}
-</script>

@@ -18,99 +18,155 @@
         <i class="bi bi-exclamation-triangle"></i>
         <%= error %>
     </div>
-<% } %>
+    <% } %>
 
-<div class="card">
-    <div class="card-header">
-        <h6 class="m-0 font-weight-bold">
-            Lista de Usuarios
-            <span class="badge bg-primary ms-2"><%= pagination.total %></span>
-        </h6>
-    </div>
-    <div class="card-body">
-        <% if (users.length > 0) { %>
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombres</th>
-                            <th>Apellidos</th>
-                            <th>Email</th>
-                            <th>Teléfono</th>
-                            <th>Rol</th>
-                            <th>Municipio</th>
-                            <th>Fecha Registro</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% users.forEach(user => { %>
-                            <tr>
-                                <td><%= user._id %></td>
-                                <td><%= user.nombres %></td>
-                                <td><%= user.apellidos %></td>
-                                <td><%= user.email %></td>
-                                <td><%= user.telefono %></td>
-                                <td>
-                                    <span class="badge bg-<%= user.rol === 'empleador' ? 'success' : 'info' %>">
-                                        <%= user.rol %>
-                                    </span>
-                                </td>
-                                <td><%= user.municipio %></td>
-                                <td><%= new Date(user.fechaRegistro).toLocaleDateString() %></td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="/admin/usuarios/<%= user._id %>/editar" class="btn btn-sm btn-outline-primary">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <form method="POST" action="/admin/usuarios/<%= user._id %>?_method=DELETE" style="display: inline;">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger btn-delete">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
+        <div class="card">
+            <div class="card-header">
+                <h6 class="m-0 font-weight-bold">
+                    Lista de Usuarios
+                    <span class="badge bg-primary ms-2">
+                        <%= pagination.total %>
+                    </span>
+                </h6>
             </div>
+            <div class="card-body">
+                <!-- Buscador y filtros (búsqueda en línea) -->
+                <form method="GET" class="row g-3 mb-3" id="usersFilters">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" name="q" placeholder="Buscar por nombre, email..."
+                                value="<%= typeof q !== 'undefined' ? q : '' %>" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="rol">
+                            <option value="">Todos los roles</option>
+                            <option value="empleado" <%=rol==='empleado' ? 'selected' : '' %>>Empleado</option>
+                            <option value="empleador" <%=rol==='empleador' ? 'selected' : '' %>>Empleador</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="municipio">
+                            <option value="">Todos los municipios</option>
+                            <% ['Barbosa','Copacabana','Girardota','Bello','Medellín','Envigado','Itagüí','Sabaneta','La Estrella','Caldas'].forEach(function(m) { %>
+                                <option value="<%= m %>" <%= municipio === m ? 'selected' : '' %>><%= m %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+                </form>
+                <% if (users.length> 0) { %>
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombres</th>
+                                    <th>Apellidos</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Rol</th>
+                                    <th>Municipio</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% users.forEach(user=> { %>
+                                    <tr>
+                                        <td>
+                                            <%= user._id %>
+                                        </td>
+                                        <td>
+                                            <%= user.nombres %>
+                                        </td>
+                                        <td>
+                                            <%= user.apellidos %>
+                                        </td>
+                                        <td>
+                                            <%= user.email %>
+                                        </td>
+                                        <td>
+                                            <%= user.telefono %>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-<%= user.rol === 'empleador' ? 'success' : 'info' %>">
+                                                <%= user.rol %>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <%= user.municipio %>
+                                        </td>
+                                        <td>
+                                            <%= new Date(user.fechaRegistro).toLocaleDateString() %>
+                                        </td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a href="/admin/usuarios/<%= user._id %>/editar"
+                                                    class="btn btn-sm btn-outline-primary btn-action"><i
+                                                        class="bi bi-pencil-square"></i></a>
+                                                <a href="/admin/usuarios/<%= user._id %>"
+                                                    class="btn btn-sm btn-outline-danger btn-action btn-delete"
+                                                    data-entity="usuario"
+                                                    data-action="/admin/usuarios/<%= user._id %>"><i
+                                                        class="bi bi-trash"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
 
-            <!-- Paginación -->
-            <% if (pagination.totalPages > 1) { %>
-                <nav aria-label="Paginación de usuarios">
-                    <ul class="pagination justify-content-center">
-                        <% if (pagination.currentPage > 1) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="/admin/usuarios?page=<%= pagination.currentPage - 1 %>">Anterior</a>
-                            </li>
+                    <!-- Paginación -->
+                    <% if (pagination.totalPages> 1) { %>
+                        <nav aria-label="Paginación de usuarios">
+                            <ul class="pagination justify-content-center">
+                                <% if (pagination.currentPage> 1) { %>
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                            href="/admin/usuarios?page=<%= pagination.currentPage - 1 %>&q=<%= encodeURIComponent(typeof q !== 'undefined' ? q : '') %>&rol=<%= encodeURIComponent(typeof rol !== 'undefined' ? rol : '') %>&municipio=<%= encodeURIComponent(typeof municipio !== 'undefined' ? municipio : '') %>&limit=<%= pagination.limit %>">Anterior</a>
+                                    </li>
+                                    <% } %>
+
+                                        <% for (let i=1; i <=pagination.totalPages; i++) { %>
+                                            <li class="page-item <%= pagination.currentPage === i ? 'active' : '' %>">
+                                                <a class="page-link"
+                                                    href="/admin/usuarios?page=<%= i %>&q=<%= encodeURIComponent(typeof q !== 'undefined' ? q : '') %>&rol=<%= encodeURIComponent(typeof rol !== 'undefined' ? rol : '') %>&municipio=<%= encodeURIComponent(typeof municipio !== 'undefined' ? municipio : '') %>&limit=<%= pagination.limit %>">
+                                                    <%= i %>
+                                                </a>
+                                            </li>
+                                            <% } %>
+
+                                                <% if (pagination.currentPage < pagination.totalPages) { %>
+                                                    <li class="page-item">
+                                                        <a class="page-link"
+                                                            href="/admin/usuarios?page=<%= pagination.currentPage + 1 %>&q=<%= encodeURIComponent(typeof q !== 'undefined' ? q : '') %>&rol=<%= encodeURIComponent(typeof rol !== 'undefined' ? rol : '') %>&municipio=<%= encodeURIComponent(typeof municipio !== 'undefined' ? municipio : '') %>&limit=<%= pagination.limit %>">Siguiente</a>
+                                                    </li>
+                                                    <% } %>
+                            </ul>
+                        </nav>
                         <% } %>
-                        
-                        <% for (let i = 1; i <= pagination.totalPages; i++) { %>
-                            <li class="page-item <%= pagination.currentPage === i ? 'active' : '' %>">
-                                <a class="page-link" href="/admin/usuarios?page=<%= i %>"><%= i %></a>
-                            </li>
-                        <% } %>
-                        
-                        <% if (pagination.currentPage < pagination.totalPages) { %>
-                            <li class="page-item">
-                                <a class="page-link" href="/admin/usuarios?page=<%= pagination.currentPage + 1 %>">Siguiente</a>
-                            </li>
-                        <% } %>
-                    </ul>
-                </nav>
-            <% } %>
-        <% } else { %>
-            <div class="text-center py-4">
-                <i class="bi bi-people" style="font-size: 3rem; color: #ccc;"></i>
-                <h5 class="mt-3">No hay usuarios registrados</h5>
-                <p class="text-muted">Comienza creando el primer usuario</p>
-                <a href="/admin/usuarios/crear" class="btn btn-primary">
-                    <i class="bi bi-person-plus"></i>
-                    Crear Usuario
-                </a>
+                            <% } else { %>
+                                <div class="text-center py-4">
+                                    <i class="bi bi-people" style="font-size: 3rem; color: #ccc;"></i>
+                                    <h5 class="mt-3">No hay usuarios registrados</h5>
+                                    <p class="text-muted">Comienza creando el primer usuario</p>
+                                    <a href="/admin/usuarios/crear" class="btn btn-primary"><i
+                                            class="bi bi-person-plus"></i> Crear Usuario</a>
+                                </div>
+                                <% } %>
             </div>
-        <% } %>
-    </div>
-</div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.getElementById('usersFilters')
+                const inputs = form.querySelectorAll('input, select')
+                const submit = () => { form.submit() }
+                inputs.forEach(el => {
+                    if (el.tagName === 'INPUT') el.addEventListener('input', () => { clearTimeout(el._t); el._t = setTimeout(submit, 300) })
+                    if (el.tagName === 'SELECT') el.addEventListener('change', submit)
+                })
+            })
+        </script>

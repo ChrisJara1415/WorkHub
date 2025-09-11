@@ -3,175 +3,110 @@
     <div class="col-12">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Gestión de Reportes PQRS</h2>
-        <a href="/admin/reports/create" class="btn btn-primary">
-          <i class="fas fa-plus"></i> Nuevo Reporte
+        <a href="/admin/reportes/crear" class="btn btn-primary">
+          <i class="bi bi-plus-lg"></i> Nuevo Reporte
         </a>
       </div>
 
       <div class="card">
         <div class="card-body">
+          <!-- Buscador y filtros -->
+          <form method="GET" class="row g-3 mb-3">
+            <div class="col-md-4">
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" name="q" placeholder="Buscar por usuario, título o descripción" value="<%= (typeof q !== 'undefined' && q) ? q : '' %>">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select" name="tipo">
+                <option value="">Todos los tipos</option>
+                <% ['Petición','Queja','Reclamo','Sugerencia','Consulta'].forEach(t => { %>
+                  <option value="<%= t %>" <%= (tipo===t) ? 'selected' : '' %>><%= t %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select class="form-select" name="prioridad">
+                <option value="">Todas las prioridades</option>
+                <% ['Alta','Media','Baja'].forEach(p => { %>
+                  <option value="<%= p %>" <%= (prioridad===p) ? 'selected' : '' %>><%= p %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-md-2">
+              <select class="form-select" name="estado">
+                <option value="">Todos los estados</option>
+                <% ['Abierto','Cerrado','En proceso'].forEach(e => { %>
+                  <option value="<%= e %>" <%= (estado===e) ? 'selected' : '' %>><%= e %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="col-md-12 text-end">
+              <button type="submit" class="btn btn-outline-primary"><i class="bi bi-filter"></i> Filtrar</button>
+            </div>
+          </form>
+
           <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table table-striped table-hover align-middle">
               <thead>
                 <tr>
-                  <th>ID</th>
                   <th>Usuario</th>
                   <th>Tipo</th>
-                  <th>Asunto</th>
+                  <th>Título</th>
                   <th>Fecha</th>
                   <th>Estado</th>
-                  <th>Acciones</th>
+                  <th class="text-end">Acciones</th>
                 </tr>
               </thead>
-              <tbody id="reportsTableBody">
-                <!-- Los datos se cargarán dinámicamente -->
+              <tbody>
+                <% if ((reports || []).length > 0) { %>
+                  <% reports.forEach(r => { %>
+                    <tr>
+                      <td><%= r.usuario && r.usuario.nombre %></td>
+                      <td><%= r.tipo %></td>
+                      <td><%= r.titulo %></td>
+                      <td><%= r.fechaReporte ? new Date(r.fechaReporte).toLocaleDateString('es-CO') : 'N/A' %></td>
+                      <td><%= r.estado %></td>
+                      <td class="text-end">
+                        <a class="btn btn-sm btn-outline-secondary btn-view" data-entity="reporte" data-record="<%= encodeURIComponent(JSON.stringify({
+                          id: r._id,
+                          usuario: r.usuario && r.usuario.nombre,
+                          tipo: r.tipo,
+                          titulo: r.titulo,
+                          descripcion: r.descripcion,
+                          fecha: r.fechaReporte ? new Date(r.fechaReporte).toLocaleString('es-CO') : 'N/A',
+                          prioridad: r.prioridad,
+                          estado: r.estado
+                        })) %>"><i class="bi bi-eye"></i></a>
+                        <a class="btn btn-sm btn-outline-primary" href="/admin/reportes/<%= r._id %>/editar"><i class="bi bi-pencil-square"></i></a>
+                        <a class="btn btn-sm btn-outline-danger btn-delete" data-entity="reporte" data-action="/admin/reportes/<%= r._id %>"><i class="bi bi-trash"></i></a>
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6" class="text-center text-muted">No hay reportes</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
 
-          <!-- Paginación -->
-          <nav aria-label="Paginación de reportes">
-            <ul class="pagination justify-content-center" id="reportsPagination">
-              <!-- La paginación se generará dinámicamente -->
-            </ul>
-          </nav>
+          <% if (pagination && pagination.totalPages > 1) { %>
+            <nav aria-label="Paginación de reportes">
+              <ul class="pagination justify-content-center">
+                <% for (let p = 1; p <= pagination.totalPages; p++) { %>
+                  <li class="page-item <%= p === pagination.currentPage ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= p %>&limit=<%= pagination.limit || 10 %><%= q ? '&q=' + encodeURIComponent(q) : '' %><%= tipo ? '&tipo=' + encodeURIComponent(tipo) : '' %><%= prioridad ? '&prioridad=' + encodeURIComponent(prioridad) : '' %><%= estado ? '&estado=' + encodeURIComponent(estado) : '' %>"><%= p %></a>
+                  </li>
+                <% } %>
+              </ul>
+            </nav>
+          <% } %>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Modal de confirmación para eliminar -->
-<div class="modal fade" id="deleteReportModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Confirmar Eliminación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        ¿Está seguro de que desea eliminar este reporte?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteReport">Eliminar</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-let currentPage = 1;
-let reportToDelete = null;
-
-document.addEventListener('DOMContentLoaded', function() {
-  loadReports();
-});
-
-async function loadReports(page = 1) {
-  try {
-    const response = await fetch(`/admin/reports?page=${page}`);
-    const data = await response.json();
-    
-    if (data.success) {
-      renderReportsTable(data.data.reports);
-      renderPagination(data.data.pagination, 'reportsPagination', loadReports);
-      currentPage = page;
-    } else {
-      showAlert('Error al cargar reportes: ' + data.message, 'danger');
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    showAlert('Error de conexión al cargar reportes', 'danger');
-  }
-}
-
-function renderReportsTable(reports) {
-  const tbody = document.getElementById('reportsTableBody');
-  tbody.innerHTML = '';
-
-  reports.forEach(report => {
-    const row = document.createElement('tr');
-    const fechaReporte = new Date(report.fecha_reporte).toLocaleDateString();
-    
-    row.innerHTML = `
-      <td>${report.id}</td>
-      <td>${report.usuario_nombre || 'N/A'}</td>
-      <td>
-        <span class="badge ${getTypeBadgeClass(report.tipo)}">
-          ${report.tipo}
-        </span>
-      </td>
-      <td>${report.asunto}</td>
-      <td>${fechaReporte}</td>
-      <td>
-        <span class="badge ${getStatusBadgeClass(report.estado)}">
-          ${report.estado}
-        </span>
-      </td>
-      <td>
-        <div class="btn-group" role="group">
-          <a href="/admin/reports/edit/${report.id}" class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-edit"></i>
-          </a>
-          <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(${report.id})">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-
-function getTypeBadgeClass(tipo) {
-  switch(tipo) {
-    case 'peticion': return 'bg-info';
-    case 'queja': return 'bg-warning';
-    case 'reclamo': return 'bg-danger';
-    case 'sugerencia': return 'bg-success';
-    default: return 'bg-secondary';
-  }
-}
-
-function getStatusBadgeClass(estado) {
-  switch(estado) {
-    case 'pendiente': return 'bg-warning';
-    case 'en_proceso': return 'bg-info';
-    case 'resuelto': return 'bg-success';
-    case 'cerrado': return 'bg-secondary';
-    default: return 'bg-secondary';
-  }
-}
-
-function confirmDelete(id) {
-  reportToDelete = id;
-  const modal = new bootstrap.Modal(document.getElementById('deleteReportModal'));
-  modal.show();
-}
-
-document.getElementById('confirmDeleteReport').addEventListener('click', async function() {
-  if (reportToDelete) {
-    try {
-      const response = await fetch(`/admin/reports/${reportToDelete}`, {
-        method: 'DELETE'
-      });
-      const data = await response.json();
-      
-      if (data.success) {
-        showAlert('Reporte eliminado exitosamente', 'success');
-        loadReports(currentPage);
-      } else {
-        showAlert('Error al eliminar reporte: ' + data.message, 'danger');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showAlert('Error de conexión al eliminar reporte', 'danger');
-    }
-    
-    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteReportModal'));
-    modal.hide();
-    reportToDelete = null;
-  }
-});
-</script>
+ 
