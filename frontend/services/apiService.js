@@ -125,7 +125,11 @@ class ApiService {
       const response = await apiClient.post("/contratos", contractData)
       return response.data
     } catch (error) {
-      throw new Error(`Error al crear contrato: ${error.message}`)
+      const backend = error?.response?.data
+      const msg = backend?.message || error.message
+      const err = new Error(`Error al crear contrato: ${msg}`)
+      err.response = error.response
+      throw err
     }
   }
 
