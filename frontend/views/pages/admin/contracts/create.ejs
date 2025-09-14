@@ -12,6 +12,9 @@
 
       <div class="card">
         <div class="card-body">
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <%= error %></div>
+          <% } %>
           <form method="POST" action="/admin/contratos">
             <div class="row">
               <div class="col-md-6">
@@ -21,9 +24,11 @@
                   <select class="form-select" id="oferta_id" name="oferta[idOferta]" required>
                     <option value="">Seleccionar oferta...</option>
                     <% (offers || []).forEach(of => { %>
-                      <option value="<%= of._id %>"><%= of.nombreServicio %></option>
+                      <option value="<%= of._id %>" data-nombre="<%= of.nombreServicio %>" <%= (formData && formData.oferta && String(formData.oferta.idOferta) === String(of._id)) ? 'selected' : '' %>><%= of.nombreServicio %></option>
                     <% }) %>
                   </select>
+                  <!-- nombre requerido por el backend -->
+                  <input type="hidden" id="oferta_nombre" name="oferta[nombreOferta]" value="<%= (formData && formData.oferta && formData.oferta.nombreOferta) ? formData.oferta.nombreOferta : '' %>">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -33,9 +38,11 @@
                   <select class="form-select" id="empleado_id" name="empleado[idUsuario]" required>
                     <option value="">Seleccionar empleado...</option>
                     <% (empleados || []).forEach(u => { %>
-                      <option value="<%= u._id %>"><%= u.nombres %> <%= u.apellidos %></option>
+                      <option value="<%= u._id %>" data-nombre="<%= `${u.nombres} ${u.apellidos}` %>" <%= (formData && formData.empleado && String(formData.empleado.idUsuario) === String(u._id)) ? 'selected' : '' %>><%= u.nombres %> <%= u.apellidos %></option>
                     <% }) %>
                   </select>
+                  <!-- nombre requerido por el backend -->
+                  <input type="hidden" id="empleado_nombre" name="empleado[nombre]" value="<%= (formData && formData.empleado && formData.empleado.nombre) ? formData.empleado.nombre : '' %>">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -48,9 +55,11 @@
                   <select class="form-select" id="empleador_id" name="empleador[idUsuario]" required>
                     <option value="">Seleccionar empleador...</option>
                     <% (empleadores || []).forEach(u => { %>
-                      <option value="<%= u._id %>"><%= u.nombres %> <%= u.apellidos %></option>
+                      <option value="<%= u._id %>" data-nombre="<%= `${u.nombres} ${u.apellidos}` %>" <%= (formData && formData.empleador && String(formData.empleador.idUsuario) === String(u._id)) ? 'selected' : '' %>><%= u.nombres %> <%= u.apellidos %></option>
                     <% }) %>
                   </select>
+                  <!-- nombre requerido por el backend -->
+                  <input type="hidden" id="empleador_nombre" name="empleador[nombre]" value="<%= (formData && formData.empleador && formData.empleador.nombre) ? formData.empleador.nombre : '' %>">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -58,8 +67,8 @@
                 <div class="mb-3">
                   <label for="estado" class="form-label">Estado *</label>
                   <select class="form-select" id="estado" name="estado" required>
-                    <option value="Activo">Activo</option>
-                    <option value="Inactivo">Inactivo</option>
+                    <option value="Activo" <%= (formData && formData.estado === 'Activo') ? 'selected' : '' %>>Activo</option>
+                    <option value="Inactivo" <%= (formData && formData.estado === 'Inactivo') ? 'selected' : '' %>>Inactivo</option>
                   </select>
                   <div class="invalid-feedback"></div>
                 </div>
@@ -70,14 +79,14 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="fechaInicio" class="form-label">Fecha de Inicio *</label>
-                  <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" required>
+                  <input type="date" class="form-control" id="fechaInicio" name="fechaInicio" required value="<%= (formData && formData.fechaInicio) ? String(formData.fechaInicio).split('T')[0] : '' %>">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="fechaFin" class="form-label">Fecha de Fin</label>
-                  <input type="date" class="form-control" id="fechaFin" name="fechaFin">
+                  <input type="date" class="form-control" id="fechaFin" name="fechaFin" value="<%= (formData && formData.fechaFin) ? String(formData.fechaFin).split('T')[0] : '' %>">
                   <div class="invalid-feedback"></div>
                 </div>
               </div>
@@ -95,4 +104,35 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const selOferta = document.getElementById('oferta_id')
+  const inpOfertaNom = document.getElementById('oferta_nombre')
+  const selEmp = document.getElementById('empleado_id')
+  const inpEmpNom = document.getElementById('empleado_nombre')
+  const selEmpr = document.getElementById('empleador_id')
+  const inpEmprNom = document.getElementById('empleador_nombre')
+
+  function updateOfertaNom() {
+    const opt = selOferta && selOferta.options[selOferta.selectedIndex]
+    if (inpOfertaNom) inpOfertaNom.value = opt ? (opt.getAttribute('data-nombre') || opt.text || '') : ''
+  }
+  function updateEmpNom() {
+    const opt = selEmp && selEmp.options[selEmp.selectedIndex]
+    if (inpEmpNom) inpEmpNom.value = opt ? (opt.getAttribute('data-nombre') || opt.text || '') : ''
+  }
+  function updateEmprNom() {
+    const opt = selEmpr && selEmpr.options[selEmpr.selectedIndex]
+    if (inpEmprNom) inpEmprNom.value = opt ? (opt.getAttribute('data-nombre') || opt.text || '') : ''
+  }
+
+  if (selOferta) selOferta.addEventListener('change', updateOfertaNom)
+  if (selEmp) selEmp.addEventListener('change', updateEmpNom)
+  if (selEmpr) selEmpr.addEventListener('change', updateEmprNom)
+
+  // Inicializar valores al cargar
+  updateOfertaNom(); updateEmpNom(); updateEmprNom();
+})
+</script>
 
