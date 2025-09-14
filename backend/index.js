@@ -4,10 +4,10 @@ import globalRouter from './routers/globalRoutes.router.js'
 import cors from 'cors'
 import {backupDatabase} from './config/backup.js'
 import cron from 'node-cron'
-process.loadEnvFile()
+process.loadEnvFile('../.env')
 
 const app = exp()
-const PORT = process.env.PORT
+const PORT_BACK = process.env.PORT_BACK
 
 app.use(exp.json())
 app.use(morgan('dev'))
@@ -26,10 +26,10 @@ cron.schedule('* 1 * * * *', async () => {
     backupDatabase();
 });
 
-app.listen(PORT, () => {
+app.listen(PORT_BACK, () => {
     try {
-        console.log(`Servidor escuchando en el puerto ${PORT}`)
-        console.log(`Servidor disponible en http://localhost:${PORT}`)
+        console.log(`Servidor escuchando en el puerto ${PORT_BACK}`)
+        console.log(`Servidor disponible en http://localhost:${PORT_BACK}`)
     } catch (error) {
         console.error({message: 'Error al inicializar servidor', error: error.message})
     }
