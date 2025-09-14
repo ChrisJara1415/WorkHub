@@ -46,12 +46,32 @@ const contractSchema = new Schema({
     fechaInicio: {
         type: Date,
         default: Date.now,
-        required: true
+        required: true,
+        validate: {
+            validator: function (value) {
+                const now = new Date()
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                const maxDate = new Date(today)
+                maxDate.setMonth(maxDate.getMonth() + 1)
+                return value >= today && value <= maxDate
+            },
+            message: props => `${props.value} debe estar entre hoy y máximo 1 mes en el futuro.`
+        }
     },
 
     fechaFin: {
         type: Date,
-        required: true
+        required: true,
+        validate: {
+            validator: function (value) {
+                const now = new Date()
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                const maxDate = new Date(today)
+                maxDate.setMonth(maxDate.getMonth() + 1)
+                return value >= today && value <= maxDate
+            },
+            message: props => `${props.value} debe estar entre hoy y máximo 1 mes en el futuro.`
+        }
     },
 
     estado: {
