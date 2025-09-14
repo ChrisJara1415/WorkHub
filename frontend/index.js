@@ -7,6 +7,9 @@ const __dirname = path.dirname(__filename);
 import methodOverride from "method-override"
 import morgan from "morgan"
 process.loadEnvFile('../.env')
+// Rutas
+import indexRoutes from "./routes/indexRouter.js"
+import adminRoutes from "./routes/globalRoutes.js"
 
 const app = express()
 
@@ -34,12 +37,7 @@ app.set('layout', 'pages/layout');
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, "static")))
 
-// Rutas
-import indexRoutes from "./routes/indexRouter.js"
-import adminRoutes from "./routes/globalRoutes.js"
-
 // mideleware para manejar rutas del index, usuarios, ofertas, postulaciones
-
 app.use("/", indexRoutes)
 app.use("/admin", adminRoutes)
 
