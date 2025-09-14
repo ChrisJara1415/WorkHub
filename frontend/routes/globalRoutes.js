@@ -388,6 +388,19 @@ router.post("/contratos", async (req, res) => {
     res.redirect("/admin/contratos?success=Contrato creado exitosamente")
   } catch (error) {
     console.error("Error al crear contrato:", error?.response?.data || error.message)
+    let offers = [], empleados = [], empleadores = []
+    try {
+      const [offersResp, empleadosResp, empleadoresResp] = await Promise.all([
+        apiService.getOffers(1, 1000),
+        apiService.getUsers(1, 1000, 'empleado'),
+        apiService.getUsers(1, 1000, 'empleador'),
+      ])
+      offers = offersResp?.data || offersResp || []
+      empleados = empleadosResp?.data || empleadosResp || []
+      empleadores = empleadoresResp?.data || empleadoresResp || []
+    } catch (rehydrateErr) {
+      console.error("Error recargando listas para contrato:", rehydrateErr.message)
+    }
     res.status(400).render("pages/admin/contracts/create", {
       title: "Crear Contrato",
       activeMenu: "contracts",
