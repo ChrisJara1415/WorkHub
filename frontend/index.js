@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import methodOverride from "method-override"
 import morgan from "morgan"
-process.loadEnvFile()
+process.loadEnvFile('../.env')
 
 const app = express()
 
@@ -62,9 +62,9 @@ app.use((err, req, res, next) => {
   })
 })
 
-const PORT = process.env.PORT
+const PORT_FRONT = process.env.PORT_FRONT
 
-app.listen(PORT, () => {
-  console.log(`🎨 Frontend ejecutándose en el puerto ${PORT}`)
-  console.log(`🌐 Aplicación disponible en: http://localhost:${PORT}`)
+app.listen(PORT_FRONT, () => {
+  console.log(`🎨 Frontend ejecutándose en el puerto ${PORT_FRONT}`)
+  console.log(`🌐 Aplicación disponible en: http://localhost:${PORT_FRONT}`)
 })
