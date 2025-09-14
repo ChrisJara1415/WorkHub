@@ -8,6 +8,17 @@ export const createContract = async (req, res) => {
 
         res.status(201).json({ success: true, message: 'Contrato creado satisfactoriamente', data: nuevoContrato })
     } catch (error) {
+        if (error?.name === 'ValidationError') {
+            return res.status(400).json({
+                message: 'Datos inválidos para crear contrato',
+                errors: error.errors,
+            })
+        }
+        console.error('Error al crear contrato:', {
+            name: error?.name,
+            message: error?.message,
+            stack: error?.stack,
+        })
         res.status(500).json({message: 'Error al crear contrato', error: error.message})
     }
 }
