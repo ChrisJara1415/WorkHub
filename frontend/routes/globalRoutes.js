@@ -387,12 +387,15 @@ router.post("/contratos", async (req, res) => {
     await apiService.createContract(req.body)
     res.redirect("/admin/contratos?success=Contrato creado exitosamente")
   } catch (error) {
-    console.error("Error al crear contrato:", error.message)
-    res.render("pages/admin/contracts/create", {
+    console.error("Error al crear contrato:", error?.response?.data || error.message)
+    res.status(400).render("pages/admin/contracts/create", {
       title: "Crear Contrato",
-      activeMenu: "contratos",
-      error: error.message,
+      activeMenu: "contracts",
+      error: (error?.response?.data?.message || error.message || "No se pudo crear el contrato"),
       formData: req.body,
+      offers,
+      empleados,
+      empleadores,
     })
   }
 })
