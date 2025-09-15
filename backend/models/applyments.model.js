@@ -42,6 +42,8 @@ const applymentSchema = new Schema({
         required: true,
         enum: ['Aceptada', 'Pendiente', 'Rechazada']
     }
+}, {
+    versionKey: false
 })
 
 export default mongoose.model('postulaciones', applymentSchema)

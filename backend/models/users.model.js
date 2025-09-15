@@ -101,6 +101,9 @@ const userSchema = new schema({
             default: 'activo'
         }
     }
+},
+{
+    versionKey: false
 })
 
 export default mongoose.model('usuarios', userSchema)
