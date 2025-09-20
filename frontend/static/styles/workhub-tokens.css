@@ -1,0 +1,16 @@
+:root {
+    /* Base surfaces */
+    --wh-blankest: #f4f8fb;
+    --wh-grey: #707579;
+
+    /* Brand blues/orange */
+    --wh-blue: #04b2d9;
+    --wh-orange-soft: #f2ab6d;
+    --wh-orange: #e87f20;
+
+    /* Accents/gradients */
+    --wh-gradient-blue-teal: linear-gradient(100deg,
+            #013b48 -0.5%,
+            #58cce6 52.44%,
+            #ffaa5f 105.14%);
+}
