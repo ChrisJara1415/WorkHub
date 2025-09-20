@@ -1,5 +1,5 @@
 <dialog id="modalLogin" closedby="any">
-  <form class="form">
+  <form class="form" id="loginForm" onsubmit="return false;">
 
       <button onclick="closeModal(event)" class="close">✖</button>
 
@@ -45,7 +45,8 @@
       <a class="text-decoration-none" href="#"><span class="span">Olvidaste tu contraseña?</span></a>
     </div>
 
-    <button onclick="validateLogin()" id="btn-log-in" class="button-submit">Iniciar Sesión</button>
+  <button type="submit" id="btn-log-in" class="button-submit">Iniciar Sesión</button>
+  <div id="loginError" style="color:#dc3545; font-size:0.95em; margin-top:0.5em; display:none;"></div>
 
     <p class="p">No tienes una cuenta? <a onclick="changeModal()" id="change-modal" class="text-decoration-none"><span class="span">Registrate</span></a></p>
     <div class="flex-row">
@@ -89,3 +90,40 @@
     </div>
   </form>
 </dialog>
+<script>
+// Modal login AJAX logic
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('loginForm');
+  if (!form) return;
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = form.querySelector('#email').value.trim();
+    const password = form.querySelector('#password').value;
+    const errorDiv = document.getElementById('loginError');
+    errorDiv.style.display = 'none';
+    errorDiv.textContent = '';
+    try {
+      const resp = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await resp.json();
+      if (!resp.ok || !data.success) {
+        errorDiv.textContent = data.message || 'Credenciales incorrectas';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      // Redirige según el rol
+      if (data.rol === 'admin') {
+        window.location.href = '/admin';
+      } else {
+        window.location.href = '/usuario/dashboard';
+      }
+    } catch (err) {
+      errorDiv.textContent = 'Error de red o del servidor';
+      errorDiv.style.display = 'block';
+    }
+  });
+});
+</script>
