@@ -79,6 +79,9 @@ const offerSchema = new Schema({
         type: Date,
         required: true
     }
+},
+{
+    versionKey: false
 })
 
 export default mongoose.model('ofertas', offerSchema)

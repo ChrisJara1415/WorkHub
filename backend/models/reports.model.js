@@ -81,6 +81,9 @@ const reportSchema = new Schema({
             required: true
         }
     }],
+},
+{
+    versionKey: false
 })
 
 export default mongoose.model('reportes', reportSchema)

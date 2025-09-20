@@ -6,6 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 import methodOverride from "method-override"
 import morgan from "morgan"
+import cookieParser from "cookie-parser"
+import jwt from "jsonwebtoken"
 process.loadEnvFile('../.env')
 // Rutas
 import indexRoutes from "./routes/indexRouter.js"
@@ -29,6 +31,7 @@ app.use(methodOverride((req) => {
   }
 }))
 app.use(morgan("dev"))
+app.use(cookieParser())
 
 // Middleware para layouts
 app.use(expLayouts)
@@ -39,7 +42,67 @@ app.use(express.static(path.join(__dirname, "static")))
 
 // mideleware para manejar rutas del index, usuarios, ofertas, postulaciones
 app.use("/", indexRoutes)
-app.use("/admin", adminRoutes)
+// Guard para /admin
+function requireAdmin(req, res, next) {
+  try {
+    const token = req.cookies?.auth
+    if (!token) return res.status(302).redirect('/')
+    const payload = jwt.verify(token, process.env.JWT_SECRET)
+    if (payload?.rol !== 'admin') return res.status(302).redirect('/')
+    next()
+  } catch (_) {
+    return res.status(302).redirect('/')
+  }
+}
+app.use("/admin", requireAdmin, adminRoutes)
+
+// Login proxy para emitir cookie httpOnly
+app.post('/login', async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const resp = await fetch(`${BACK_ORIGIN}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' },
+      body: JSON.stringify(req.body)
+    })
+    const data = await resp.json()
+    if (!resp.ok) return res.status(resp.status).json(data)
+    res.cookie('auth', data.token, { httpOnly: true, secure: false, sameSite: 'lax', maxAge: 2*60*60*1000 })
+    res.json({ success:true, rol: data.rol })
+  } catch (e) {
+    res.status(500).json({ success:false, message:'Error en login', error:e.message })
+  }
+})
+
+// Proxy frontend -> backend para auth/register y auth/check
+app.post('/auth/register', async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const resp = await fetch(`${BACK_ORIGIN}/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' },
+      body: JSON.stringify(req.body)
+    })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error en registro', error: e.message })
+  }
+})
+
+app.get('/auth/check', async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const url = new URL(`${BACK_ORIGIN}/auth/check`)
+    if (req.query.field) url.searchParams.set('field', req.query.field)
+    if (req.query.value) url.searchParams.set('value', req.query.value)
+    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error verificando disponibilidad', error: e.message })
+  }
+})
 
 // Middleware de manejo de errores 404
 app.use((req, res) => {

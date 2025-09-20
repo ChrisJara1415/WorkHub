@@ -69,30 +69,32 @@ const userSchema = new schema({
     rol: {
         type: String,
         required: [true, 'El rol es obligatorio'],
-        enum: ['empleado', 'empleador']
+        enum: ['empleado', 'empleador', 'admin']
     },
 
     municipio: {
         type: String,
-        required: [true, 'Seleccione el municipio'],
-        enum: ['barbosa', 'copacabana', 'girardota', 'bello', 'medellín', 'envigado', 'itagüí', 'sabaneta', 'la estrella', 'caldas']
+        enum: ['barbosa', 'copacabana', 'girardota', 'bello', 'medellín', 'envigado', 'itagüí', 'sabaneta', 'la estrella', 'caldas'],
+        lowercase: true,
+        default: undefined
     },
 
     direccion: {
         type: String,
-        required: [true, 'La dirección es obligatoria'],
         validate: {
             validator: function (value) {
+                if (value == null || value === '') return true
                 return /^[a-zA-Z0-9\s]+$/.test(value);
             },
             message: props => `${props.value} no puede contener caracteres especiales!`
-        }
+        },
+        default: undefined
     },
 
     seguridadSocial: {
         nombre: {
             type: String,
-            required: [true, 'EL nombre de la seguridad social es obligatoria']
+            default: 'NA'
         },
 
         estado: {
@@ -101,6 +103,9 @@ const userSchema = new schema({
             default: 'activo'
         }
     }
+},
+{
+    versionKey: false
 })
 
 export default mongoose.model('usuarios', userSchema)

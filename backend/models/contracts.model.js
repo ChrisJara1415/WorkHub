@@ -79,6 +79,9 @@ const contractSchema = new Schema({
         required: true,
         enum: ['Activo', 'Inactivo']
     }
+},
+{
+    versionKey: false
 })
 
 export default mongoose.model('contratos', contractSchema)
