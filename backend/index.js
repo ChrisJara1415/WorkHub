@@ -1,6 +1,7 @@
 import exp from "express";
 import morgan from "morgan";
 import globalRouter from './routers/globalRoutes.router.js'
+import authRouter from './routers/auth.router.js'
 import {backupDatabase} from './config/backup.js'
 import cron from 'node-cron'
 process.loadEnvFile('../.env')
@@ -11,6 +12,7 @@ const PORT_BACK = process.env.PORT_BACK
 app.use(exp.json())
 app.use(morgan('dev'))
 app.use('/workhubApi', globalRouter)
+app.use('/auth', authRouter)
 
 cron.schedule('* 1 * * * *', async () => {
     console.log('Realizando Backup de la Base de datos');
