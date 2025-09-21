@@ -14,8 +14,8 @@ app.use(morgan('dev'))
 app.use('/workhubApi', globalRouter)
 app.use('/auth', authRouter)
 
-cron.schedule('* 1 * * * *', async () => {
-    console.log('Realizando Backup de la Base de datos');
+cron.schedule('0.5 * * * * *', async () => {
+    console.log('Realizando Backup de la Base de datos...');
     backupDatabase();
 });
 
