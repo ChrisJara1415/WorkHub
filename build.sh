@@ -1,7 +1,6 @@
 #!/bin/bash
-cd frontend/
+cd backend/
 npm i
-npm run exe &
-cd ../backend/
+cd ../frontend/
 npm i
-npm run dev &
+cd ..
