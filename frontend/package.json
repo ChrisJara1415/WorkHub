@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "bild": "cd ../backend/ & npm i",
     "dev": "concurrently  \"nodemon index.js\" \"nodemon ../backend/index.js\"",
     "start": "pm2 start index.js"
   },
