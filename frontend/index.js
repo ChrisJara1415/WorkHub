@@ -37,6 +37,28 @@ app.use(cookieParser())
 app.use(expLayouts)
 app.set('layout', 'pages/layout');
 
+// Exponer usuario autenticado (si existe) a todas las vistas
+app.use((req, res, next) => {
+  try {
+    const token = req.cookies?.auth
+    if (token) {
+      const payload = jwt.verify(token, process.env.JWT_SECRET)
+      res.locals.user = payload
+      res.locals.isAuthenticated = true
+      res.locals.role = payload?.rol
+    } else {
+      res.locals.user = null
+      res.locals.isAuthenticated = false
+      res.locals.role = null
+    }
+  } catch {
+    res.locals.user = null
+    res.locals.isAuthenticated = false
+    res.locals.role = null
+  }
+  next()
+})
+
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, "static")))
 
@@ -74,6 +96,91 @@ app.post('/login', async (req, res) => {
   }
 })
 
+// Guard simple para API (requiere cookie JWT)
+function requireLogin(req, res, next) {
+  try {
+    const token = req.cookies?.auth
+    if (!token) return res.status(401).json({ success:false, message:'No autenticado' })
+    const payload = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = payload
+    next()
+  } catch (e) {
+    return res.status(401).json({ success:false, message:'Sesión inválida o expirada' })
+  }
+}
+
+// Proxys API frontend -> backend para evitar CORS en el navegador
+app.get('/api/ofertas', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/ofertas`;
+    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error obteniendo ofertas', error: e.message })
+  }
+})
+
+app.post('/api/postulaciones', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/postulaciones`;
+    const body = JSON.stringify({ ...req.body, empleado: { idUsuario: req.user?.id || req.user?._id, nombre: req.user?.nombres || 'Usuario' } })
+    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error creando postulación', error: e.message })
+  }
+})
+
+app.post('/api/ofertas', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/ofertas`;
+    const payload = { ...req.body, empleador: { idUsuario: req.user?.id || req.user?._id, nombre: req.user?.nombres || 'Empleador' } }
+    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(payload) })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error creando oferta', error: e.message })
+  }
+})
+
+app.put('/api/ofertas/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/ofertas/${req.params.id}`;
+    const resp = await fetch(url, { method: 'PUT', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error actualizando oferta', error: e.message })
+  }
+})
+
+app.delete('/api/ofertas/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/ofertas/${req.params.id}`;
+    const resp = await fetch(url, { method: 'DELETE', headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error eliminando oferta', error: e.message })
+  }
+})
+
+// Logout: limpiar cookie y redirigir a landing
+app.post('/logout', (req, res) => {
+  res.clearCookie('auth', { httpOnly: true, secure: false, sameSite: 'lax' })
+  // Soportar fetch/ajax y submits tradicionales
+  const acceptsJson = req.headers['accept']?.includes('application/json') || req.headers['content-type']?.includes('application/json')
+  if (acceptsJson) return res.json({ success: true })
+  return res.redirect('/')
+})
+
 // Proxy frontend -> backend para auth/register y auth/check
 app.post('/auth/register', async (req, res) => {
   try {
@@ -107,16 +214,18 @@ app.get('/auth/check', async (req, res) => {
 // Middleware de manejo de errores 404
 app.use((req, res) => {
   res.status(404).render("pages/errors/404", {
+    layout: false,
     title: "Página no encontrada",
     error: "La página que buscas no existe",
     activeMenu: ""
   })
 })
 
-// Middleware de manejo de errores del servidor
+// Middleware de manejo de errores del servidor (500)
 app.use((err, req, res, next) => {
   console.error(err.stack)
   res.status(500).render("pages/errors/500", {
+    layout: false,
     title: "Error del servidor",
     error: "Algo salió mal en el servidor",
     activeMenu: ""
