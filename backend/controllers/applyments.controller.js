@@ -50,11 +50,16 @@ export const searchApplymentById = async (req, res) => {
 
 export const updateApplyment = async (req, res) => {
     try {
-        const postulacionActualizada = await applyments.findByIdAndUpdate(req.params.id, req.body, {new: true})
+        const payload = { ...req.body }
+        // Validación simple de estado opcional
+        if (payload.estado && !['Aceptada','Pendiente','Rechazada'].includes(payload.estado)){
+            return res.status(400).json({ success:false, message:'Estado inválido' })
+        }
+        const postulacionActualizada = await applyments.findByIdAndUpdate(req.params.id, payload, {new: true})
         if (!postulacionActualizada) return res.status(404).json({message: 'No se ha encontrado la postulación'})
         res.status(200).json({ success: true, data: postulacionActualizada })
     } catch (error) {
-        res.status(500).json({message: `No se ha encontrado ninguna postulación ${error.message}`})
+        res.status(500).json({ success:false, message: `No se ha encontrado ninguna postulación ${error.message}`})
     }
 }
 
