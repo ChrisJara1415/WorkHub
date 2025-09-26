@@ -21,7 +21,7 @@ app.set("views", path.join(__dirname, "views"))
 
 // Middlewares
 app.use(express.urlencoded({ extended: true }))
-app.use(express.json())
+app.use(express.json({ limit: '8mb' }))
 app.use(methodOverride("_method"))
 app.use(methodOverride((req) => {
   if (req.body && typeof req.body === 'object' && '_method' in req.body) {
@@ -36,6 +36,14 @@ app.use(cookieParser())
 // Middleware para layouts
 app.use(expLayouts)
 app.set('layout', 'pages/layout');
+
+// Evitar que el navegador use cache para páginas protegidas y post-login
+app.use((req,res,next)=>{
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+  res.setHeader('Pragma', 'no-cache')
+  res.setHeader('Expires', '0')
+  next()
+})
 
 // Exponer usuario autenticado (si existe) a todas las vistas
 app.use((req, res, next) => {
@@ -122,11 +130,28 @@ app.get('/api/ofertas', requireLogin, async (req, res) => {
   }
 })
 
+// Listar postulaciones
+app.get('/api/postulaciones', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/postulaciones`;
+    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error obteniendo postulaciones', error: e.message })
+  }
+})
+
 app.post('/api/postulaciones', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
     const url = `${BACK_ORIGIN}/workhubApi/postulaciones`;
-    const body = JSON.stringify({ ...req.body, empleado: { idUsuario: req.user?.id || req.user?._id, nombre: req.user?.nombres || 'Usuario' } })
+    // Usar el id del token (sub) como idUsuario
+    const body = JSON.stringify({
+      ...req.body,
+      empleado: { idUsuario: req.user?.sub, nombre: req.user?.nombres || 'Usuario' }
+    })
     const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
@@ -139,7 +164,11 @@ app.post('/api/ofertas', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
     const url = `${BACK_ORIGIN}/workhubApi/ofertas`;
-    const payload = { ...req.body, empleador: { idUsuario: req.user?.id || req.user?._id, nombre: req.user?.nombres || 'Empleador' } }
+    // Usar el id del token (sub) como idUsuario del empleador
+    const payload = {
+      ...req.body,
+      empleador: { idUsuario: req.user?.sub, nombre: req.user?.nombres || 'Empleador' }
+    }
     const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(payload) })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
@@ -152,11 +181,37 @@ app.put('/api/ofertas/:id', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
     const url = `${BACK_ORIGIN}/workhubApi/ofertas/${req.params.id}`;
-    const resp = await fetch(url, { method: 'PUT', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
+    const resp = await fetch(url, { method: 'PATCH', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
   } catch (e) {
     return res.status(500).json({ success:false, message:'Error actualizando oferta', error: e.message })
+  }
+})
+
+// Obtener oferta por id
+app.get('/api/ofertas/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/ofertas/${req.params.id}`;
+    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error obteniendo oferta', error: e.message })
+  }
+})
+
+// Incrementar visualizaciones de oferta
+app.post('/api/ofertas/:id/view', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/ofertas/${req.params.id}/visualizar`;
+    const resp = await fetch(url, { method: 'POST', headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error incrementando visualizaciones', error: e.message })
   }
 })
 
@@ -237,4 +292,30 @@ const PORT_FRONT = process.env.PORT_FRONT
 app.listen(PORT_FRONT, () => {
   console.log(`🎨 Frontend ejecutándose en el puerto ${PORT_FRONT}`)
   console.log(`🌐 Aplicación disponible en: http://localhost:${PORT_FRONT}`)
+})
+
+// Actualizar estado de una postulación
+app.patch('/api/postulaciones/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/postulaciones/${req.params.id}`;
+    const resp = await fetch(url, { method: 'PATCH', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error actualizando postulación', error: e.message })
+  }
+})
+
+// Obtener usuario por id (para detalles de postulaciones)
+app.get('/api/usuarios/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/clientes/${req.params.id}`
+    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error obteniendo usuario', error: e.message })
+  }
 })
