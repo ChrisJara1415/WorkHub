@@ -17,6 +17,10 @@ function requireAuth(req, res, next) {
 		if (!token) return res.status(302).redirect('/')
 		const payload = jwt.verify(token, process.env.JWT_SECRET)
 		req.user = payload
+		// Evitar volver con botón atrás después de logout
+		res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+		res.setHeader('Pragma', 'no-cache')
+		res.setHeader('Expires', '0')
 		next()
 	} catch {
 		return res.status(302).redirect('/')
