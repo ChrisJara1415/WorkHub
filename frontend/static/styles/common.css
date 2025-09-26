@@ -18,9 +18,9 @@
 }
 /* Variables fuentes */
 :root {
-  --font-base: 'Afacad', sans-serif;
-  --font-title: 'Public Sans', sans-serif;
-  --font-form: 'Rubik', sans-serif;
+  --font-base: 'afacad', sans-serif;
+  --font-title: 'publicSans', sans-serif;
+  --font-form: 'rubik', sans-serif;
 }
 
 /* Variables de color */
@@ -244,7 +244,7 @@ p {
 
 .mySearch input.form-control::placeholder, #filterBtn {
   color: var(--grey);
-  font-family: Afacad;
+  font-family: var(--font-base);
   font-size: var(--fs-placeholder);
   font-style: normal;
   font-weight: 400;

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+    <%- include('../../partials/head') %>
+    <body class="bk-angel-blank">
+        <%- include('../../partials/navbar') %>
+        <main class="container py-5">
+            <header class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 m-0">Panel de Empleador</h1>
+                    <small class="text-muted">Gestiona tus ofertas de trabajo y revisa las postulaciones</small>
+                </div>
+                <button id="btnNewOffer" class="btn btn-warning fw-semibold"><i class="bi bi-plus-circle"></i> Nueva Oferta</button>
+            </header>
+
+            <section class="row g-3 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="card shadow-sm"><div class="card-body d-flex align-items-center gap-3">
+                        <span class="fs-4 text-primary"><i class="bi bi-briefcase"></i></span>
+                        <div><div class="fs-4" id="metricOffers">0</div><div class="text-muted">Ofertas publicadas</div></div>
+                    </div></div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card shadow-sm"><div class="card-body d-flex align-items-center gap-3">
+                        <span class="fs-4 text-success"><i class="bi bi-people"></i></span>
+                        <div><div class="fs-4" id="metricApplyments">0</div><div class="text-muted">Postulaciones recibidas</div></div>
+                    </div></div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card shadow-sm"><div class="card-body d-flex align-items-center gap-3">
+                        <span class="fs-4 text-warning"><i class="bi bi-eye"></i></span>
+                        <div><div class="fs-4" id="metricViews">0</div><div class="text-muted">Visualizaciones</div></div>
+                    </div></div>
+                </div>
+            </section>
+
+            <section class="mb-4">
+                <h2 class="h5">Mis Ofertas</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Título</th><th>Categoría</th><th>Estado</th><th>Postulaciones</th><th>Fecha</th><th>Acciones</th></tr></thead>
+                        <tbody id="myOffersTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section>
+                <h2 class="h5">Postulaciones Recientes</h2>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead><tr><th>Candidato</th><th>Oferta</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+                        <tbody id="recentApplymentsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+
+        <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg"><div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="offerModalLabel">Crear oferta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="offerForm">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Servicio *</label>
+                                <input name="nombreServicio" class="form-control" placeholder="Ej: Limpieza de hogar" required />
+                            </div>
+                            <!-- Empleador implícito por sesión: no se muestra campo -->
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Municipio *</label>
+                                <select name="municipio" class="form-select" required>
+                                    <option value="">Seleccionar municipio...</option>
+                                    <option>Barbosa</option><option>Copacabana</option><option>Girardota</option><option>Bello</option>
+                                    <option>Medellín</option><option>Envigado</option><option>Itagüí</option><option>Sabaneta</option>
+                                    <option>La Estrella</option><option>Caldas</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Categoría *</label>
+                                <select name="categoria" class="form-select" required>
+                                    <option value="">Seleccionar categoría...</option>
+                                    <option>Jardinería</option><option>Limpieza</option><option>Piscinero</option><option>Carpintería</option><option>Mantenimiento</option><option>Plomería</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Precio *</label>
+                                <div class="input-group"><span class="input-group-text">$</span>
+                                    <input name="precioReferencia" type="number" min="50000" step="1000" class="form-control" required />
+                                </div>
+                                <small class="text-muted">Mínimo $50.000</small>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Personas requeridas *</label>
+                                <input name="personasRequeridas" type="number" min="1" class="form-control" required />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Descripción *</label>
+                                <textarea name="descripcion" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Detalle del requerimiento *</label>
+                                <textarea name="detalleRequerimiento" class="form-control" rows="3" required></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Imágenes (1 a 5)</label>
+                                <input id="offerImages" name="imagenes" type="file" class="form-control" accept="image/*" multiple required />
+                                <small class="text-muted">Sube mínimo 1 y máximo 5 imágenes. La primera será la vista previa.</small>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label">Fecha límite *</label>
+                                <input name="fechaLimite" type="date" class="form-control" required />
+                            </div>
+                            <div class="col-12 col-md-6 d-flex align-items-end">
+                                <div class="form-check">
+                                    <input name="visible" class="form-check-input" type="checkbox" id="visibleCheck" checked>
+                                    <label class="form-check-label" for="visibleCheck">Visible</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="saveOfferBtn">Guardar Oferta</button>
+                </div>
+            </div></div>
+        </div>
+
+                <!-- Modal: Detalles de oferta (vista rápida) -->
+                <div class="modal fade" id="offerDetailsModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg"><div class="modal-content">
+                        <div class="modal-header"><h5 class="modal-title">Detalles de la Oferta</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="offerDetailsBody"></div>
+                        <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
+                    </div></div>
+                </div>
+
+                <!-- Modal: Detalles de postulación -->
+                <div class="modal fade" id="applyDetailsModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog"><div class="modal-content">
+                        <div class="modal-header"><h5 class="modal-title">Detalles de la Postulación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="applyDetailsBody"></div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="button" class="btn btn-success" id="btnAcceptApply" data-id="">Aceptar</button>
+                            <button type="button" class="btn btn-danger" id="btnRejectApply" data-id="">Rechazar</button>
+                        </div>
+                    </div></div>
+                </div>
+
+                <!-- Toast container -->
+                <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script id="CURRENT_USER_DATA" type="application/json"><%- JSON.stringify(user || null) %></script>
+        <script src="/scripts/employer.js"></script>
+    </body>
+</html>

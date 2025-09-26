@@ -1,4 +1,5 @@
 import express from "express"
+import jwt from "jsonwebtoken"
 const router = express.Router()
 import { renderLandingPage } from "../controllers/indexControllers/landingPageController.js";
 
@@ -8,3 +9,31 @@ router.get('/registro', (req, res) => {
 });
 
 export default router
+
+// Middleware simple para requerir login
+function requireAuth(req, res, next) {
+	try {
+		const token = req.cookies?.auth
+		if (!token) return res.status(302).redirect('/')
+		const payload = jwt.verify(token, process.env.JWT_SECRET)
+		req.user = payload
+		// Evitar volver con botón atrás después de logout
+		res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+		res.setHeader('Pragma', 'no-cache')
+		res.setHeader('Expires', '0')
+		next()
+	} catch {
+		return res.status(302).redirect('/')
+	}
+}
+
+// Vistas protegidas por autenticación
+router.get('/empleado', requireAuth, (req, res) => {
+	if (req.user?.rol === 'admin') return res.redirect('/admin')
+	res.render('pages/employee/dashboard', { title: 'Panel de Empleado', layout: false, user: req.user })
+})
+
+router.get('/empleador', requireAuth, (req, res) => {
+	if (req.user?.rol === 'admin') return res.redirect('/admin')
+	res.render('pages/employer/dashboard', { title: 'Panel de Empleador', layout: false, user: req.user })
+})
