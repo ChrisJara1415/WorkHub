@@ -1,7 +1,7 @@
 <dialog id="modalLogin" closedby="any">
   <form class="form" id="loginForm" onsubmit="return false;">
 
-      <button onclick="closeModal(event)" class="close">✖</button>
+    <button type="button" onclick="(function(e){e.preventDefault();document.getElementById('modalLogin')?.close();})(event)" class="close">✖</button>
 
     <div class="flex-column">
       <label for="email">Email</label>

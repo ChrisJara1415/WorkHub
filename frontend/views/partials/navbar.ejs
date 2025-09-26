@@ -26,20 +26,18 @@
             <button id="login" class="btn-stroke btn me-md-2 " onclick="document.getElementById('modalLogin').showModal()">Iniciar Sesión</button>
             <a href="/registro" id="signUp" class="btn btn-cta">Registrarse</a>
           <% } else { %>
-            <div class="dropdown">
+            <div class="d-flex align-items-center gap-2">
+              <span class="cl-dark d-none d-md-inline"><%= (user?.nombres || '').split(' ')[0] %></span>
+              <div class="dropdown">
               <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:40px;height:40px;">
                 <i class="bi bi-person-circle fs-4"></i>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
-                <li class="dropdown-header small text-muted px-3">
-                  <%= user?.nombres ? (user.nombres + (user.apellidos ? ' ' + user.apellidos : '')) : (role === 'admin' ? 'Administrador' : 'Usuario') %>
-                </li>
+                <li class="dropdown-header small text-muted px-3"><%= (user?.nombres || '') + (user?.apellidos ? ' ' + user.apellidos : '') %></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="#">Perfil</a></li>
                 <li><a class="dropdown-item" href="#">Configuraciones</a></li>
-                <% if (role === 'empleador') { %>
-                  <li><a class="dropdown-item" href="/empleador">Gestionar ofertas</a></li>
-                <% } %>
+                <li><a class="dropdown-item" href="/empleador">Panel de empleador</a></li>
                 <% if (role === 'admin') { %>
                   <li><a class="dropdown-item" href="/admin">Panel Admin</a></li>
                 <% } %>
@@ -50,6 +48,7 @@
                   </form>
                 </li>
               </ul>
+              </div>
             </div>
           <% } %>
         </div>
