@@ -79,6 +79,25 @@ const offerSchema = new Schema({
         type: Date,
         required: true
     }
+    ,
+    imagenes: {
+        type: [String],
+        validate: {
+            validator: function(arr){
+                if (arr == null) return false
+                if (!Array.isArray(arr)) return false
+                return arr.length >= 1 && arr.length <= 5
+            },
+            message: 'Debe subir entre 1 y 5 imágenes'
+        }
+    },
+    
+    visualizaciones: {
+        type: Number,
+        required: true,
+        default: 0,
+        min: 0
+    }
 },
 {
     versionKey: false
