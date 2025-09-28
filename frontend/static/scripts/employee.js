@@ -33,6 +33,7 @@
     const categoria = o.categoria || 'General'
     const precio = typeof o.precioReferencia === 'number' ? `$ ${o.precioReferencia.toLocaleString('es-CO')}` : ''
     const muni = o.municipio?.nombre || ''
+    const empleador = o.empleador?.nombre || ''
     const fechaLim = o.fechaLimite ? new Date(o.fechaLimite).toLocaleDateString('es-CO') : ''
     return `
       <div class="col-12 col-md-6 col-lg-4">
@@ -40,6 +41,7 @@
           <div class="card-body d-flex flex-column">
             <h5 class="card-title mb-1">${title}</h5>
             <div class="small text-muted mb-2">${categoria} • ${muni}</div>
+            ${empleador ? `<div class="small text-muted">Por: ${empleador}</div>` : ''}
             <p class="card-text flex-grow-1">${(o.descripcion||'').slice(0,140)}${(o.descripcion||'').length>140?'…':''}</p>
             <div class="d-flex justify-content-between align-items-center mt-auto">
               <span class="fw-semibold">${precio}</span>
@@ -64,28 +66,33 @@
 
   async function openDetails(id){
     try{
+      // Mostrar primero el modal con un spinner
+      const body = document.getElementById('jobDetailsBody')
+      body.innerHTML = '<div class="d-flex align-items-center gap-2"><div class="spinner-border text-primary" role="status" style="width:1.5rem;height:1.5rem"></div><span>Cargando…</span></div>'
+      const modal = new bootstrap.Modal(document.getElementById('jobDetailsModal'))
+      modal.show()
       const { data } = await api(`/api/ofertas/${id}`)
       if (!data) return
       await api(`/api/ofertas/${id}/view`, { method: 'POST' }).catch(() => {})
-      const body = document.getElementById('jobDetailsBody')
       body.innerHTML = `
         <h5 class="mb-1">${data.nombreServicio || 'Oferta'}</h5>
         <div class="small text-muted mb-2">${data.categoria} • ${data.municipio?.nombre||''}</div>
+        ${data.empleador?.nombre ? `<div class="small text-muted mb-2">Publicada por: ${data.empleador.nombre}</div>` : ''}
         <p>${data.descripcion||''}</p>
         <p class="mb-1"><strong>Precio:</strong> $ ${Number(data.precioReferencia||0).toLocaleString('es-CO')}</p>
         <p class="mb-1"><strong>Personas requeridas:</strong> ${data.personasRequeridas||1}</p>
         <p class="mb-1"><strong>Fecha límite:</strong> ${data.fechaLimite ? new Date(data.fechaLimite).toLocaleDateString('es-CO') : ''}</p>
       `
-      const modal = new bootstrap.Modal(document.getElementById('jobDetailsModal'))
-      modal.show()
       const applyBtn = document.getElementById('applyBtn')
       applyBtn.onclick = async () => {
         try{
+          const old = applyBtn.innerHTML; applyBtn.disabled = true; applyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando'
           const payload = { servicio: { idServicio: data._id, nombreServicio: data.nombreServicio || '' }, estado:'Pendiente' }
           const r = await api('/api/postulaciones', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
           modal.hide()
           showToast('Postulación enviada', 'success')
         }catch(err){ showToast('No se pudo postular', 'danger') }
+        finally{ applyBtn.disabled = false; applyBtn.innerHTML = old }
       }
     }catch(e){ console.error(e) }
   }
@@ -96,4 +103,11 @@
   })
 
   loadOffers()
+
+  // Fijar posibles backdrops colgados si un modal se cierra sin removerlos
+  document.addEventListener('hidden.bs.modal', () => {
+    document.querySelectorAll('.modal-backdrop.show').forEach(b => b.remove())
+    document.body.classList.remove('modal-open')
+    document.body.style.removeProperty('padding-right')
+  })
 })()
