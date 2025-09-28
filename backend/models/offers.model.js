@@ -77,7 +77,18 @@ const offerSchema = new Schema({
 
     fechaLimite: {
         type: Date,
-        required: true
+        required: true,
+        validate: {
+            validator: function (value) {
+                if (!value) return false
+                const now = new Date()
+                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+                const maxDate = new Date(today)
+                maxDate.setMonth(maxDate.getMonth() + 1)
+                return value >= today && value <= maxDate
+            },
+            message: props => `${props.value} debe estar entre hoy y máximo 1 mes hacia adelante.`
+        }
     }
     ,
     imagenes: {
