@@ -30,10 +30,10 @@ function requireAuth(req, res, next) {
 // Vistas protegidas por autenticación
 router.get('/empleado', requireAuth, (req, res) => {
 	if (req.user?.rol === 'admin') return res.redirect('/admin')
-	res.render('pages/employee/dashboard', { title: 'Panel de Empleado', layout: false, user: req.user })
+	res.render('pages/employee/dashboard', { title: 'Panel de Empleado', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
 })
 
 router.get('/empleador', requireAuth, (req, res) => {
 	if (req.user?.rol === 'admin') return res.redirect('/admin')
-	res.render('pages/employer/dashboard', { title: 'Panel de Empleador', layout: false, user: req.user })
+	res.render('pages/employer/dashboard', { title: 'Panel de Empleador', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
 })
