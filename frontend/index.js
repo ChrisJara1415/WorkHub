@@ -46,23 +46,39 @@ app.use((req,res,next)=>{
 })
 
 // Exponer usuario autenticado (si existe) a todas las vistas
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   try {
     const token = req.cookies?.auth
     if (token) {
       const payload = jwt.verify(token, process.env.JWT_SECRET)
-      res.locals.user = payload
-      res.locals.isAuthenticated = true
-      res.locals.role = payload?.rol
+      // Enriquecer con datos del usuario si faltan nombres/apellidos
+      let userData = { ...payload }
+      if (!userData.nombres || !userData.apellidos) {
+        try {
+          const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+          const resp = await fetch(`${BACK_ORIGIN}/workhubApi/clientes/${payload.sub}`, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+          const data = await resp.json().catch(() => ({}))
+          if (resp.ok && data?.data) {
+            userData.nombres = data.data.nombres || userData.nombres
+            userData.apellidos = data.data.apellidos || userData.apellidos
+          }
+        } catch {}
+      }
+  res.locals.user = userData
+  res.locals.isAuthenticated = true
+  res.locals.role = userData?.rol
+      req.user = userData
     } else {
-      res.locals.user = null
-      res.locals.isAuthenticated = false
-      res.locals.role = null
+  res.locals.user = null
+  res.locals.isAuthenticated = false
+  res.locals.role = null
+      req.user = null
     }
   } catch {
     res.locals.user = null
     res.locals.isAuthenticated = false
     res.locals.role = null
+    req.user = null
   }
   next()
 })
@@ -97,7 +113,10 @@ app.post('/login', async (req, res) => {
     })
     const data = await resp.json()
     if (!resp.ok) return res.status(resp.status).json(data)
-    res.cookie('auth', data.token, { httpOnly: true, secure: false, sameSite: 'lax', maxAge: 2*60*60*1000 })
+    // Soporte "Recuérdame": si viene remember=true -> cookie por 30 minutos; si no, cookie de sesión (sin maxAge)
+    const cookieOptions = { httpOnly: true, secure: false, sameSite: 'lax' }
+    if (req.body?.remember) cookieOptions.maxAge = 30 * 60 * 1000
+    res.cookie('auth', data.token, cookieOptions)
     res.json({ success:true, rol: data.rol })
   } catch (e) {
     res.status(500).json({ success:false, message:'Error en login', error:e.message })
@@ -107,6 +126,7 @@ app.post('/login', async (req, res) => {
 // Guard simple para API (requiere cookie JWT)
 function requireLogin(req, res, next) {
   try {
+    if (req.user) return next()
     const token = req.cookies?.auth
     if (!token) return res.status(401).json({ success:false, message:'No autenticado' })
     const payload = jwt.verify(token, process.env.JWT_SECRET)
@@ -150,7 +170,7 @@ app.post('/api/postulaciones', requireLogin, async (req, res) => {
     // Usar el id del token (sub) como idUsuario
     const body = JSON.stringify({
       ...req.body,
-      empleado: { idUsuario: req.user?.sub, nombre: req.user?.nombres || 'Usuario' }
+      empleado: { idUsuario: req.user?.sub, nombre: `${req.user?.nombres || ''} ${req.user?.apellidos || ''}`.trim() || 'Usuario' }
     })
     const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body })
     const data = await resp.json().catch(() => ({}))
@@ -164,16 +184,19 @@ app.post('/api/ofertas', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
     const url = `${BACK_ORIGIN}/workhubApi/ofertas`;
-    // Usar el id del token (sub) como idUsuario del empleador
     const payload = {
       ...req.body,
-      empleador: { idUsuario: req.user?.sub, nombre: req.user?.nombres || 'Empleador' }
+      empleador: {
+        idUsuario: req.user?.sub,
+        nombre: (`${req.user?.nombres || ''} ${req.user?.apellidos || ''}`).trim() || 'Empleador'
+      }
     }
-    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(payload) })
+    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-key': 'api-key-mas-segura-del-mundo' }, body: JSON.stringify(payload) })
     const data = await resp.json().catch(() => ({}))
-    return res.status(resp.status).json(data)
+    res.status(resp.status).json(data)
+    return
   } catch (e) {
-    return res.status(500).json({ success:false, message:'Error creando oferta', error: e.message })
+    return res.status(500).json({ success: false, message: 'Error creando oferta', error: e.message })
   }
 })
 
@@ -181,24 +204,23 @@ app.put('/api/ofertas/:id', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
     const url = `${BACK_ORIGIN}/workhubApi/ofertas/${req.params.id}`;
-    const resp = await fetch(url, { method: 'PATCH', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
+    const resp = await fetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json', 'x-api-key': 'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
   } catch (e) {
-    return res.status(500).json({ success:false, message:'Error actualizando oferta', error: e.message })
+    return res.status(500).json({ success: false, message: 'Error actualizando oferta', error: e.message })
   }
 })
 
-// Obtener oferta por id
 app.get('/api/ofertas/:id', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
     const url = `${BACK_ORIGIN}/workhubApi/ofertas/${req.params.id}`;
-    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const resp = await fetch(url, { headers: { 'x-api-key': 'api-key-mas-segura-del-mundo' } })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
   } catch (e) {
-    return res.status(500).json({ success:false, message:'Error obteniendo oferta', error: e.message })
+    return res.status(500).json({ success: false, message: 'Error obteniendo oferta', error: e.message })
   }
 })
 
@@ -224,6 +246,32 @@ app.delete('/api/ofertas/:id', requireLogin, async (req, res) => {
     return res.status(resp.status).json(data)
   } catch (e) {
     return res.status(500).json({ success:false, message:'Error eliminando oferta', error: e.message })
+  }
+})
+
+// Actualizar estado de una postulación
+app.patch('/api/postulaciones/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/postulaciones/${req.params.id}`;
+    const resp = await fetch(url, { method: 'PATCH', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error actualizando postulación', error: e.message })
+  }
+})
+
+// Obtener usuario por id (para detalles de postulaciones)
+app.get('/api/usuarios/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/clientes/${req.params.id}`
+    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error obteniendo usuario', error: e.message })
   }
 })
 
@@ -292,30 +340,4 @@ const PORT_FRONT = process.env.PORT_FRONT
 app.listen(PORT_FRONT, () => {
   console.log(`🎨 Frontend ejecutándose en el puerto ${PORT_FRONT}`)
   console.log(`🌐 Aplicación disponible en: http://localhost:${PORT_FRONT}`)
-})
-
-// Actualizar estado de una postulación
-app.patch('/api/postulaciones/:id', requireLogin, async (req, res) => {
-  try {
-    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
-    const url = `${BACK_ORIGIN}/workhubApi/postulaciones/${req.params.id}`;
-    const resp = await fetch(url, { method: 'PATCH', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
-    const data = await resp.json().catch(() => ({}))
-    return res.status(resp.status).json(data)
-  } catch (e) {
-    return res.status(500).json({ success:false, message:'Error actualizando postulación', error: e.message })
-  }
-})
-
-// Obtener usuario por id (para detalles de postulaciones)
-app.get('/api/usuarios/:id', requireLogin, async (req, res) => {
-  try {
-    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
-    const url = `${BACK_ORIGIN}/workhubApi/clientes/${req.params.id}`
-    const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
-    const data = await resp.json().catch(() => ({}))
-    return res.status(resp.status).json(data)
-  } catch (e) {
-    return res.status(500).json({ success:false, message:'Error obteniendo usuario', error: e.message })
-  }
 })
