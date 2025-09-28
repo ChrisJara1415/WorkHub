@@ -69,20 +69,24 @@ export const createOffer = async (req, res) => {
     const nuevaOferta = new offers({empleador, municipio, nombreServicio, descripcion, categoria, precioReferencia, personasRequeridas, detalleRequerimiento, visible, fechaCreacion, fechaLimite, imagenes: payload.imagenes})
         await nuevaOferta.save()
 
-        // Promover automáticamente a empleador si era empleado
+        // Promover automáticamente a empleador si era empleado 
         if (empleador?.idUsuario) {
-            const u = await user.findById(empleador.idUsuario)
-            if (u && u.rol === 'empleado') {
-                u.rol = 'empleador'
-                await u.save()
-            }
+            try {
+                await user.updateOne(
+                    { _id: empleador.idUsuario, rol: 'empleado' },
+                    { $set: { rol: 'empleador' } },
+                    { runValidators: false }
+                )
+            } catch (_) {}
         }
 
         res.status(201).json({message: 'Oferta creada satisfactoriamente', data: nuevaOferta, success: true})
     } catch (error) {
         if (error && error.name === 'ValidationError') {
-            const details = Object.values(error.errors || {}).map(e => e.message)
-            return res.status(400).json({ success:false, message: 'Validación fallida al crear oferta', errors: details })
+            const entries = Object.entries(error.errors || {})
+            const details = entries.map(([path, e]) => e.message)
+            const fieldErrors = entries.reduce((acc,[path,e])=>{ acc[path]=e.message; return acc },{})
+            return res.status(400).json({ success:false, message: 'Validación fallida al crear oferta', errors: details, fieldErrors })
         }
         res.status(500).json({ success:false, message: 'Error al crear oferta', error: error.message })
     }
@@ -131,11 +135,21 @@ export const updateOffer = async (req, res) => {
     if (payload.categoria) payload.categoria = normalizarCategoria(payload.categoria)
     if (payload.empleador) payload.empleador = await hidratarEmpleador(payload.empleador)
 
-    const ofertaActualizada = await offers.findByIdAndUpdate(req.params.id, payload, {new: true})
+    try {
+        const ofertaActualizada = await offers.findByIdAndUpdate(req.params.id, payload, {new: true, runValidators: true})
         if (!ofertaActualizada) return res.status(404).json({message: 'No se ha encontrado la oferta'})
         res.status(200).json({data: ofertaActualizada, success: true})
     } catch (error) {
-        res.status(500).json({message: `No se ha encontrado ninguna oferta ${error.message}`})
+        if (error && error.name === 'ValidationError') {
+            const entries = Object.entries(error.errors || {})
+            const details = entries.map(([path, e]) => e.message)
+            const fieldErrors = entries.reduce((acc,[path,e])=>{ acc[path]=e.message; return acc },{})
+            return res.status(400).json({ success:false, message: 'Validación fallida al actualizar oferta', errors: details, fieldErrors })
+        }
+        res.status(500).json({ success:false, message: 'No se pudo actualizar la oferta', error: error.message })
+    }
+    } catch (e) {
+        res.status(500).json({ success:false, message: 'Error procesando actualización de oferta', error: e.message })
     }
 }
 
