@@ -4,13 +4,13 @@
     <body class="bk-angel-blank">
         <%- include('../../partials/navbar') %>
         <main class="container py-5">
-            <header class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h1 class="h3 m-0">Panel de Empleador</h1>
                     <small class="text-muted">Gestiona tus ofertas de trabajo y revisa las postulaciones</small>
                 </div>
                 <button id="btnNewOffer" class="btn btn-warning fw-semibold"><i class="bi bi-plus-circle"></i> Nueva Oferta</button>
-            </header>
+            </div>
 
             <section class="row g-3 mb-4">
                 <div class="col-12 col-md-4">
@@ -66,6 +66,7 @@
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Servicio *</label>
                                 <input name="nombreServicio" class="form-control" placeholder="Ej: Limpieza de hogar" required />
+                                <div class="invalid-feedback">Mínimo 3 caracteres</div>
                             </div>
                             <!-- Empleador implícito por sesión: no se muestra campo -->
                             <div class="col-12 col-md-6">
@@ -76,6 +77,7 @@
                                     <option>Medellín</option><option>Envigado</option><option>Itagüí</option><option>Sabaneta</option>
                                     <option>La Estrella</option><option>Caldas</option>
                                 </select>
+                                <div class="invalid-feedback">Seleccione un municipio</div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Categoría *</label>
@@ -83,6 +85,7 @@
                                     <option value="">Seleccionar categoría...</option>
                                     <option>Jardinería</option><option>Limpieza</option><option>Piscinero</option><option>Carpintería</option><option>Mantenimiento</option><option>Plomería</option>
                                 </select>
+                                <div class="invalid-feedback">Seleccione una categoría</div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Precio *</label>
@@ -90,27 +93,33 @@
                                     <input name="precioReferencia" type="number" min="50000" step="1000" class="form-control" required />
                                 </div>
                                 <small class="text-muted">Mínimo $50.000</small>
+                                <div class="invalid-feedback">Mínimo $50.000</div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Personas requeridas *</label>
                                 <input name="personasRequeridas" type="number" min="1" class="form-control" required />
+                                <div class="invalid-feedback">Al menos 1 persona</div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Descripción *</label>
                                 <textarea name="descripcion" class="form-control" rows="3" required></textarea>
+                                <div class="invalid-feedback">Mínimo 10 caracteres</div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Detalle del requerimiento *</label>
                                 <textarea name="detalleRequerimiento" class="form-control" rows="3" required></textarea>
+                                <div class="invalid-feedback">Mínimo 10 caracteres</div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Imágenes (1 a 5)</label>
                                 <input id="offerImages" name="imagenes" type="file" class="form-control" accept="image/*" multiple required />
                                 <small class="text-muted">Sube mínimo 1 y máximo 5 imágenes. La primera será la vista previa.</small>
+                                <div class="invalid-feedback">Debes subir al menos una imagen</div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <label class="form-label">Fecha límite *</label>
                                 <input name="fechaLimite" type="date" class="form-control" required />
+                                <div class="invalid-feedback">Debe estar entre hoy y 1 mes</div>
                             </div>
                             <div class="col-12 col-md-6 d-flex align-items-end">
                                 <div class="form-check">
@@ -156,9 +165,22 @@
 
                 <!-- Toast container -->
                 <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+                <!-- Dynamic modal wrapper for confirms -->
+                <div id="confirmDeleteWrapper"></div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script id="CURRENT_USER_DATA" type="application/json"><%- JSON.stringify(user || null) %></script>
+                <script>
+                    // Establecer límites de fecha desde el server-render para evitar seleccionar fuera de rango.
+                    (function(){
+                        const inp = document.querySelector('#offerForm [name="fechaLimite"]');
+                        if (!inp) return;
+                        const today = new Date(); today.setHours(0,0,0,0);
+                        const max = new Date(today); max.setMonth(max.getMonth()+1);
+                        const fmt = d => new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+                        inp.min = fmt(today); inp.max = fmt(max);
+                    })();
+                </script>
         <script src="/scripts/employer.js"></script>
     </body>
 </html>

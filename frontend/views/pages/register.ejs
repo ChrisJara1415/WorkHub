@@ -111,6 +111,7 @@
                                     <input type="password" class="form-control" id="password" name="password"
                                         placeholder="Contraseña" required />
                                     <label for="password">Contraseña</label>
+                                    <button type="button" id="toggleRegPwd" class="btn btn-sm btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-2">Ver</button>
                                     <div class="invalid-feedback" data-field="password"></div>
                                 </div>
                                 <div class="password-hint text-muted mt-1" id="passwordHint">Mínimo 8 caracteres,
@@ -121,6 +122,7 @@
                                     <input type="password" class="form-control" id="confirmPassword"
                                         name="confirmPassword" placeholder="Confirmar contraseña" required />
                                     <label for="confirmPassword">Confirmar contraseña</label>
+                                    <button type="button" id="toggleRegPwd2" class="btn btn-sm btn-outline-secondary position-absolute end-0 top-50 translate-middle-y me-2">Ver</button>
                                     <div class="invalid-feedback" data-field="confirmPassword"></div>
                                 </div>
                             </div>
@@ -151,7 +153,15 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="/scripts/register.js"></script>
+        <script src="/scripts/register.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function(){
+                const p1 = document.getElementById('password');
+                const p2 = document.getElementById('confirmPassword');
+                document.getElementById('toggleRegPwd')?.addEventListener('click', function(){ p1.type = p1.type==='password'?'text':'password'; this.textContent = p1.type==='password'?'Ver':'Ocultar'; });
+                document.getElementById('toggleRegPwd2')?.addEventListener('click', function(){ p2.type = p2.type==='password'?'text':'password'; this.textContent = p2.type==='password'?'Ver':'Ocultar'; });
+            });
+        </script>
 </body>
 
 </html>
