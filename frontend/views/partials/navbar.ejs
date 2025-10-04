@@ -29,13 +29,13 @@
             <div class="d-flex align-items-center gap-2">
               <span class="cl-dark d-none d-md-inline"><%= (user && user.nombres ? user.nombres.split(' ')[0] : '') %></span>
               <div class="dropdown">
-              <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:40px;height:40px;">
-                <i class="bi bi-person-circle fs-4"></i>
+              <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center overflow-hidden" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:40px;height:40px;">
+                <div id="navbarAvatar" class="user-avatar" data-user="<%= user?._id || user?.sub || '' %>" style="width:100%;height:100%;background-image:url('/img/profile-img/default.png');background-size:cover;background-position:center"></div>
               </button>
               <ul class="dropdown-menu dropdown-menu-end">
                 <li class="dropdown-header small text-muted px-3"><%= (user && (user.nombres || user.apellidos) ? ((user.nombres||'') + (user.apellidos? ' ' + user.apellidos : '')) : 'Usuario') %></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#">Perfil</a></li>
+                <li><a class="dropdown-item" href="/perfil">Perfil</a></li>
                 <li><a class="dropdown-item" href="#">Configuraciones</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="/empleado">Ofertas</a></li>
@@ -58,3 +58,34 @@
     </div>
   </nav>
 </header>
+<script>
+  (function(){
+    try{
+  const dataEl = document.getElementById('PROFILE_USER') || document.getElementById('CURRENT_USER_DATA');
+  const me = dataEl ? JSON.parse(dataEl.textContent||'null') : (window.CURRENT_USER || null);
+  const nav = document.getElementById('navbarAvatar');
+  const meId = (me && (me._id || me.sub)) || (nav?.dataset?.user || null);
+  const key = meId ? `avatar:${meId}` : null;
+      function hydrateCurrentUserAvatar(){
+        try{
+          if (!key) return;
+          const url = localStorage.getItem(key);
+          const finalUrl = url && url.startsWith('data:') ? url : '/img/profile-img/default.png'
+          if (nav) nav.style.backgroundImage = `url('${finalUrl}')`;
+          document.querySelectorAll('.user-avatar[data-user]')
+            .forEach(el => {
+              if (String(el.dataset.user||'') === String(meId||'')) {
+                el.style.backgroundImage = `url('${finalUrl}')`;
+              }
+            })
+        }catch{}
+      }
+      window.hydrateCurrentUserAvatar = hydrateCurrentUserAvatar;
+      hydrateCurrentUserAvatar();
+      document.addEventListener('avatar-updated', (e)=>{
+        if (nav && e.detail?.url) nav.style.backgroundImage = `url('${e.detail.url}')`;
+        hydrateCurrentUserAvatar();
+      })
+    }catch{}
+  })()
+</script>
