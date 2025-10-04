@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<%- include('../../partials/head') %>
+
+    <body class="bk-angel-blank">
+        <%- include('../../partials/navbar') %>
+            <main class="container py-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div id="avatarCircle" class="rounded-circle bg-light border position-relative"
+                                style="width:72px;height:72px; background-image:url('/img/profile-img/default.png'); background-size:cover; background-position:center; cursor:pointer;">
+                                <div id="avatarOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white" style="background:rgba(0,0,0,0.45); border-radius:50%; opacity:0; transition:opacity .2s; font-size:.75rem;">
+                                    <i class="bi bi-pencil"></i>
+                                    <span>Editar foto</span>
+                                </div>
+                            </div>
+                            <div>
+                                <h2 class="h4 m-0">
+                                    <%= (user?.nombres || '' ) + (user?.apellidos ? ' ' + user.apellidos : '' ) %>
+                                </h2>
+                                <div class="text-muted small">Miembro desde: <span id="memberSince">—</span></div>
+                                <div class="text-muted small">Rol: <span class="badge bg-secondary text-capitalize">
+                                        <%= user?.rol || '—' %>
+                                    </span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-posts" data-bs-toggle="tab" data-bs-target="#pane-posts"
+                            type="button" role="tab">Postulaciones</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-offers" data-bs-toggle="tab" data-bs-target="#pane-offers"
+                            type="button" role="tab">Ofertas creadas</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-info" data-bs-toggle="tab" data-bs-target="#pane-info"
+                            type="button" role="tab">Información</button>
+                    </li>
+                </ul>
+                <div class="tab-content card card-body shadow-sm" id="profileTabsContent">
+                    <div class="tab-pane fade show active" id="pane-posts" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th role="button" data-sort-app="posicion">Posición</th>
+                                        <th role="button" data-sort-app="empleador">Empleador</th>
+                                        <th role="button" data-sort-app="fecha">Fecha de postulación</th>
+                                        <th role="button" data-sort-app="estado">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tblApplymentsBody"><tr><td colspan="4" class="text-muted">Cargando…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pane-offers" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th role="button" data-sort-off="titulo">Título</th>
+                                        <th role="button" data-sort-off="categoria">Categoría</th>
+                                        <th role="button" data-sort-off="fecha">Fecha</th>
+                                        <th role="button" data-sort-off="estado">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tblOffersBody"><tr><td colspan="4" class="text-muted">Cargando…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="pane-info" role="tabpanel">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nombres</label>
+                                <input class="form-control" id="infoNombres" value="" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Apellidos</label>
+                                <input class="form-control" id="infoApellidos" value="" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input class="form-control" id="infoEmail" value="" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Teléfono</label>
+                                <input class="form-control" id="infoTelefono" value="" disabled />
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                            <small class="text-muted">¿Deseas eliminar tu cuenta? Esta acción borrará tus ofertas y
+                                postulaciones. Los contratos activos impedirán la eliminación.</small>
+                            <div class="d-flex gap-2">
+                                <button id="btnEditProfile" class="btn btn-primary">Editar perfil</button>
+                                <button id="btnSaveProfile" class="btn btn-success d-none">Guardar</button>
+                                <button id="btnCancelEdit" class="btn btn-outline-secondary d-none">Cancelar</button>
+                                <button id="btnDeleteAccount" class="btn btn-outline-danger">Eliminar cuenta</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
+                crossorigin="anonymous"></script>
+            <script id="PROFILE_USER" type="application/json"><%- JSON.stringify(user || null) %></script>
+            <script>
+                const CURRENT_USER = (() => { try { return JSON.parse(document.getElementById('PROFILE_USER')?.textContent || 'null') } catch { return null } })()
+                function showToast(message, type = 'info') {
+                    let container = document.getElementById('toastContainer');
+                    if (!container) { container = document.createElement('div'); container.id = 'toastContainer'; container.className = 'toast-container position-fixed bottom-0 end-0 p-3'; document.body.appendChild(container) }
+                    const el = document.createElement('div'); el.className = `toast align-items-center text-bg-${type} border-0`; el.role = 'alert'; el.ariaLive = 'assertive'; el.ariaAtomic = 'true'; el.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`; container.appendChild(el); new bootstrap.Toast(el, { delay: 3000 }).show(); el.addEventListener('hidden.bs.toast', () => el.remove())
+                }
+                function currency(n) { try { return Number(n || 0).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }) } catch { return n } }
+                function fmt(date) { try { return new Date(date).toLocaleDateString('es-CO') } catch { return '—' } }
+
+                async function api(path, options = {}) {
+                    const res = await fetch(path, { credentials: 'include', headers: { 'Content-Type': 'application/json' }, ...options })
+                    const body = await res.json().catch(() => ({}))
+                    if (!res.ok) throw new Error(body?.message || 'Error')
+                    return body
+                }
+
+                // Ordenamiento y render
+                let sortApp = { key: 'fecha', dir: 'desc' };
+                let sortOff = { key: 'fecha', dir: 'desc' };
+
+                function sortBy(arr, keyFn, dir){
+                    const m = dir === 'asc' ? 1 : -1;
+                    return [...arr].sort((a,b)=>{
+                        const va = keyFn(a), vb = keyFn(b);
+                        if (typeof va === 'string' && typeof vb === 'string') return va.localeCompare(vb,'es',{sensitivity:'base'})*m;
+                        return ((va>vb)-(va<vb))*m;
+                    })
+                }
+
+                let _STATE = { myOffers: [], myApplys: [], offerById: new Map(), me: null, meData: null };
+
+                function renderTables(){
+                    const { myOffers, myApplys, offerById } = _STATE;
+                    // enriquecer y filtrar postulaciones por ofertas existentes
+                    const myApplysEnriched = myApplys
+                        .map(a=>({ ...a, _offer: offerById.get(String(a?.servicio?.idServicio||''))||null }))
+                        .filter(a=>!!a._offer)
+                        .map(a=>({ ...a, empleadorNombre: a._offer?.empleador?.nombre || '' }));
+
+                    const appSorted = sortBy(myApplysEnriched, x=>{
+                        switch (sortApp.key){
+                            case 'posicion': return (x.servicio?.nombreServicio||'');
+                            case 'empleador': return (x.empleadorNombre||'');
+                            case 'estado': return (x.estado||'');
+                            case 'fecha': default: return new Date(x.fechaPostulacion).getTime();
+                        }
+                    }, sortApp.dir);
+
+                    const tbodyApp = document.getElementById('tblApplymentsBody');
+                    tbodyApp.innerHTML = appSorted.map(a=>`<tr>
+                        <td>${a.servicio?.nombreServicio || ''}</td>
+                        <td>${a.empleadorNombre || '—'}</td>
+                        <td>${fmt(a.fechaPostulacion)}</td>
+                        <td><span class="badge ${a.estado === 'Aceptada' ? 'text-bg-success' : a.estado === 'Rechazada' ? 'text-bg-danger' : 'text-bg-primary'}">${a.estado || 'Pendiente'}</span></td>
+                    </tr>`).join('') || '<tr><td colspan="4" class="text-muted">Postúlate a una oferta</td></tr>'
+
+                    const offSorted = sortBy(myOffers, o=>{
+                        switch (sortOff.key){
+                            case 'titulo': return (o.nombreServicio||'');
+                            case 'categoria': return (o.categoria||'');
+                            case 'estado': return (o.visible ? 'Activa' : 'Oculta');
+                            case 'fecha': default: return new Date(o.fechaCreacion || o.createdAt).getTime();
+                        }
+                    }, sortOff.dir);
+                    const tbodyOff = document.getElementById('tblOffersBody')
+                    tbodyOff.innerHTML = offSorted.map(o => `<tr><td>${o.nombreServicio}</td><td>${o.categoria}</td><td>${fmt(o.fechaCreacion || o.createdAt)}</td><td>${o.visible ? '<span class="badge text-bg-success">Activa</span>' : '<span class="badge text-bg-secondary">Oculta</span>'}</td></tr>`).join('') || '<tr><td colspan="4" class="text-muted">Crea una oferta</td></tr>'
+                }
+
+                function toggleSort(model, key){
+                    if (model.key === key) model.dir = model.dir === 'asc' ? 'desc' : 'asc'; else { model.key = key; model.dir = key==='fecha' ? 'desc' : 'asc' }
+                }
+
+                // Cargar datos
+                (async function init(){
+                    const memberSince = document.getElementById('memberSince')
+                    const me = (CURRENT_USER && (CURRENT_USER._id || CURRENT_USER.sub)) || null
+                    _STATE.me = me;
+                    try{
+                        if (me){
+                            try{ const u = await api(`/api/usuarios/${me}`); _STATE.meData = u?.data || null; }catch{}
+                        }
+                        const [offersRes, applyRes] = await Promise.all([ api('/api/ofertas'), api('/api/postulaciones') ])
+                        const offersAll = Array.isArray(offersRes?.data) ? offersRes.data : [];
+                        if (_STATE.meData?.fechaRegistro && memberSince) memberSince.textContent = fmt(_STATE.meData.fechaRegistro);
+                        // Popular info inputs
+                        document.getElementById('infoNombres').value = _STATE.meData?.nombres || (CURRENT_USER?.nombres || '');
+                        document.getElementById('infoApellidos').value = _STATE.meData?.apellidos || (CURRENT_USER?.apellidos || '');
+                        document.getElementById('infoEmail').value = _STATE.meData?.email || (CURRENT_USER?.email || '');
+                        document.getElementById('infoTelefono').value = _STATE.meData?.telefono || (CURRENT_USER?.telefono || '');
+
+                        _STATE.offerById = new Map(offersAll.map(o => [String(o._id), o]));
+                        _STATE.myOffers = offersAll.filter(o => String(o?.empleador?.idUsuario || '') === String(me || ''))
+                        _STATE.myApplys = (applyRes?.data || []).filter(a => String(a?.empleado?.idUsuario || '') === String(me || ''))
+                        renderTables()
+                    }catch(e){ console.error(e) }
+                })();
+
+                // Click sort headers
+                document.addEventListener('click', (e)=>{
+                    const a = e.target.closest('[data-sort-app]');
+                    const o = e.target.closest('[data-sort-off]');
+                    if (a){ toggleSort(sortApp, a.dataset.sortApp); renderTables() }
+                    if (o){ toggleSort(sortOff, o.dataset.sortOff); renderTables() }
+                })
+
+                // Avatar: overlay + click + persist (localStorage) + broadcast
+                const avatarCircle = document.getElementById('avatarCircle');
+                const avatarOverlay = document.getElementById('avatarOverlay');
+                const avatarInput = document.getElementById('avatarInput');
+                const AVATAR_KEY = CURRENT_USER ? `avatar:${CURRENT_USER._id || CURRENT_USER.sub}` : null;
+                avatarCircle?.addEventListener('mouseenter', ()=>{ if (avatarOverlay) avatarOverlay.style.opacity = '1' })
+                avatarCircle?.addEventListener('mouseleave', ()=>{ if (avatarOverlay) avatarOverlay.style.opacity = '0' })
+                ;(function loadSaved(){ try { if (!AVATAR_KEY) return; const url = localStorage.getItem(AVATAR_KEY); if (url && avatarCircle) avatarCircle.style.backgroundImage = `url('${url}')`; } catch{} })()
+                avatarCircle?.addEventListener('click', ()=> avatarInput?.click())
+                avatarInput?.addEventListener('change', (e)=>{
+                    const file = e.target.files?.[0]; if (!file) return;
+                    const reader = new FileReader(); reader.onload = ()=>{
+                        const url = reader.result; if (avatarCircle) avatarCircle.style.backgroundImage = `url('${url}')`;
+                        try { if (AVATAR_KEY) localStorage.setItem(AVATAR_KEY, url) } catch{}
+                        document.dispatchEvent(new CustomEvent('avatar-updated', { detail: { url } }))
+                        showToast('Foto actualizada correctamente', 'success')
+                    }; reader.readAsDataURL(file);
+                })
+
+                // Editar perfil (habilitar campos + guardar/cancelar)
+                const btnEdit = document.getElementById('btnEditProfile');
+                const btnSave = document.getElementById('btnSaveProfile');
+                const btnCancel = document.getElementById('btnCancelEdit');
+                const fields = ['infoNombres','infoApellidos','infoEmail','infoTelefono'].map(id=>document.getElementById(id));
+                function setEditable(on){ fields.forEach(i=>{ if(i) i.disabled = !on }); btnSave.classList.toggle('d-none', !on); btnCancel.classList.toggle('d-none', !on); btnEdit.classList.toggle('d-none', on) }
+                btnEdit?.addEventListener('click', ()=>{ const infoTabBtn = document.getElementById('tab-info'); if (infoTabBtn && !infoTabBtn.classList.contains('active')) infoTabBtn.click(); setEditable(true) })
+                btnCancel?.addEventListener('click', ()=>{ setEditable(false); if (_STATE.meData){ document.getElementById('infoNombres').value = _STATE.meData.nombres||''; document.getElementById('infoApellidos').value = _STATE.meData.apellidos||''; document.getElementById('infoEmail').value = _STATE.meData.email||''; document.getElementById('infoTelefono').value = _STATE.meData.telefono||''; } })
+                btnSave?.addEventListener('click', async ()=>{
+                    try{
+                        const me = _STATE.me; if(!me) return;
+                        const payload = { nombres: fields[0].value, apellidos: fields[1].value, email: fields[2].value, telefono: fields[3].value }
+                        await api(`/api/usuarios/${me}`, { method:'PATCH', body: JSON.stringify(payload) })
+                        _STATE.meData = { ...(_STATE.meData||{}), ...payload }
+                        setEditable(false); showToast('Perfil actualizado', 'success')
+                    }catch(e){ showToast(e.message||'No se pudo actualizar', 'danger') }
+                })
+
+                // Eliminar cuenta (con confirmación)
+                document.getElementById('btnDeleteAccount')?.addEventListener('click', async () => {
+                    const ok = confirm('¿Seguro que deseas eliminar tu cuenta? Se borrarán tus ofertas y postulaciones. Si tienes contratos activos, la eliminación será rechazada.')
+                    if (!ok) return
+                    try {
+                        const me = (CURRENT_USER && (CURRENT_USER._id || CURRENT_USER.sub)) || null
+                        const r = await api(`/api/usuarios/${me}`, { method: 'DELETE' })
+                        showToast('Cuenta eliminada. Cerrando sesión…', 'success')
+                        setTimeout(() => { fetch('/logout', { method: 'POST' }).then(() => location.href = '/') }, 800)
+                    } catch (e) { showToast(e.message || 'No se pudo eliminar la cuenta', 'danger') }
+                })
+            </script>
+    </body>
+
+</html>
