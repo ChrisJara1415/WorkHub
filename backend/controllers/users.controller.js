@@ -1,4 +1,7 @@
 import user from '../models/users.model.js'
+import offers from '../models/offers.model.js'
+import applyments from '../models/applyments.model.js'
+import contracts from '../models/contracts.model.js'
 import { generateLog } from '../middlewares/log.js'
 
 export const createUser = async (req, res) => {
@@ -74,9 +77,31 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
     try {
-        const usuarioEliminado = await user.findByIdAndDelete(req.params.id);
+        const userId = req.params.id
+
+        // Bloquear si hay contratos activos
+        const activeContracts = await contracts.countDocuments({ $or: [{ 'empleado.idUsuario': userId }, { 'empleador.idUsuario': userId }], estado: 'Activo' })
+        if (activeContracts > 0){
+            return res.status(409).json({ success:false, message: 'No se puede eliminar la cuenta: existen contratos activos asociados.' })
+        }
+
+        // Recolectar ofertas del usuario para borrar postulaciones relacionadas
+        const hisOffers = await offers.find({ 'empleador.idUsuario': userId }, { _id:1 }).lean()
+        const offerIds = hisOffers.map(o=>o._id)
+
+        // 1) Eliminar postulaciones hechas por el usuario
+        const delApplymentsUser = await applyments.deleteMany({ 'empleado.idUsuario': userId })
+        // 2) Eliminar postulaciones hacia sus ofertas
+        const delApplyOnHisOffers = offerIds.length ? await applyments.deleteMany({ 'servicio.idServicio': { $in: offerIds } }) : { deletedCount: 0 }
+        // 3) Eliminar ofertas creadas por el usuario
+        const delOffers = await offers.deleteMany({ 'empleador.idUsuario': userId })
+        // 4) Eliminar contratos no activos donde participa el usuario (por coherencia)
+        const delContracts = await contracts.deleteMany({ $or: [{ 'empleado.idUsuario': userId }, { 'empleador.idUsuario': userId }], estado: { $ne: 'Activo' } })
+        // 5) Finalmente, eliminar usuario
+        const usuarioEliminado = await user.findByIdAndDelete(userId);
         if (!usuarioEliminado) return res.status(404).json({ message: 'Usuario no encontrado' });
-        res.status(200).json({ success: true, message: 'Usuario eliminado correctamente' });
+
+        res.status(200).json({ success: true, message: 'Usuario eliminado correctamente', cascade: { offers: delOffers?.deletedCount||0, applymentsUser: (delApplymentsUser?.deletedCount||0), applymentsOnHisOffers: (delApplyOnHisOffers?.deletedCount||0), contracts: delContracts?.deletedCount||0 } });
     } catch (error) {
         res.status(500).json({ message: `Error al eliminar usuario ${error.message}`});
     }
