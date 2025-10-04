@@ -337,7 +337,7 @@
             <div class="text-muted small">${data.municipio?.nombre||''} • $ ${Number(data.precioReferencia||0).toLocaleString('es-CO')} • Hasta: ${fechaLim}</div>
           </div>
           <div class="d-flex align-items-center gap-2 mb-3">
-            <div class="rounded-circle bg-secondary" style="width:40px;height:40px"></div>
+            <div class="user-avatar rounded-circle" data-user="${data.empleador?.idUsuario||''}" style="width:40px;height:40px;background-image:url('/img/profile-img/default.png');background-size:cover;background-position:center"></div>
             <div>
               <div class="fw-semibold">${data.empleador?.nombre||'Empleador'}</div>
               <div class="small text-muted">Publicado: ${data.fechaCreacion ? new Date(data.fechaCreacion).toLocaleDateString('es-CO') : ''}</div>
@@ -346,6 +346,7 @@
           <div class="mb-2"><strong>Descripción</strong><div>${data.descripcion||''}</div></div>
           <div class="mb-2"><strong>Requisitos</strong><div>${data.detalleRequerimiento||''}</div></div>
         `
+        try { if (window.hydrateCurrentUserAvatar) window.hydrateCurrentUserAvatar() } catch {}
       }catch(err){ showToast(err.message||'Error cargando detalles', 'danger') }
       return
     }
@@ -374,7 +375,7 @@
         const body = document.getElementById('applyDetailsBody')
         body.innerHTML = `
           <div class="d-flex align-items-center gap-2 mb-3">
-            <div class="rounded-circle bg-secondary" style="width:48px;height:48px"></div>
+            <div class="user-avatar rounded-circle" data-user="${item.empleado?.idUsuario||''}" style="width:48px;height:48px;background-image:url('/img/profile-img/default.png');background-size:cover;background-position:center"></div>
             <div>
               <div class="fw-semibold">${fullName||''}</div>
               <div class="small text-muted">${email}</div>
@@ -391,6 +392,7 @@
             ${item.estado && item.estado!=='Pendiente' ? `<div class="d-flex align-items-start gap-2"><span class="text-primary">•</span><div><div class="fw-semibold">Estado actualizado</div><div class="text-muted small">La postulación ha sido ${item.estado.toLowerCase()}.</div></div></div>`:''}
           </div>
         `
+        try { if (window.hydrateCurrentUserAvatar) window.hydrateCurrentUserAvatar() } catch {}
         document.getElementById('btnAcceptApply').dataset.id = id
         document.getElementById('btnRejectApply').dataset.id = id
         applyModal.show()
