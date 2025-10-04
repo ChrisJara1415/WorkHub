@@ -76,23 +76,47 @@
       await api(`/api/ofertas/${id}/view`, { method: 'POST' }).catch(() => {})
       body.innerHTML = `
         <h5 class="mb-1">${data.nombreServicio || 'Oferta'}</h5>
-        <div class="small text-muted mb-2">${data.categoria} • ${data.municipio?.nombre||''}</div>
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <div class="user-avatar rounded-circle" data-user="${data.empleador?.idUsuario||''}" style="width:36px;height:36px;background-image:url('/img/profile-img/default.png');background-size:cover;background-position:center"></div>
+          <div class="small text-muted">${data.categoria} • ${data.municipio?.nombre||''}</div>
+        </div>
         ${data.empleador?.nombre ? `<div class="small text-muted mb-2">Publicada por: ${data.empleador.nombre}</div>` : ''}
         <p>${data.descripcion||''}</p>
         <p class="mb-1"><strong>Precio:</strong> $ ${Number(data.precioReferencia||0).toLocaleString('es-CO')}</p>
         <p class="mb-1"><strong>Personas requeridas:</strong> ${data.personasRequeridas||1}</p>
         <p class="mb-1"><strong>Fecha límite:</strong> ${data.fechaLimite ? new Date(data.fechaLimite).toLocaleDateString('es-CO') : ''}</p>
       `
+      // Hidratar avatares si existe la función global del navbar
+      try { if (window.hydrateCurrentUserAvatar) window.hydrateCurrentUserAvatar() } catch {}
       const applyBtn = document.getElementById('applyBtn')
+      // Estado de botones según reglas
+      try{
+        const meEl = document.getElementById('PROFILE_USER') || document.getElementById('CURRENT_USER_DATA')
+        const me = meEl ? JSON.parse(meEl.textContent||'null') : null
+        const meId = me && (me._id || me.sub)
+        const esPropia = meId && String(data?.empleador?.idUsuario||'') === String(meId)
+        const list = await api('/api/postulaciones').catch(()=>({data:[]}))
+        const yaPost = Array.isArray(list?.data) && list.data.find(a => String(a?.empleado?.idUsuario||'')===String(meId||'') && String(a?.servicio?.idServicio||'')===String(data._id))
+        if (esPropia){
+          applyBtn.disabled = true; applyBtn.classList.remove('btn-warning'); applyBtn.classList.add('btn-secondary'); applyBtn.textContent = 'Tu oferta'
+        } else if (yaPost){
+          applyBtn.disabled = true; applyBtn.classList.remove('btn-warning'); applyBtn.classList.add('btn-secondary'); applyBtn.textContent = 'Postulado'
+          showToast('Te postulaste correctamente', 'success')
+        } else {
+          applyBtn.disabled = false; applyBtn.classList.add('btn-warning'); applyBtn.classList.remove('btn-secondary'); applyBtn.textContent = 'Postularme'
+        }
+      }catch{}
+
       applyBtn.onclick = async () => {
         try{
           const old = applyBtn.innerHTML; applyBtn.disabled = true; applyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Enviando'
           const payload = { servicio: { idServicio: data._id, nombreServicio: data.nombreServicio || '' }, estado:'Pendiente' }
-          const r = await api('/api/postulaciones', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
-          modal.hide()
+          await api('/api/postulaciones', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
           showToast('Postulación enviada', 'success')
-        }catch(err){ showToast('No se pudo postular', 'danger') }
-        finally{ applyBtn.disabled = false; applyBtn.innerHTML = old }
+          // Deshabilitar tras postular
+          applyBtn.disabled = true; applyBtn.classList.remove('btn-warning'); applyBtn.classList.add('btn-secondary'); applyBtn.textContent = 'Postulado'
+        }catch(err){ showToast(err.message || 'No se pudo postular', 'danger') }
+        finally{ if (applyBtn.textContent !== 'Postulado') { applyBtn.disabled = false; applyBtn.innerHTML = old } }
       }
     }catch(e){ console.error(e) }
   }
