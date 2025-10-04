@@ -93,7 +93,7 @@
                         </div>
                         <div class="modal-body" id="jobDetailsBody"></div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            <button type="button" id="closeDetailsBtn" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                             <button type="button" id="applyBtn" class="btn btn-warning">Postularme</button>
                         </div>
                     </div>
@@ -106,6 +106,16 @@
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"
                 crossorigin="anonymous"></script>
             <script>
+                // Usuario actual para reglas de UI (auto-postulación / ya postulada)
+                // Se inyecta como JSON seguro y se parsea para evitar errores de sintaxis
+                (function(){
+                    const el = document.createElement('script');
+                    el.id = 'CURRENT_USER_DATA';
+                    el.type = 'application/json';
+                    el.textContent = `<%- JSON.stringify(user || null) %>`;
+                    document.currentScript.before(el);
+                })();
+                window.CURRENT_USER = (()=>{ try { return JSON.parse(document.getElementById('CURRENT_USER_DATA')?.textContent||'null') } catch { return null } })();
                 const toast = (msg, type = 'success') => {
                     const container = document.getElementById('toastContainer');
                     const bg = type === 'success' ? 'text-bg-success' : 'text-bg-danger'
@@ -118,8 +128,9 @@
 
                 async function api(path, options = {}) {
                     const res = await fetch(`/api${path}`, { headers: { 'Content-Type': 'application/json' }, credentials: 'include', ...options });
-                    if (!res.ok) throw new Error((await res.json()).message || 'Error de red')
-                    return res.json();
+                    const body = await res.json().catch(()=>({}))
+                    if (!res.ok) throw new Error(body.message || 'Error de red')
+                    return body;
                 }
 
                 const CATEGORIES = [
@@ -244,11 +255,12 @@
                     if (listBtn) { e.preventDefault(); currentView = 'list'; listBtn.classList.add('active'); document.getElementById('gridViewBtn').classList.remove('active'); renderOffers(); }
                 });
 
-                document.addEventListener('click', (e) => {
+                document.addEventListener('click', async (e) => {
                     const btn = e.target.closest('button[data-offer]');
                     if (!btn) return;
                     e.preventDefault();
                     const offer = JSON.parse(decodeURIComponent(btn.getAttribute('data-offer')));
+                    const me = (window.CURRENT_USER && (window.CURRENT_USER._id || window.CURRENT_USER.sub)) || null;
                     document.getElementById('jobDetailsBody').innerHTML = `
                     <div class="mb-3">
                         <h4 class="mb-1">${offer.nombreServicio || offer.nombre || offer.titulo || '—'}</h4>
@@ -282,14 +294,39 @@
                     const modal = new bootstrap.Modal(document.getElementById('jobDetailsModal'));
                     modal.show();
                     const apply = document.getElementById('applyBtn');
+                    const closeBtn = document.getElementById('closeDetailsBtn');
+
+                    // Estado inicial de botones
+                    apply.disabled = false; apply.classList.remove('btn-secondary'); apply.classList.add('btn-warning'); apply.textContent = 'Postularme';
+
+                    // Determinar si es su propia oferta o ya se postuló
+                    let yaPostulado = false; let esPropia = false;
+                    try {
+                        esPropia = me && String(offer?.empleador?.idUsuario || '') === String(me);
+                        const resp = await api('/postulaciones');
+                        const arr = Array.isArray(resp?.data) ? resp.data : [];
+                        yaPostulado = !!arr.find(a => String(a?.empleado?.idUsuario||'')===String(me||'') && String(a?.servicio?.idServicio||'')===String(offer._id));
+                    } catch { /* sin bloqueo */ }
+
+                    if (esPropia) {
+                        // No permitir postularse a la propia oferta: solo botón deshabilitado
+                        apply.disabled = true; apply.classList.remove('btn-warning'); apply.classList.add('btn-secondary'); apply.textContent = 'Tu oferta';
+                    } else if (yaPostulado) {
+                        // Ya se postuló: mostrar toast y deshabilitar botón
+                        apply.disabled = true; apply.classList.remove('btn-warning'); apply.classList.add('btn-secondary'); apply.textContent = 'Postulado';
+                        toast('Te postulaste correctamente', 'success');
+                    }
+
                     apply.onclick = async () => {
                         try {
                             const payload = { servicio: { idServicio: offer._id, nombreServicio: offer.nombreServicio || '' }, estado: 'Pendiente' }
                             await api('/postulaciones', { method: 'POST', body: JSON.stringify(payload) })
-                            modal.hide();
                             toast('Postulación enviada')
+                            // Reflejar estado postulado
+                            apply.disabled = true; apply.classList.remove('btn-warning'); apply.classList.add('btn-secondary'); apply.textContent = 'Postulado';
                         } catch (err) {
-                            toast('No se pudo postular', 'danger')
+                            // Mostrar mensaje específico proveniente del backend
+                            toast(err.message || 'No se pudo postular', 'danger')
                         }
                     }
                 });
