@@ -1,8 +1,24 @@
 import applyments from '../models/applyments.model.js'
+import offers from '../models/offers.model.js'
 
 export const createApplyment = async (req, res) => {
     try {
         const {servicio, empleado, fechaPostulacion, estado} = req.body
+        if (!servicio?.idServicio || !empleado?.idUsuario){
+            return res.status(400).json({ success:false, message:'Datos incompletos para postulación' })
+        }
+
+        // Regla: el creador de la oferta no puede postularse
+        const offer = await offers.findById(servicio.idServicio).lean().catch(()=>null)
+        if (offer && String(offer.empleador?.idUsuario) === String(empleado.idUsuario)){
+            return res.status(400).json({ success:false, message:'No puedes postularte a tu propia oferta' })
+        }
+
+        // Regla: un usuario solo puede postularse una vez a la misma oferta
+        const exists = await applyments.exists({ 'servicio.idServicio': servicio.idServicio, 'empleado.idUsuario': empleado.idUsuario })
+        if (exists){
+            return res.status(409).json({ success:false, message:'Ya te postulaste a esta oferta' })
+        }
         const nuevaPostulacion = new applyments({servicio, empleado, fechaPostulacion, estado})
         await nuevaPostulacion.save()
 
