@@ -8,14 +8,12 @@ router.get('/registro', (req, res) => {
 	res.render('pages/register', { title: 'Registro | WorkHub', layout: false })
 });
 
-export default router
-
 // Middleware simple para requerir login
 function requireAuth(req, res, next) {
 	try {
 		const token = req.cookies?.auth
 		if (!token) return res.status(302).redirect('/')
-		const payload = jwt.verify(token, process.env.JWT_SECRET)
+			const payload = jwt.verify(token, process.env.JWT_SECRET)
 		req.user = payload
 		// Evitar volver con botón atrás después de logout
 		res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
@@ -30,10 +28,17 @@ function requireAuth(req, res, next) {
 // Vistas protegidas por autenticación
 router.get('/empleado', requireAuth, (req, res) => {
 	if (req.user?.rol === 'admin') return res.redirect('/admin')
-	res.render('pages/employee/dashboard', { title: 'Panel de Empleado', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
+		res.render('pages/employee/dashboard', { title: 'Panel de Empleado', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
 })
 
 router.get('/empleador', requireAuth, (req, res) => {
 	if (req.user?.rol === 'admin') return res.redirect('/admin')
-	res.render('pages/employer/dashboard', { title: 'Panel de Empleador', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
+		res.render('pages/employer/dashboard', { title: 'Panel de Empleador', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
 })
+
+// Perfil de usuario (protegido)
+router.get('/perfil', requireAuth, (req, res) => {
+	res.render('pages/employee/profile', { title: 'Mi Perfil', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
+})
+
+export default router
