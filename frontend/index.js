@@ -275,6 +275,33 @@ app.get('/api/usuarios/:id', requireLogin, async (req, res) => {
   }
 })
 
+// Actualizar usuario por id (perfil)
+app.patch('/api/usuarios/:id', requireLogin, async (req, res) => {
+  try {
+    // Corregir reemplazo de sufijo /workhubApi para componer BACK_ORIGIN correctamente
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/clientes/${req.params.id}`
+    const resp = await fetch(url, { method:'PATCH', headers: { 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body) })
+    const data = await resp.json().catch(()=>({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error actualizando usuario', error:e.message })
+  }
+})
+
+// Eliminar usuario por id (perfil)
+app.delete('/api/usuarios/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/clientes/${req.params.id}`
+    const resp = await fetch(url, { method:'DELETE', headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(()=>({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error eliminando usuario', error:e.message })
+  }
+})
+
 // Logout: limpiar cookie y redirigir a landing
 app.post('/logout', (req, res) => {
   res.clearCookie('auth', { httpOnly: true, secure: false, sameSite: 'lax' })
