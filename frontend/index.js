@@ -123,6 +123,34 @@ app.post('/login', async (req, res) => {
   }
 })
 
+// Proxy: solicitar recuperación de contraseña
+app.post('/auth/password/forgot', async (req,res)=>{
+  try{
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const resp = await fetch(`${BACK_ORIGIN}/auth/password/forgot`, {
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body)
+    })
+    const data = await resp.json().catch(()=>({}))
+    return res.status(resp.status).json(data)
+  }catch(e){
+    return res.status(500).json({ success:false, message:'Error solicitando recuperación', error:e.message })
+  }
+})
+
+// Proxy: realizar cambio de contraseña (cuando el usuario ya tenga token)
+app.post('/auth/password/reset', async (req,res)=>{
+  try{
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const resp = await fetch(`${BACK_ORIGIN}/auth/password/reset`, {
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-api-key':'api-key-mas-segura-del-mundo' }, body: JSON.stringify(req.body)
+    })
+    const data = await resp.json().catch(()=>({}))
+    return res.status(resp.status).json(data)
+  }catch(e){
+    return res.status(500).json({ success:false, message:'Error restableciendo contraseña', error:e.message })
+  }
+})
+
 // Guard simple para API (requiere cookie JWT)
 function requireLogin(req, res, next) {
   try {

@@ -45,7 +45,7 @@
         <input id="rememberMe" type="checkbox">
         <label for="rememberMe">Recuérdame</label>
       </div>
-      <a class="text-decoration-none" href="#"><span class="span">Olvidaste tu contraseña?</span></a>
+      <button type="button" id="forgotPasswordLink" class="btn btn-link p-0 m-0 text-decoration-none" style="font-size:0.85em;">Olvidaste tu contraseña?</button>
     </div>
 
     <button type="submit" id="btn-log-in" class="button-submit">Iniciar Sesión</button>
@@ -93,6 +93,36 @@
       </button>
     </div>
   </form>
+  </dialog>
+
+  <!-- Forgot Password Modal -->
+  <dialog id="modalForgotPassword" closedby="any">
+    <form class="form" id="forgotPasswordForm" onsubmit="return false;">
+      <button type="button"
+        onclick="(function(e){e.preventDefault();document.getElementById('modalForgotPassword')?.close();document.getElementById('modalLogin')?.showModal();})(event)"
+        class="close">✖</button>
+      <h3 style="margin-top:0;">Recuperar contraseña</h3>
+      <p style="font-size:0.85em; line-height:1.3; margin-top:0;">Ingresa el correo asociado a tu cuenta y te enviaremos un enlace para restablecer tu contraseña.</p>
+      <div class="flex-column">
+        <label for="forgotEmail">Email</label>
+      </div>
+      <div class="inputForm">
+        <svg height="20" viewBox="0 0 32 32" width="20" xmlns="http://www.w3.org/2000/svg">
+          <g id="Layer_3" data-name="Layer 3">
+            <path
+              d="m30.853 13.87a15 15 0 0 0 -29.729 4.082 15.1 15.1 0 0 0 12.876 12.918 15.6 15.6 0 0 0 2.016.13 14.85 14.85 0 0 0 7.715-2.145 1 1 0 1 0 -1.031-1.711 13.007 13.007 0 1 1 5.458-6.529 2.149 2.149 0 0 1 -4.158-.759v-10.856a1 1 0 0 0 -2 0v1.726a8 8 0 1 0 .2 10.325 4.135 4.135 0 0 0 7.83.274 15.2 15.2 0 0 0 .823-7.455zm-14.853 8.13a6 6 0 1 1 6-6 6.006 6.006 0 0 1 -6 6z">
+            </path>
+          </g>
+        </svg>
+        <input id="forgotEmail" type="email" class="input" placeholder="Ingresa tu correo">
+      </div>
+      <div id="forgotError" style="color:#dc3545; font-size:0.85em; margin-top:0.35em; display:none;"></div>
+      <div id="forgotSuccess" style="color:#198754; font-size:0.85em; margin-top:0.35em; display:none;"></div>
+      <button type="submit" id="btn-forgot-submit" class="button-submit" style="margin-top:1em;">Enviar enlace</button>
+      <button type="button" id="forgotBackToLogin" class="btn btn-link p-0 mt-2" style="display:none; font-size:0.85em;">Volver a iniciar sesión</button>
+    </form>
+  </dialog>
+
 </dialog>
 <script>
   // Modal login AJAX logic
@@ -142,5 +172,78 @@
         errorDiv.style.display = 'block';
       }
     });
+
+    // Forgot password link logic
+    const forgotLink = document.getElementById('forgotPasswordLink');
+    const forgotDialog = document.getElementById('modalForgotPassword');
+    if (forgotLink && forgotDialog) {
+      forgotLink.addEventListener('click', () => {
+        document.getElementById('modalLogin')?.close();
+        forgotDialog.showModal();
+        setTimeout(() => document.getElementById('forgotEmail')?.focus(), 50);
+      });
+    }
+
+    // Forgot password form behavior
+    const forgotForm = document.getElementById('forgotPasswordForm');
+    if (forgotForm) {
+      const emailInput = document.getElementById('forgotEmail');
+      const errorBox = document.getElementById('forgotError');
+      const successBox = document.getElementById('forgotSuccess');
+      const submitBtn = document.getElementById('btn-forgot-submit');
+      const backBtn = document.getElementById('forgotBackToLogin');
+
+      backBtn?.addEventListener('click', () => {
+        forgotDialog?.close();
+        document.getElementById('modalLogin')?.showModal();
+      });
+
+      const validateEmailFormat = (val) => /[^@\s]+@[^@\s]+\.[^@\s]+/.test(val);
+
+      forgotForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+        successBox.style.display = 'none';
+        successBox.textContent = '';
+        emailInput.classList.remove('is-invalid');
+        if (!email || !validateEmailFormat(email)) {
+          emailInput.classList.add('is-invalid');
+          errorBox.textContent = 'Ingresa un email válido';
+          errorBox.style.display = 'block';
+          return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Enviando...';
+        try {
+          const resp = await fetch('/auth/password/forgot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok) {
+            emailInput.classList.add('is-invalid');
+            errorBox.textContent = (data && data.message) || 'No pudimos procesar tu solicitud';
+            errorBox.style.display = 'block';
+          } else {
+            successBox.textContent = 'Si el correo existe, enviamos un enlace para restablecer tu contraseña.';
+            successBox.style.display = 'block';
+            submitBtn.style.display = 'none';
+            backBtn.style.display = 'inline-block';
+          }
+        } catch (err) {
+          emailInput.classList.add('is-invalid');
+          errorBox.textContent = 'Error de red o del servidor';
+          errorBox.style.display = 'block';
+        } finally {
+          if (submitBtn.style.display !== 'none') {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Enviar enlace';
+          }
+        }
+      });
+    }
   });
 </script>

@@ -2,6 +2,7 @@ import express from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import userModel from '../models/users.model.js'
+import { requestPasswordReset, performPasswordReset } from '../controllers/passwordReset.controller.js'
 
 const router = express.Router()
 
@@ -74,6 +75,10 @@ router.post('/login', async (req,res)=>{
         res.status(500).json({ success:false, message:'Error al iniciar sesión', error:e.message })
     }
 })
+
+// Password reset
+router.post('/password/forgot', requestPasswordReset)
+router.post('/password/reset', performPasswordReset)
 
 // Seed admin (solo en desarrollo y con flag ENABLE_ADMIN_SEED=true)
 router.post('/seed-admin', async (req,res)=>{
