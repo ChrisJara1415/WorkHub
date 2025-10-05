@@ -1,8 +1,9 @@
 <div align="center">
 	<img src="frontend/static/img/logo/logotipoWK.svg" alt="WorkHub" height="90"/>
   
-	# WorkHub
+	WorkHub
 	Plataforma de gestión de ofertas laborales temporales que conecta empleadores con empleados
+</div>
 
 ---
 
@@ -43,14 +44,14 @@ Principales principios aplicados:
 ```
 WorkHub/
 ├── backend/
-│   ├── index.js                # Bootstrap API + cron backup + routers
+│   ├── index.js                
 │   ├── config/
 │   │   ├── db.js               # Conexión MongoDB Atlas
-│   │   ├── mailer.js           # Nodemailer transporter + helper
-│   │   └── backup.js           # Tarea mongodump (cron)
-│   ├── controllers/            # Lógica de negocio (users, offers, ...)
+│   │   ├── mailer.js           # Nodemailer transporter
+│   │   └── backup.js           # Tarea mongodump
+│   ├── controllers/            # Lógica de negocio
 │   ├── models/                 # Esquemas Mongoose
-│   ├── routers/                # Rutas agrupadas (/workhubApi, /auth)
+│   ├── routers/                # Rutas agrupadas
 │   ├── middlewares/            # API key, logging
 │   └── logs/                   # Archivos de log
 ├── frontend/
@@ -233,6 +234,3 @@ PATCH/DELETE /workhubApi/ofertas/:id (x-api-key)
 Proyecto educativo / interno. Ajusta a la licencia que prefieras (MIT sugerida).
 
 ---
-¿Dudas o mejoras? Abre un issue o PR. 💡
-
-
