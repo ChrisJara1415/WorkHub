@@ -123,6 +123,21 @@ app.post('/login', async (req, res) => {
   }
 })
 
+// Proxy: obtener CAPTCHA
+app.get('/auth/captcha', async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/workhubApi\/?$/, '')
+    const resp = await fetch(`${BACK_ORIGIN}/auth/captcha`, {
+      method: 'GET',
+      headers: { 'x-api-key':'api-key-mas-segura-del-mundo' }
+    })
+    const data = await resp.json()
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error obteniendo CAPTCHA', error:e.message })
+  }
+})
+
 // Proxy: solicitar recuperación de contraseña
 app.post('/auth/password/forgot', async (req,res)=>{
   try{
