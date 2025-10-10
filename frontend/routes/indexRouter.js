@@ -41,4 +41,13 @@ router.get('/perfil', requireAuth, (req, res) => {
 	res.render('pages/employee/profile', { title: 'Mi Perfil', layout: false, user: res.locals.user, role: res.locals.role, isAuthenticated: !!res.locals.user })
 })
 
+// Restablecer contraseña (pública)
+router.get('/restablecer', (req, res) => {
+	const { token } = req.query;
+	if (!token) {
+		return res.status(400).render('pages/errors/400', { title: 'Error 400', layout: false, message: 'Token faltante' });
+	}
+	res.render('pages/resetPassword', { title: 'Restablecer contraseña', layout: false });
+});
+
 export default router
