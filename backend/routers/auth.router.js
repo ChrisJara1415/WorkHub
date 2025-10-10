@@ -1,10 +1,15 @@
 import express from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import crypto from 'crypto'
+import svgCaptcha from 'svg-captcha'
 import userModel from '../models/users.model.js'
 import { requestPasswordReset, performPasswordReset } from '../controllers/passwordReset.controller.js'
 
 const router = express.Router()
+
+// Store for CAPTCHA texts (in production, use Redis or similar)
+const captchaStore = new Map()
 
 // POST /auth/check?field=email&value=...
 router.get('/check', async (req, res) => {
@@ -17,6 +22,14 @@ router.get('/check', async (req, res) => {
     } catch (e) {
         res.status(500).json({ success: false, message: 'Error verificando disponibilidad', error: e.message })
     }
+})
+
+// GET /auth/captcha
+router.get('/captcha', (req, res) => {
+    const captcha = svgCaptcha.create({ size: 6, ignoreChars: '0o1iIl' })
+    const id = crypto.randomUUID()
+    captchaStore.set(id, captcha.text)
+    res.json({ svg: captcha.data, id })
 })
 
 // POST /auth/register
@@ -62,13 +75,21 @@ router.post('/register', async (req, res) => {
 // Admin login
 router.post('/login', async (req,res)=>{
     try{
-        const { email, password } = req.body
-        if(!email || !password) return res.status(400).json({ success:false, message:'Credenciales requeridas' })
-            const user = await userModel.findOne({ email })
+        const { email, password, captchaId, captchaText } = req.body
+        if(!email || !password || !captchaId || !captchaText) return res.status(400).json({ success:false, message:'Credenciales y CAPTCHA requeridos' })
+        
+        // Verify CAPTCHA
+        const storedText = captchaStore.get(captchaId)
+        if (!storedText || storedText !== captchaText) {
+            return res.status(400).json({ success: false, message: 'CAPTCHA inválido' })
+        }
+        captchaStore.delete(captchaId) // One-time use
+        
+        const user = await userModel.findOne({ email })
         if(!user) return res.status(401).json({ success:false, message:'Correo no registrado' })
-            const ok = await bcrypt.compare(password, user.passwordHash)
+        const ok = await bcrypt.compare(password, user.passwordHash)
         if(!ok) return res.status(401).json({ success:false, message:'Correo o contraseña inválido' })
-            const payload = { sub: user._id, rol: user.rol }
+        const payload = { sub: user._id, rol: user.rol }
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' })
         res.json({ success:true, token, rol:user.rol })
     }catch(e){
