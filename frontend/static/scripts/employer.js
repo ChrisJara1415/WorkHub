@@ -68,7 +68,7 @@
         <td>${r.empleado?.nombre||'—'}</td>
         <td>${r.servicio?.nombreServicio||'—'}</td>
         <td>${fecha}</td>
-  <td><span class="badge ${r.estado==='Aceptada'?'text-bg-success':r.estado==='Rechazada'?'text-bg-danger':'text-bg-primary'}">${r.estado||'Pendiente'}</span></td>
+  <td><span class="badge ${r.estado==='Aceptada'?'text-bg-success':r.estado==='Rechazada'?'text-bg-danger':r.estado==='Cancelada'?'text-bg-secondary':'text-bg-primary'}">${r.estado||'Pendiente'}</span></td>
         <td><button class="btn btn-sm btn-outline-primary" data-viewapp="${r._id}">Ver detalles</button></td>
       </tr>`
     }).join('')
