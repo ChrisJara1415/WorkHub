@@ -1,5 +1,7 @@
 import applyments from '../models/applyments.model.js'
 import offers from '../models/offers.model.js'
+import users from '../models/users.model.js'
+import { sendMail } from '../config/mailer.js'
 
 export const createApplyment = async (req, res) => {
     try {
@@ -59,10 +61,15 @@ export const searchApplyments = async (req, res) => {
         const limit = Number.parseInt(req.query.limit) > 0 ? Number.parseInt(req.query.limit) : 10
         const skip = (page - 1) * limit
 
-        // Filtrar por userId
+        // Filtrar por userId o employerId
         const filter = {}
         if (req.query.userId) {
             filter['empleado.idUsuario'] = req.query.userId
+        }
+        if (req.query.employerId) {
+            const employerOffers = await offers.find({ 'empleador.idUsuario': req.query.employerId }).select('_id').lean()
+            const offerIds = employerOffers.map(o => o._id)
+            filter['servicio.idServicio'] = { $in: offerIds }
         }
 
         const total = await applyments.countDocuments(filter)
@@ -102,6 +109,26 @@ export const updateApplyment = async (req, res) => {
         }
         const postulacionActualizada = await applyments.findByIdAndUpdate(req.params.id, payload, {new: true})
         if (!postulacionActualizada) return res.status(404).json({message: 'No se ha encontrado la postulación'})
+
+        // Enviar notificación por correo si el estado cambió a Aceptada o Rechazada
+        if (payload.estado === 'Aceptada' || payload.estado === 'Rechazada') {
+            const user = await users.findById(postulacionActualizada.empleado.idUsuario).lean()
+            if (user && user.email) {
+                const subject = payload.estado === 'Aceptada' ? '¡Felicidades! Has sido aceptado en una oferta' : 'Actualización sobre tu postulación'
+                const html = `
+                    <p>Hola ${user.nombres},</p>
+                    <p>Tu postulación a la oferta "${postulacionActualizada.servicio.nombreServicio}" ha sido ${payload.estado.toLowerCase()}.</p>
+                    ${payload.estado === 'Aceptada' ? '<p>El empleador se pondrá en contacto contigo pronto.</p>' : '<p>Lamentamos informarte que no has sido seleccionado para esta oferta.</p>'}
+                    <p>Gracias por usar WorkHub.</p>
+                `
+                try {
+                    await sendMail({ to: user.email, subject, html })
+                } catch (mailError) {
+                    console.error('Error enviando correo:', mailError)
+                }
+            }
+        }
+
         res.status(200).json({ success: true, data: postulacionActualizada })
     } catch (error) {
         res.status(500).json({ success:false, message: `No se ha encontrado ninguna postulación ${error.message}`})
