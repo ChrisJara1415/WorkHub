@@ -14,12 +14,35 @@ export const createApplyment = async (req, res) => {
             return res.status(400).json({ success:false, message:'No puedes postularte a tu propia oferta' })
         }
 
-        // Regla: un usuario solo puede postularse una vez a la misma oferta
-        const exists = await applyments.exists({ 'servicio.idServicio': servicio.idServicio, 'empleado.idUsuario': empleado.idUsuario })
-        if (exists){
-            return res.status(409).json({ success:false, message:'Ya te postulaste a esta oferta' })
+        // Regla: un usuario solo puede tener una postulación activa a la misma oferta
+        const existingActive = await applyments.findOne({
+            'servicio.idServicio': servicio.idServicio,
+            'empleado.idUsuario': empleado.idUsuario,
+            estado: { $nin: ['Cancelada', 'Rechazada'] }
+        })
+        if (existingActive){
+            return res.status(409).json({ success:false, message:'Ya tienes una postulación activa para esta oferta' })
         }
-        const nuevaPostulacion = new applyments({servicio, empleado, fechaPostulacion, estado})
+        const estadoNormalizado = ['Aceptada','Pendiente','Rechazada','Cancelada'].includes(estado) ? estado : 'Pendiente'
+        const nombreServicio = servicio?.nombreServicio || offer?.nombreServicio
+        if (!nombreServicio){
+            return res.status(400).json({ success:false, message:'La oferta no está disponible para postulación' })
+        }
+        const nombreEmpleado = (empleado?.nombre || '').trim()
+        const payload = {
+            servicio: {
+                idServicio: servicio.idServicio,
+                nombreServicio
+            },
+            empleado: {
+                idUsuario: empleado.idUsuario,
+                nombre: nombreEmpleado || 'Usuario'
+            },
+            fechaPostulacion: fechaPostulacion || new Date(),
+            estado: estadoNormalizado
+        }
+
+        const nuevaPostulacion = new applyments(payload)
         await nuevaPostulacion.save()
 
         // Respuesta estándar con indicador de éxito
@@ -36,8 +59,14 @@ export const searchApplyments = async (req, res) => {
         const limit = Number.parseInt(req.query.limit) > 0 ? Number.parseInt(req.query.limit) : 10
         const skip = (page - 1) * limit
 
-        const total = await applyments.countDocuments()
-        const postulacionesEncontradas = await applyments.find().skip(skip).limit(limit)
+        // Filtrar por userId
+        const filter = {}
+        if (req.query.userId) {
+            filter['empleado.idUsuario'] = req.query.userId
+        }
+
+        const total = await applyments.countDocuments(filter)
+        const postulacionesEncontradas = await applyments.find(filter).skip(skip).limit(limit)
 
         res.status(200).json({
             success: true,
@@ -68,7 +97,7 @@ export const updateApplyment = async (req, res) => {
     try {
         const payload = { ...req.body }
         // Validación simple de estado opcional
-        if (payload.estado && !['Aceptada','Pendiente','Rechazada'].includes(payload.estado)){
+        if (payload.estado && !['Aceptada','Pendiente','Rechazada','Cancelada'].includes(payload.estado)){
             return res.status(400).json({ success:false, message:'Estado inválido' })
         }
         const postulacionActualizada = await applyments.findByIdAndUpdate(req.params.id, payload, {new: true})

@@ -40,7 +40,7 @@ const applymentSchema = new Schema({
     estado: {
         type: String,
         required: true,
-        enum: ['Aceptada', 'Pendiente', 'Rechazada']
+        enum: ['Aceptada', 'Pendiente', 'Rechazada', 'Cancelada']
     }
 }, {
     versionKey: false
