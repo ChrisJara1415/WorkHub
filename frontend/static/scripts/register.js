@@ -126,9 +126,13 @@ form.addEventListener('submit', async e => {
             password: inputs.password.value,
             rol: inputs.rol.value
         }
-    await apiJson('/auth/register', { method: 'POST', body: JSON.stringify(payload) })
-    // Redirige a landing con flag para mostrar toast
-    window.location.href = '/?registered=1'
+    const response = await apiJson('/auth/register', { method: 'POST', body: JSON.stringify(payload) })
+    // Redirige automáticamente según el rol después del registro exitoso
+    if (response.data && response.data.rol === 'empleador') {
+        window.location.href = '/empleador'
+    } else {
+        window.location.href = '/empleado'
+    }
     } catch (err) {
         const details = err.details || {}
         Object.entries(details).forEach(([field, msg]) => {

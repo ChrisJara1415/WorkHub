@@ -95,11 +95,11 @@ export const createOffer = async (req, res) => {
 export const searchOffers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1
-        const limit = parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 10
-        const skip = (page - 1) * limit
+        const limit = req.query.limit === '0' ? 0 : (parseInt(req.query.limit) > 0 ? parseInt(req.query.limit) : 10)
+        const skip = limit === 0 ? 0 : (page - 1) * limit
 
         const total = await offers.countDocuments()
-        const ofertasEncontradas = await offers.find().skip(skip).limit(limit)
+        const ofertasEncontradas = limit === 0 ? await offers.find() : await offers.find().skip(skip).limit(limit)
 
         res.status(200).json({
             success: true,
@@ -107,8 +107,8 @@ export const searchOffers = async (req, res) => {
             total,
             pagination: {
                 currentPage: page,
-                totalPages: Math.ceil(total / limit),
-                pageSize: limit,
+                totalPages: limit === 0 ? 1 : Math.ceil(total / limit),
+                pageSize: limit === 0 ? total : limit,
             },
         })
     } catch (error) {

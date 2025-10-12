@@ -95,13 +95,12 @@
         const me = meEl ? JSON.parse(meEl.textContent||'null') : null
         const meId = me && (me._id || me.sub)
         const esPropia = meId && String(data?.empleador?.idUsuario||'') === String(meId)
-        const list = await api('/api/postulaciones').catch(()=>({data:[]}))
-        const yaPost = Array.isArray(list?.data) && list.data.find(a => String(a?.empleado?.idUsuario||'')===String(meId||'') && String(a?.servicio?.idServicio||'')===String(data._id))
-        if (esPropia){
+  const list = await api('/api/postulaciones').catch(()=>({data:[]}))
+  const yaPost = Array.isArray(list?.data) && list.data.find(a => String(a?.empleado?.idUsuario||'')===String(meId||'') && String(a?.servicio?.idServicio||'')===String(data._id) && (a.estado === 'Pendiente' || a.estado === 'Aceptada'))
+  if (esPropia){
           applyBtn.disabled = true; applyBtn.classList.remove('btn-warning'); applyBtn.classList.add('btn-secondary'); applyBtn.textContent = 'Tu oferta'
-        } else if (yaPost){
+  } else if (yaPost){
           applyBtn.disabled = true; applyBtn.classList.remove('btn-warning'); applyBtn.classList.add('btn-secondary'); applyBtn.textContent = 'Postulado'
-          showToast('Te postulaste correctamente', 'success')
         } else {
           applyBtn.disabled = false; applyBtn.classList.add('btn-warning'); applyBtn.classList.remove('btn-secondary'); applyBtn.textContent = 'Postularme'
         }
