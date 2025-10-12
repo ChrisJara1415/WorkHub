@@ -74,6 +74,27 @@
     }).join('')
   }
 
+  async function openApplyDetails(id){
+    try {
+      const res = await api('/api/postulaciones/' + id)
+      if (!res.success) throw new Error('No se pudo cargar la postulación')
+      const app = res.data
+      const body = document.getElementById('applyDetailsBody')
+      body.innerHTML = `
+        <p><strong>Candidato:</strong> ${app.empleado.nombre}</p>
+        <p><strong>Oferta:</strong> ${app.servicio.nombreServicio}</p>
+        <p><strong>Fecha de postulación:</strong> ${new Date(app.fechaPostulacion).toLocaleString()}</p>
+        <p><strong>Estado:</strong> ${app.estado}</p>
+      `
+      const btnAccept = document.getElementById('btnAcceptApply')
+      const btnReject = document.getElementById('btnRejectApply')
+      btnAccept.dataset.id = id
+      btnReject.dataset.id = id
+      const modal = new bootstrap.Modal(document.getElementById('applyDetailsModal'))
+      modal.show()
+    } catch(e){ showToast(e.message||'Error al cargar detalles', 'danger') }
+  }
+
   function setMetrics({ offers, applyments }){
   const currentId = String(CURRENT_USER?.sub || CURRENT_USER?._id || CURRENT_USER?.id || '')
   const myOffers = offers.filter(o=> String(o.empleador?.idUsuario||'') === currentId)
@@ -101,10 +122,12 @@
     try {
       const [offersRes, applyRes] = await Promise.all([
         api('/api/ofertas'),
-        api('/api/postulaciones')
+        api('/api/postulaciones?employerId=' + CURRENT_USER._id)
       ])
       const offers = Array.isArray(offersRes?.data) ? offersRes.data : []
       const applyments = Array.isArray(applyRes?.data) ? applyRes.data : []
+      renderMyOffers(offers)
+      renderRecentApplyments(applyments)
       setMetrics({ offers, applyments })
     } catch(e){ console.error(e) }
   }
@@ -430,4 +453,14 @@
     document.body.classList.remove('modal-open')
     document.body.style.removeProperty('padding-right')
   })
+
+  // Event listener para ver detalles de postulación
+  document.addEventListener('click', e => {
+    if (e.target.matches('[data-viewapp]')) {
+      const id = e.target.dataset.viewapp
+      openApplyDetails(id)
+    }
+  })
+
+  loadAll()
 })()

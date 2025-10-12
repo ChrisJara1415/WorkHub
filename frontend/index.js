@@ -198,15 +198,33 @@ app.get('/api/postulaciones', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
     const url = new URL(`${BACK_ORIGIN}/workhubApi/postulaciones`);
-    // Si no es admin, filtrar por su userId para ver solo sus postulaciones
-    if (req.user?.rol !== 'admin') {
+    // Si es empleador, traer postulaciones de sus ofertas
+    if (req.user?.rol === 'empleador') {
+      url.searchParams.set('employerId', req.user.sub);
+    }
+    // Si es empleado, traer solo sus postulaciones
+    else if (req.user?.rol === 'empleado') {
       url.searchParams.set('userId', req.user.sub);
     }
+    // Si es admin, sin filtros (ver todo)
     const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
   } catch (e) {
     return res.status(500).json({ success:false, message:'Error obteniendo postulaciones', error: e.message })
+  }
+})
+
+// Obtener una postulación por ID
+app.get('/api/postulaciones/:id', requireLogin, async (req, res) => {
+  try {
+    const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
+    const url = `${BACK_ORIGIN}/workhubApi/postulaciones/${req.params.id}`
+    const resp = await fetch(url, { headers: { 'x-api-key': 'api-key-mas-segura-del-mundo' } })
+    const data = await resp.json().catch(() => ({}))
+    return res.status(resp.status).json(data)
+  } catch (e) {
+    return res.status(500).json({ success:false, message:'Error obteniendo postulación', error: e.message })
   }
 })
 
