@@ -58,7 +58,11 @@ router.post('/register', async (req, res) => {
     // Crear sólo con campos requeridos; el resto tiene defaults opcionales
     const nuevo = await userModel.create({ nombres, apellidos, email, telefono, passwordHash, rol })
 
-        res.status(201).json({ success: true, message: 'Registro exitoso', data: { id: nuevo._id, nombres: nuevo.nombres, rol: nuevo.rol } })
+    // Generar token JWT para iniciar sesión automáticamente
+    const payload = { sub: nuevo._id, rol: nuevo.rol }
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' })
+
+    res.status(201).json({ success: true, message: 'Registro exitoso', data: { id: nuevo._id, nombres: nuevo.nombres, rol: nuevo.rol }, token })
     } catch (e) {
         if (e?.code === 11000) {
             const field = Object.keys(e.keyPattern || {})[0] || 'campo'
