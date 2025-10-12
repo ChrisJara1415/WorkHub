@@ -184,7 +184,7 @@ function requireLogin(req, res, next) {
 app.get('/api/ofertas', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
-    const url = `${BACK_ORIGIN}/workhubApi/ofertas`;
+    const url = `${BACK_ORIGIN}/workhubApi/ofertas?limit=0`;
     const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
@@ -197,7 +197,11 @@ app.get('/api/ofertas', requireLogin, async (req, res) => {
 app.get('/api/postulaciones', requireLogin, async (req, res) => {
   try {
     const BACK_ORIGIN = String(process.env.BACK_URL || '').replace(/\/+workhubApi\/?$/, '')
-    const url = `${BACK_ORIGIN}/workhubApi/postulaciones`;
+    const url = new URL(`${BACK_ORIGIN}/workhubApi/postulaciones`);
+    // Si no es admin, filtrar por su userId para ver solo sus postulaciones
+    if (req.user?.rol !== 'admin') {
+      url.searchParams.set('userId', req.user.sub);
+    }
     const resp = await fetch(url, { headers: { 'x-api-key':'api-key-mas-segura-del-mundo' } })
     const data = await resp.json().catch(() => ({}))
     return res.status(resp.status).json(data)
@@ -364,6 +368,11 @@ app.post('/auth/register', async (req, res) => {
       body: JSON.stringify(req.body)
     })
     const data = await resp.json().catch(() => ({}))
+    if (resp.ok && data.token) {
+      // Guardar cookie con el token para iniciar sesión automáticamente
+      const cookieOptions = { httpOnly: true, secure: false, sameSite: 'lax', maxAge: 2 * 60 * 60 * 1000 } // 2 horas
+      res.cookie('auth', data.token, cookieOptions)
+    }
     return res.status(resp.status).json(data)
   } catch (e) {
     return res.status(500).json({ success:false, message:'Error en registro', error: e.message })
